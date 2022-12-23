@@ -8,4 +8,4 @@ The purpose of a test report is to communicate the results of a testing effort t
 
 # Scope
 
-This test report covers tests implemented and executed in the [Aerie](https://github.com/NASA-AMMOS/aerie) and [Aerie UI](https://github.com/NASA-AMMOS/aerie-ui) repositories. Within both both repositories we execute both unit tests and end-to-end tests.
+This test report covers tests implemented and executed in the [Aerie](https://github.com/NASA-AMMOS/aerie) and [Aerie UI](https://github.com/NASA-AMMOS/aerie-ui) repositories. Within both repositories we execute unit tests and end-to-end tests.
