@@ -63,7 +63,7 @@ const config = {
           },
         ],
         logo: {
-          alt: 'Aerie',
+          alt: 'Aerie Documentation',
           src: 'img/aerie-wordmark-light.svg',
           srcDark: 'img/aerie-wordmark-dark.svg',
           width: 130,
@@ -75,6 +75,7 @@ const config = {
       },
     }),
   title: 'Aerie Documentation',
+  trailingSlash: true,
   url: 'https://nasa-ammos.github.io/',
 };
 
