@@ -51,6 +51,12 @@ const config = {
             type: 'doc',
           },
           {
+            label: 'Upgrade Guides',
+            position: 'left',
+            sidebarId: 'upgradeGuides',
+            type: 'docSidebar',
+          },
+          {
             label: 'Test Report',
             position: 'left',
             sidebarId: 'testReport',
@@ -92,6 +98,7 @@ const config = {
         },
       },
       prism: {
+        additionalLanguages: ['graphql', 'java'],
         darkTheme: darkCodeTheme,
         theme: lightCodeTheme,
       },
