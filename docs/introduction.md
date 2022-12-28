@@ -12,3 +12,25 @@ Some of the main features of Aerie include:
 - An EDSL for defining sequences, and a fully-featured browser-based sequence editor
 - A GraphQL API so you can easily build tools on top of Aerie
 - A web-based [client application](https://github.com/NASA-AMMOS/aerie-ui)
+
+## Fast Track ⏱️ {#fast-track}
+
+Understand Aerie in **5 minutes** by trying it out!
+
+1. Before starting you first need to install [Docker](https://www.docker.com/get-started/) on your local machine. The Aerie system is essentially a collection of [OCI](https://opencontainers.org/) [images](https://github.com/orgs/NASA-AMMOS/packages?ecosystem=container&q=aerie).
+
+1. If you’re running macOS, Linux, or another Unix-like OS you can use following command in your terminal to download the [Docker Compose](https://docs.docker.com/compose/) file:
+
+   ```sh
+   curl https://raw.githubusercontent.com/NASA-AMMOS/aerie-mission-model-template/main/docker-compose.yml --output docker-compose.yml
+   ```
+
+   If you're running a different OS and do not have [curl](https://curl.se/) available you can [download the docker-compose.yml here](https://raw.githubusercontent.com/NASA-AMMOS/aerie-mission-model-template/main/docker-compose.yml).
+
+1. To start the Aerie services you can use the following command in the same directory as the `docker-compose.yml` file from the previous step:
+
+   ```sh
+   docker compose up
+   ```
+
+1. Visit [http://localhost/](http://localhost/) to view the [Aerie UI](https://github.com/NASA-AMMOS/aerie-ui).
