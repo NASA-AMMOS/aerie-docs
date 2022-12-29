@@ -30,15 +30,7 @@ const sidebars = {
           },
           items: ['mission-modeling/activity-types/parameters', 'mission-modeling/activity-types/effect-model'],
         },
-        {
-          type: 'category',
-          label: 'Resources and Models',
-          link: {
-            id: 'mission-modeling/resources-and-models/introduction',
-            type: 'doc',
-          },
-          items: [],
-        },
+        'mission-modeling/resources-and-models',
       ],
     },
     {

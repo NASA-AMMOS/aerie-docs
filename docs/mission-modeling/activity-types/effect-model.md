@@ -52,7 +52,7 @@ public final class RunHeater {
 }
 ```
 
-This activity first spawns a `PowerOnHeater` activity, which then continues concurrently with the current `RunHeater` activity. Next, the total energy to be used by the heater is subtracted from the remaining battery capacity (see the [Resources and Models documentation](../../resources-and-models/introduction)). The energy used depends on the duration parameter of the activity, allowing the activity’s effect to be tuned by the planner. Next, the activity waits for the desired heater runtime to elapse, then spawns and waits for a `PowerOffHeater` activity. The activity completes after both children have completed.
+This activity first spawns a `PowerOnHeater` activity, which then continues concurrently with the current `RunHeater` activity. Next, the total energy to be used by the heater is subtracted from the remaining battery capacity (see the [Resources and Models documentation](../../resources-and-models)). The energy used depends on the duration parameter of the activity, allowing the activity’s effect to be tuned by the planner. Next, the activity waits for the desired heater runtime to elapse, then spawns and waits for a `PowerOffHeater` activity. The activity completes after both children have completed.
 
 ## Activity Decomposition
 
