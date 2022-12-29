@@ -32,9 +32,9 @@ const sidebars = {
         },
         'mission-modeling/resources-and-models',
         'mission-modeling/configuration',
-        'mission-modeling/advanced-topic-parameters',
-        'mission-modeling/advanced-topic-value-schemas',
-        'mission-modeling/advanced-topic-activity-mappers',
+        'mission-modeling/advanced-parameters',
+        'mission-modeling/advanced-value-schemas',
+        'mission-modeling/advanced-activity-mappers',
       ],
     },
     {

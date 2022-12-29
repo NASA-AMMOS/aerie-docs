@@ -35,7 +35,7 @@ public Mission(final Registrar registrar, final Instant planStart, final Configu
 
 ## Parameters
 
-A configuration class should be defined with the same parameter annotations as activities. See [Advanced Topic - Parameters](../advanced-topic-parameters) for a thorough explanation of all possible styles of `@Export` parameter declarations.
+A configuration class should be defined with the same parameter annotations as activities. See [Advanced - Parameters](../advanced-parameters) for a thorough explanation of all possible styles of `@Export` parameter declarations.
 
 Similarly to activities, the annotation processor will take care of all serialization/deserialization of the configuration object. The annotation processor will generate a configuration mapper for the configuration defined within `@WithConfiguration()`.
 

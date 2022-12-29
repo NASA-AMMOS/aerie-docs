@@ -1,4 +1,4 @@
-# Advanced Topic - Value Schemas
+# Advanced - Value Schemas
 
 As a Mission Modeler sooner or later you will want to define a parameter type, or resource type, that is specifically tailored to your needs. This section describes how to declare the structure of that type so that it can be understood by downstream client tools.
 
