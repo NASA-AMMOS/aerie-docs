@@ -1,0 +1,43 @@
+import RemoteCodeBlock from '@site/src/components/RemoteCodeBlock';
+
+# Mission Modeling
+
+In Aerie, a mission model serves activity planning needs in two ways. First, it describes how various mission resources behave autonomously over time. Second, it defines how activities perturb these resources at discrete time points, causing them to change their behavior. This information enables Aerie to provide scheduling, constraint validation, and resource plotting capabilities on top of a mission model.
+
+## Creating a Mission Model
+
+You can create your first mission model by using our GitHub [template mission model repository](https://github.com/NASA-AMMOS/aerie-mission-model-template). See the [GitHub documentation](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template) on creating a repository from a template for more detailed information.
+
+## The package-info.java File
+
+A mission model must contain a [package-info.java](https://www.baeldung.com/java-package-info) file containing annotations that describe the highest-level features of the mission model. For example:
+
+<RemoteCodeBlock
+  language="java"
+  showLineNumbers
+  title="Aerie Mission Model Template (FireSat) - package-info.java"
+  url="https://raw.githubusercontent.com/NASA-AMMOS/aerie-mission-model-template/main/src/main/java/firesat/package-info.java"
+></RemoteCodeBlock>
+
+This `package-info.java` identifies the top-level class representing the mission model, and registers activity types that may interact with the mission model. Aerie processes these annotations at compile-time, generating a set of boilerplate classes which take care of interacting with the Aerie system.
+
+The `@WithMappers` annotation informs the annotation processor of a set of serialization rules for activity parameters of various types; the [BasicValueMappers](https://github.com/NASA-AMMOS/aerie/blob/develop/contrib/src/main/java/gov/nasa/jpl/aerie/contrib/serialization/rulesets/BasicValueMappers.java) ruleset covers most primitive Java types. Mission modelers may also create their own rulesets, specifying rules for mapping custom value types.
+If multiple mapper classes are included via the `@WithMappers` annotations, and multiple mappers declare a mapping rule to the same data type, the rule found in the earlier declared mapper will take precedence.
+
+## The Mission Model class
+
+The top-level mission model is responsible for defining all of the mission resources and their behavior when affected by activities.
+Of course, the top-level model may delegate to smaller, more focused models based on the needs of the mission.
+The top-level model is received by activities, however, so it must make accessible any resources or methods to be used therein. For example:
+
+<RemoteCodeBlock
+  language="java"
+  showLineNumbers
+  title="Aerie Mission Model Template (FireSat) - Mission.java"
+  url="https://raw.githubusercontent.com/NASA-AMMOS/aerie-mission-model-template/main/src/main/java/firesat/Mission.java"
+></RemoteCodeBlock>
+
+Mission resources are declared using `Registrar#discrete` or `Registrar#real` functions.
+
+A model may also express autonomous behaviors, where a discrete change occurs in the system outside of an activity's effects.
+A **daemon task** can be used to model these behaviors. Daemons are spawned at the beginning of any simulation, and may perform the same effects as an activity. Daemons are prepared using the `spawn` method.

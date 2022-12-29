@@ -1,0 +1,43 @@
+import RemoteCodeBlock from '@site/src/components/RemoteCodeBlock';
+
+# Activity Types
+
+An **activity type** defines a simulated behavior that may be invoked by a planner, separate from the autonomous behavior of the mission model itself.
+Activity types may define **parameters**, which are filled with **arguments** by a planner and provided to the activity upon execution.
+Activity types may also define **validations** for the purpose of informing a planner when the parameters they have provided may be problematic.
+
+For example, here is a simple activity type from the FireSat template mission model:
+
+<RemoteCodeBlock
+  language="java"
+  showLineNumbers
+  title="Aerie Mission Model Template (FireSat) - GncChangeControlMode.java"
+  url="https://raw.githubusercontent.com/NASA-AMMOS/aerie-mission-model-template/main/src/main/java/firesat/activities/gnc/GncChangeControlMode.java"
+></RemoteCodeBlock>
+
+Aerie automatically generates parameter serialization boilerplate for every activity type defined in the mission model's [package-info.java](../introduction.mdx#the-package-infojava-file).
+Moreover, the generated Model base class provides helper methods for spawning each type of activity as children from other activities.
+
+## Activity Type Annotations
+
+In order for Aerie to detect an activity type, its class must be annotated with the `@ActivityType` tag. An activity type is declared with its name using the following annotation:
+
+```java
+@ActivityType("GncChangeControlMode")
+```
+
+By doing so, the Aerie annotation processor can discover all activity types declared in the mission model, and validate that activity type names are unique.
+
+## Activity Type Metadata
+
+Metadata of activities are structured such that the Aerie annotation processor can extract this metadata given particular keywords. Currently, the annotation processor recognizes the following tags: `contact`, `subsystem`, `brief_description`, and `verbose_description`.
+These metadata tags are placed in a [Javadoc](https://en.wikipedia.org/wiki/Javadoc) style comment block above the activity type to which they refer. For example:
+
+```java
+/**
+ * @subsystem Data
+ * @contact camargo
+ * @brief_description A data management activity that deletes old files
+ */
+ @ActivityType("DeleteOldFiles")
+```

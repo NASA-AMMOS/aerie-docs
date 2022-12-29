@@ -1,0 +1,3 @@
+# Effect Model
+
+Every activity type has an associated "effect model" that describes how that activity impacts mission resources. An effect model is a method on the activity type class annotated with `@EffectModel`; there can only be one such method per activity type. By convention it is named `run`, and it accepts the top-level `Mission` model as a parameter. This method is invoked when the activity begins, paused when the activity waits a period of time, and resumes when that period of time passes. The activity’s computed duration will be measured from the instant this method is entered, and extends either until the method returns or until all spawned children of the activity have completed – whichever is longer.
