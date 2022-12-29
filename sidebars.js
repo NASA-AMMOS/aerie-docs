@@ -31,6 +31,8 @@ const sidebars = {
           items: ['mission-modeling/activity-types/parameters', 'mission-modeling/activity-types/effect-model'],
         },
         'mission-modeling/resources-and-models',
+        'mission-modeling/configuration',
+        'mission-modeling/advanced-topic-parameters',
       ],
     },
     {
