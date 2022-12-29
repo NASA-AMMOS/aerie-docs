@@ -37,7 +37,7 @@ The annotation processor identifies these methods and arranges for them to be in
 
 ## Duration Types
 
-The [Aerie scheduler](../../../scheduling/introduction) places activities in a plan to try to achieve scheduling goals. Since the effect model of an activity is not accessible to the scheduler, an activities duration can only be computed by simulation. Satisfying temporal constraints associated with the scheduling of an activity (e.g. "activity A must end before activity B") may lead to multiple simulations to compute duration, and thus more computation time.
+The [Aerie scheduler](../../../scheduling/introduction) places activities in a plan to try to achieve scheduling goals. Since the effect model of an activity is not accessible to the scheduler, an activities duration can only be computed by simulation. Satisfying temporal constraints associated with the scheduling of an activity (e.g. "activity A must end before activity B") may lead to multiple simulations to compute duration, and thus require more computation time.
 
 However, it is possible to provide information about how the duration of an activity is determined to help the scheduler. The duration of an activity can be one of the following:
 
@@ -54,23 +54,30 @@ public final class RunHeater {
   @Parameter
   public long durationInSeconds;
 
-  @Validation("Duration must be positive")
-  @Validation.Subject("durationInSeconds")
-  public boolean validateDuration() {
-    return durationInSeconds > 0;
-  }
-
   @EffectModel
   @ControllableDuration(parameterName = "durationInSeconds")
   public void run(final Mission mission) {
+    // Spawning another activity does not affect the duration of this activity as they run in parallel.
     spawn(new PowerOnHeater());
 
     final double totalEnergyUsed = durationInSeconds * energyConsumptionRate;
     mission.batteryCapacity.set(totalEnergyUsed);
 
-    delay(durationInSeconds, Duration.SECONDS);
+    durationPowerOff = 100L;
+    durationPowerOn = durationInSeconds - durationPowerOff;
+
+    delay(durationPowerOn, Duration.SECONDS);
+
+    // Assumes PowerOffHeater has a controllable duration.
+    call(new PowerOffHeater(durationPowerOff));
   }
 }
 ```
 
-The annotation `@ControllableDuration(parameterName = "durationInSeconds")` has effect other than to tell the scheduler that the duration of this activity can be controlled via the `durationInSeconds` parameter. It acts like a contract between the mission model and the scheduler ensuring that the duration of the activity will be equal to the duration specified by `durationInSeconds`.
+Note in this example the `call(new PowerOffHeater(durationPowerOff))` at the end of the effect model: (1) makes the duration of `RunHeater` depend on the duration of the `PowerOffHeater`, and (2) assumes `PowerOffHeater` has a controllable duration parameter. Even though the duration of `RunHeater` depends on the (fixed) duration of `PowerOffHeater`, we know its duration will be equal to `durationInSeconds`, thus making `RunHeater` controllable. For more information on the `call` function, see the [effect model documentation](./effect-model.md).
+
+If `PowerOffHeater` had an uncontrollable duration we would have to remove the `call` since it would make `RunHeater` uncontrollable as well.
+
+The annotation `@ControllableDuration(parameterName = "durationInSeconds")` has no effect other than to tell the scheduler that the duration of an activity can be controlled. It acts like a contract between the mission model and the scheduler ensuring that the duration of an activity will be equal to the parameter specified in the annotation.
+
+After receiving this information the scheduler determines it can control the duration of an activity, thus requiring fewer simulations and significantly improving scheduling performance for the given activity type.
