@@ -74,7 +74,7 @@ public final class RunHeater {
 }
 ```
 
-Note in this example the `call(new PowerOffHeater(durationPowerOff))` at the end of the effect model: (1) makes the duration of `RunHeater` depend on the duration of the `PowerOffHeater`, and (2) assumes `PowerOffHeater` has a controllable duration parameter. Even though the duration of `RunHeater` depends on the (fixed) duration of `PowerOffHeater`, we know its duration will be equal to `durationInSeconds`, thus making `RunHeater` controllable. For more information on the `call` function, see the [effect model documentation](./effect-model.md).
+Note in this example the `call(new PowerOffHeater(durationPowerOff))` at the end of the effect model: (1) makes the duration of `RunHeater` depend on the duration of `PowerOffHeater`, and (2) assumes `PowerOffHeater` has a controllable duration parameter. Even though the duration of `RunHeater` depends on the (fixed) duration of `PowerOffHeater` we know its duration will be equal to `durationInSeconds`, thus making `RunHeater` controllable. For more information on the `call` function, see the [effect model documentation](./effect-model.md).
 
 If `PowerOffHeater` had an uncontrollable duration we would have to remove the `call` since it would make `RunHeater` uncontrollable as well.
 
