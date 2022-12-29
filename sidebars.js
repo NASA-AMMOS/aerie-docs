@@ -33,6 +33,7 @@ const sidebars = {
         'mission-modeling/resources-and-models',
         'mission-modeling/configuration',
         'mission-modeling/advanced-topic-parameters',
+        'mission-modeling/advanced-topic-value-schemas',
       ],
     },
     {
