@@ -8,7 +8,7 @@ Here we describe how to upload a mission model to Aerie using the [Aerie UI](htt
 
 1. Navigate to the `/models` page in the Aerie UI. If you are running Aerie locally it is at [http://localhost/models](http://localhost/models).
 
-1. Use the form on the `/models` page to upload the mission model `.jar` file. Give the mission model an logical name ("FireSat" in this example). The version can be any string (preferably a semantic version string like `1.0.0`). Here is a video demonstration:
+1. Use the form on the `/models` page to upload the mission model `.jar` file. Give the mission model a name ("FireSat" in this example). The version can be any string (preferably a semantic version string like `1.0.0`). Here is a video demonstration:
 
    <video controls>
      <source src="/aerie-docs/videos/upload-mission-model.webm" type="video/webm" />
