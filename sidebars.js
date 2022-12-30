@@ -10,7 +10,6 @@ const sidebars = {
       link: {
         type: 'generated-index',
       },
-      collapsed: false,
       items: ['getting-started/installation', 'getting-started/configuration'],
     },
     {
@@ -37,6 +36,14 @@ const sidebars = {
         'mission-modeling/advanced-activity-mappers',
         'mission-modeling/advanced-the-merlin-interface',
       ],
+    },
+    {
+      type: 'category',
+      label: 'Planning',
+      link: {
+        type: 'generated-index',
+      },
+      items: ['planning/external-datasets', 'planning/activity-directive-metadata'],
     },
     {
       type: 'category',
