@@ -35,6 +35,7 @@ const sidebars = {
         'mission-modeling/advanced-parameters',
         'mission-modeling/advanced-value-schemas',
         'mission-modeling/advanced-activity-mappers',
+        'mission-modeling/advanced-the-merlin-interface',
       ],
     },
     {
