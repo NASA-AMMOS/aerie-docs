@@ -6,14 +6,6 @@ const sidebars = {
     'introduction',
     {
       type: 'category',
-      label: 'Getting Started',
-      link: {
-        type: 'generated-index',
-      },
-      items: ['getting-started/installation', 'getting-started/configuration'],
-    },
-    {
-      type: 'category',
       label: 'Mission Modeling',
       link: {
         id: 'mission-modeling/introduction',
@@ -43,7 +35,12 @@ const sidebars = {
       link: {
         type: 'generated-index',
       },
-      items: ['planning/external-datasets', 'planning/activity-directive-metadata'],
+      items: [
+        'planning/upload-mission-model',
+        'planning/create-plan-and-simulate',
+        'planning/external-datasets',
+        'planning/activity-directive-metadata',
+      ],
     },
     {
       type: 'category',

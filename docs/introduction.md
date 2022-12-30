@@ -34,3 +34,5 @@ Understand Aerie in **5 minutes** by trying it out!
    ```
 
 1. Visit [http://localhost/](http://localhost/) to view the [Aerie UI](https://github.com/NASA-AMMOS/aerie-ui).
+
+1. Head over to the planning documentation to learn how to [upload a mission model](../planning/upload-mission-model).

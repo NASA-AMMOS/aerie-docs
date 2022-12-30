@@ -43,3 +43,8 @@
 .navbar__brand {
   margin-right: 0;
 }
+
+video {
+  height: auto !important;
+  width: 100% !important;
+}
