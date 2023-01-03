@@ -1,0 +1,72 @@
+# Global Conditions
+
+It is possible to restrict the scheduler from placing activities when certain conditions are not met.
+A global scheduling conditions is defined in the TypeScript EDSL (just like a Scheduling Goal), but the return type is expected to be of type `GlobalSchedulingCondition`.
+These conditions, when activated, apply for **all goals**, hence the global qualification. There are several types of global scheduling conditions available described in the sections below.
+
+## Global Condition Types
+
+### Schedule Activities Only When
+
+This global condition restricts when _any_ activity type can be scheduled.
+This condition takes an expression of type `Windows` and prevents the scheduler from inserting any activity outside the time intervals produced by the expression when evaluated.
+
+#### Examples
+
+In this example, activities of any type can only be placed whenever `/plant` is lower than `10.0`:
+
+```ts
+export default function scheduleActivitiesOnlyWhenExample(): GlobalSchedulingCondition {
+  return GlobalSchedulingCondition.scheduleActivitiesOnlyWhen(Real.Resource('/plant').lowerThan(10.0));
+}
+```
+
+### Schedule Only When
+
+This global condition restricts when _some_ activity types can be scheduled.
+This condition takes a list of activity types and an expression of type `Windows`.
+It prevents the scheduler from inserting activity of the given activity types outside the time intervals produced by the expression when evaluated.
+
+#### Examples
+
+In this example, activities of type `BananaNap` and `BiteBanana` can be placed only when `/plant` is greater than `10.0`:
+
+```ts
+export default function scheduleOnlyWhenExample(): GlobalSchedulingCondition {
+  return GlobalSchedulingCondition.scheduleOnlyWhen(
+    [ActivityType.BananaNap, ActivityType.BiteBanana],
+    Real.Resource('/plant').greaterThan(10.0),
+  );
+}
+```
+
+### Mutex
+
+This global condition prevents activities from overlapping ([mutual exclusion](https://en.wikipedia.org/wiki/Mutual_exclusivity)).
+This condition takes two lists of activity types as arguments.
+It prevents the scheduler from inserting activities of the types from the first list to overlap with activities of type from the second list (and vice versa).
+
+#### Examples
+
+In this example, activities of types `BananaNap` and `BiteBanana` will not be allowed to overlap with activities of types `ChangeProduced` and `GrowBanana`.
+But two activities of type `GrowBanana` can still overlap. And a `BananaNap` can still overlap with a `BiteBanana`.
+
+```ts
+export default function firstMutexExample(): GlobalSchedulingCondition {
+  return GlobalSchedulingCondition.mutex(
+    [ActivityType.BananaNap, ActivityType.BiteBanana],
+    [ActivityType.ChangeProducer, ActivityType.GrowBanana],
+  );
+}
+```
+
+By default, two activities from the same type can overlap.
+To restrict activities of a given type from overlapping with each other, it is necessary to explicitly write a mutex condition such as the following one:
+
+```ts
+export default function secondMutexExample(): GlobalSchedulingCondition {
+  return GlobalSchedulingCondition.mutex([ActivityType.BiteBanana], [ActivityType.BiteBanana]);
+}
+```
+
+This condition will prevent `BiteBanana` from overlapping with each other.
