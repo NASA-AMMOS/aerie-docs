@@ -49,7 +49,7 @@ const sidebars = {
         id: 'scheduling/introduction',
         type: 'doc',
       },
-      items: [],
+      items: ['scheduling/authoring-scheduling-goals'],
     },
   ],
   testReport: ['test-report/introduction'],

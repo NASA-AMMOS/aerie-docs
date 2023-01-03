@@ -1,0 +1,333 @@
+# Authoring Scheduling Goals
+
+This document describes different scheduling goals available in Aerie.
+
+:::caution
+
+Activities with [uncontrollable durations](../../mission-modeling/activity-types/parameters#duration-types) have been found to behave somewhat unpredictably in terms of when they are placed.
+This has to do with how temporal constraints interact with the unpredictability of the durations.
+Finding when an activity will start while subject to temporal constraint involves search.
+
+:::
+
+## ActivityTemplate
+
+An `ActivityTemplate` specifies the type of an activity, as well as the arguments it should be given.
+Activity templates are generated for each mission model.
+You can get the full list of activity templates by typing `ActivityTemplates.` (note the period) into the scheduling goal editor, and viewing the auto-complete options.
+
+If the activity has parameters, pass them into the constructor in a dictionary as key-value pairs. For example:
+
+```ts
+ActivityTemplate.ParamActivity({ param: 1 });
+```
+
+If the activity has no parameters, do not pass a dictionary. For example:
+
+```ts
+ActivityTemplate.ParameterlessActivity();
+```
+
+## Goal Types
+
+### Activity Recurrence Goal
+
+The Activity Recurrence Goal (sometimes referred to as a "frequency goal") specifies that a certain activity should occur repeatedly throughout the plan at some given interval.
+
+#### Inputs
+
+- `activityTemplate` - The description of the activity whose recurrence we're interested in
+- `interval` - A [Temporal.Duration](https://tc39.es/proposal-temporal/docs/duration.html) of time specifying how often this activity must occur
+
+#### Behavior
+
+The `interval` is treated as an upper bound - so if the activity occurs more frequently, that is not considered a failure.
+The scheduler will find places in the plan where the given activity has not occurred within the given interval, and it will place an instance of that activity there.
+
+:::note
+
+The interval is measured between the start times of two activity instances. Neither the duration, nor the end time of the activity are examined by this goal.
+
+:::
+
+#### Examples
+
+The following goal will place a `GrowBanana` activity in every 2-hour period of time that does not already contain one with the exact same parameters.
+
+```ts
+export default function recurrenceGoalExample() {
+  return Goal.ActivityRecurrenceGoal({
+    activityTemplate: ActivityTemplates.GrowBanana({
+      growingDuration: Temporal.Duration.from({ hours: 1 }),
+      quantity: 1,
+    }),
+    interval: Temporal.Duration.from({ hours: 2 }),
+  });
+}
+```
+
+### Coexistence Goal
+
+The Coexistence Goal specifies that a certain activity should occur once **for each** occurrence of some condition.
+
+#### Inputs
+
+- `forEach` - A set of time `Windows`, or a set of activities (`ActivityExpression`)
+- `activityTemplate` - The description of the activity to insert after each activity identified by `forEach`
+- `startsAt` - Optionally specify a specific time when the activity should start relative to the window
+- `startsWithin` - Optionally specify a range when the activity should start relative to the window
+- `endsAt` - Optionally specify a specific time when the activity should end relative to the window
+- `endsWithin` - Optionally specify a range when the activity should end relative to the window
+
+:::note
+
+Either the start or end of the activity must be constrained.
+This means that at least 1 of the 4 properties `startsAt`, `startsWithin`, `endsAt`, `endsWithin` must be given.
+
+:::
+
+#### Behavior
+
+The scheduler will find places in the plan where the `forEach` condition is true, and if not, it will insert a new instance using the given `activityTemplate` and temporal constraints.
+
+#### Examples
+
+The following example specifies a `CoexistenceGoal` where for each activity "A" of type `GrowBanana` present in the plan, place an activity of type `PeelBanana` starting exactly at the end of "A" + 5 minutes:
+
+```ts
+export default () =>
+  Goal.CoexistenceGoal({
+    forEach: ActivityExpression.ofType(ActivityTypes.GrowBanana),
+    activityTemplate: ActivityTemplates.PeelBanana({ peelDirection: 'fromStem' }),
+    startsAt: TimingConstraint.singleton(WindowProperty.END).plus(Temporal.Duration.from({ minutes: 5 })),
+  });
+```
+
+This next example specifies a `CoexistenceGoal` where for each activity "A" of type `GrowBanana` present in the plan, place an activity of type `PeelBanana` starting in the interval [end of "A", end of "A" + 5 minutes] and ending in the interval [end of "A", end of "A" + 6 minutes]:
+
+```ts
+export default () =>
+  Goal.CoexistenceGoal({
+    forEach: ActivityExpression.ofType(ActivityTypes.GrowBanana),
+    activityTemplate: ActivityTemplates.PeelBanana({ peelDirection: 'fromStem' }),
+    startsWithin: TimingConstraint.range(WindowProperty.END, Operator.PLUS, Temporal.Duration.from({ minutes: 5 })),
+    endsWithin: TimingConstraint.range(WindowProperty.END, Operator.PLUS, Temporal.Duration.from({ minutes: 6 })),
+  });
+```
+
+This final example specifies a `CoexistenceGoal` where for each continuous period of time during which the `/fruit` resource is equal to `4`, place an activity of type `PeelBanana` ending exactly at the end of "A" + 6 minutes:
+
+```ts
+export default () =>
+  Goal.CoexistenceGoal({
+    forEach: Real.Resource('/fruit').equal(4.0),
+    activityTemplate: ActivityTemplates.PeelBanana({ peelDirection: 'fromStem' }),
+    endsAt: TimingConstraint.singleton(WindowProperty.END).plus(Temporal.Duration.from({ minutes: 5 })),
+  });
+```
+
+Note that the scheduler will allow a default timing error of 500 milliseconds for temporal constraints.
+This parameter will be configurable in an upcoming release.
+
+:::caution
+
+If the end is unconstrained while the activity has an [uncontrollable duration](../../mission-modeling/activity-types/parameters#duration-types), the scheduler may fail to place the activity.
+To work around this, add an `endsWithin` constraint that encompasses your expectation for the duration of the activity - this will help the scheduler narrow the search space.
+
+:::
+
+### Cardinality Goal
+
+The Cardinality Goal specifies that a certain activity should occur in the plan either a certain number of times, or for a certain total duration.
+
+#### Inputs
+
+- `activityTemplate` - The description of the activity whose recurrence we're interested in
+- `specification` - An object with either an occurrence field, a duration field, or both (see examples below)
+
+#### Behavior
+
+The duration and occurrence are treated as lower bounds - so if the activity occurs more times, or for a longer duration, that is not considered a failure, and the scheduler will not add any more activities.
+
+The scheduler will identify whether or not the plan has enough occurrences, or total duration of the given activity template.
+If not, it will add activities until satisfaction.
+
+#### Examples
+
+The following example is a `CardinalityGoal` that sets a lower bound on the total duration:
+
+```ts
+export default function cardinalityGoalExample() {
+  return Goal.CardinalityGoal({
+    activityTemplate: ActivityTemplates.GrowBanana({
+      quantity: 1,
+      growingDuration: Temporal.Duration.from({ seconds: 1 }),
+    }),
+    specification: { duration: Temporal.Duration.from({ seconds: 10 }) },
+  });
+}
+```
+
+This next example specifies a `CardinalityGoal` that sets the lower bound on the number of occurrences:
+
+```ts
+export default function cardinalityGoalExample() {
+  return Goal.CardinalityGoal({
+    activityTemplate: ActivityTemplates.GrowBanana({
+      quantity: 1,
+      growingDuration: Temporal.Duration.from({ seconds: 1 }),
+    }),
+    specification: { occurrence: 10 },
+  });
+}
+```
+
+Finally we combine the previous two examples:
+
+```ts
+export default function cardinalityGoalExample() {
+  return Goal.CardinalityGoal({
+    activityTemplate: ActivityTemplates.GrowBanana({
+      quantity: 1,
+      growingDuration: Temporal.Duration.from({ seconds: 1 }),
+    }),
+    specification: { occurrence: 10, duration: Temporal.Duration.from({ seconds: 10 }) },
+  });
+}
+```
+
+:::note
+
+In order to avoid placing multiple activities at the same start time, the `CardinalityGoal` introduces an assumed mutual exclusion constraint - namely that new activities will not be allowed to overlap with existing activities.
+
+:::
+
+### OR Goal - Disjunction of Goals
+
+The OR Goal aggregates several goals together and specifies that at least one of them must be satisfied.
+
+#### Inputs
+
+- `goals` - A list of goals (here below referenced as the sub-goals)
+
+#### Behavior
+
+The scheduler will try to satisfy each sub-goal in the list until one is satisfied.
+If a sub-goal is only partially satisfied, the scheduler will not backtrack and will let the inserted activities in the plan.
+
+#### Examples
+
+The following example shows how to use the `.or` operator on a pair of goals.
+If the plan has a 24-hour planning horizon, the `OR` goal below will try placing activities of the `GrowBanana` type.
+The first sub-goal will try placing 10 1-hour occurrences.
+If it fails to do so, because the planning horizon is too short, it will then try to schedule 1 activity every 2 hours for the duration of the planning horizon.
+
+It may fail to achieve both sub-goals but as the scheduler does not backtrack for now, activities inserted by any of the sub-goals are kept in the plan.
+
+```ts
+export default function orGoalExample() {
+  return Goal.CardinalityGoal({
+    activityTemplate: ActivityTemplates.GrowBanana({
+      quantity: 1,
+      growingDuration: Temporal.Duration.from({ hours: 1 }),
+    }),
+    specification: { occurrence: 10 },
+  }).or(
+    Goal.ActivityRecurrenceGoal({
+      activityTemplate: ActivityTemplates.GrowBanana({
+        quantity: 1,
+        growingDuration: Temporal.Duration.from({ hours: 1 }),
+      }),
+      interval: Temporal.Duration.from({ hours: 2 }),
+    }),
+  );
+}
+```
+
+### AND Goal - Conjunction of Goals
+
+The AND Goal aggregates several goals together and specifies that at least one of them must be satisfied.
+
+#### Inputs
+
+- `goals` - A list of goals (here below referenced as the sub-goals)
+
+#### Behavior
+
+The scheduler will try to satisfy each sub-goal in the list.
+If a sub-goal is only partially satisfied, the scheduler will not backtrack and will let the inserted activities in the plan.
+If all the sub-goals are satisfied, the AND goal will appear satisfied.
+If one or several sub-goals have not been satisfied, the AND goal will appear unsatisfied.
+
+#### Examples
+
+The AND goal below has two sub-goals.
+The `CoexistenceGoal` will place activities of type `PeelBanana` every time the `/fruit` resource is equal to 4.
+The second `CardinalityGoal` will place 10 occurrences of the `PeelBanana` activity.
+
+The first sub-goal will be evaluated first and will place a certain number of `PeelBanana` activities in the plan.
+When the second goal is evaluated, it will count already present `PeelBanana` activities and insert the missing number.
+
+Imagine the first goals leads to inserting 2 activities.
+The second goal will then have to place 8 activities to be satisfied.
+
+```ts
+export default function andGoalExample() {
+  return Goal.CoexistenceGoal({
+    forEach: Real.Resource('/fruit').equal(4.0),
+    activityTemplate: ActivityTemplates.PeelBanana({ peelDirection: 'fromStem' }),
+    endsAt: TimingConstraint.singleton(WindowProperty.END).plus(Temporal.Duration.from({ minutes: 5 })),
+  }).and(
+    Goal.CardinalityGoal({
+      activityTemplate: ActivityTemplates.PeelBanana({ peelDirection: 'fromStem' }),
+      specification: { occurrence: 10 },
+    }),
+  );
+}
+```
+
+## Restricting When a Goal is Applied
+
+By default, a goal applies on the whole planning horizon.
+The Aerie scheduler provides support for restricting when a goal applies with the `.applyWhen()` method in the `Goal` class.
+This node allows users to provide a set of `Windows` which could be a time-based, or a resource-based window.
+
+The `.applyWhen()` method, takes one argument: the windows (in the form of an expression) that the goal should apply over.
+Below is an example that applies a daily recurrence goal only when a given resource is greater than 2.
+If the resource is less than two, then the goal is no longer applied.
+
+```ts
+export default function applyWhenExample() {
+  return Goal.ActivityRecurrenceGoal({
+    activityTemplate: ActivityTemplates.GrowBanana({
+      quantity: 1,
+      growingDuration: Temporal.Duration.from({ hours: 1 }),
+    }),
+    interval: Temporal.Duration.from({ hours: 2 }),
+  }).applyWhen(Real.Resource('/fruit').greaterThan(2));
+}
+```
+
+## Scheduling Boundary Exclusivity
+
+Note if you are trying to schedule an activity, or a recurrence within a window but that window cuts off either the activity or the recurrence interval (depending on the goal type), it will not be scheduled.
+For example, if you had a recurrence interval of 3 seconds, scheduling a 2 second activity each recurrence, and had the following window, you'd get the following:
+
+```txt
+RECURRENCE INTERVAL: [++-++-++-]
+GOAL WINDOW:         [+++++----]
+RESULT:              [++-------]
+```
+
+That, is, the second activity won't be scheduled as the goal window cuts off its recurrence interval.
+Scheduling is _local_, not global. This means for every window that is matched (as it is possible to have disjoint windows, imagine a resource that fluctuates upward and downward but only applying that goal when the resource is over a certain value), the goal is applied individually.
+So for that same recurrence interval setup as before, we could have:
+
+```txt
+RECURRENCE INTERVAL: [++-++-++-++-]
+GOAL WINDOW:         [+++++--+++--]
+RESULT:              [++-----++---] // (the second one is applied independently of the first!)
+```
+
+When mapping out a temporal window to apply a goal over, keep in mind that the ending boundary of the goal is exclusive, i.e. if I want to apply a goal in the window of 10-12 seconds, it will apply only on seconds 10 and 11.
+This is in line with the [fencepost problem](https://en.wikipedia.org/wiki/Off-by-one_error#Fencepost_error).
