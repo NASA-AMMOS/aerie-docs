@@ -1,10 +1,8 @@
-# Authoring
+# Concepts
 
 The goal of most constraints is to produce a Windows object through operations on profiles and activity instances. This is a conceptual guide to what they represent.
 
-## Concepts
-
-### Profiles
+## Profiles
 
 Profiles represent functions over time to a specific type, and usually come from mission model resources. For example, a "mission phase" resource might be simulated by the mission model and exposed to the constraints with intervals of time labelled as `cruise`, `edl`, and `surface`; a "battery charge" resource could be represented as a real number between `0` and `1` that varies with activities; etc. These resources can be referenced by calling `Discrete.Resource("mission phase")` or `Real.Resource("battery charge")` in the constraint, allowing you to transform them and do comparisons.
 
@@ -12,7 +10,7 @@ Real profiles are for integers and floating point numbers, and provide methods f
 
 Profiles can have _gaps_, or intervals where the value is unknown. This comes up most often when dealing with [external datasets](../../planning/external-datasets). In most cases it is best to apply a default value to a profile's gaps ASAP using the `profile.assignGaps(defaultValue)` method.
 
-### Windows
+## Windows
 
 Windows are like a boolean profile, augmented with some extra functionality. For many constraints, the final result is a `Windows` object, which tells Aerie what times are violations of the constraint. `true` means the state is nominal and `false` means the state is a violation. This means that you should describe the conditions you _want_ to happen, not the conditions you don’t want to happen.
 
@@ -20,15 +18,15 @@ There are a few ways to calculate a `Windows` object from profiles, and many ope
 
 You can directly return your `Windows` object from the constraint function, and it will be automatically converted in to a `Constraint` object.
 
-### Spans
+## Spans
 
 `Spans` are designed to work around a limitation of `Windows`: if two `true` segments of a `Windows` object are transformed so that they touch, they are combined or "coalesced" into a single segment, and the knowledge that they were originally separate is lost. In situations where this is not acceptable (such as when working with activities that can overlap), `Spans` can be used. `Spans` are not a type of profile at all; instead they’re just a collection of intervals on the timeline. They share some operations available for Windows, but not all are valid (such as not).
 
-### Activity Instances
+## Activity Instances
 
 Activity instances are accessible through two functions: `Constraint.ForEachActivity` and `Spans.ForEachActivity`. These functions provide you with a reference to each activity of a given type, and allow you to access the activity’s location in time as a `Windows` or `Spans` object, and exposes its parameters as profiles.
 
-### Other Constraint Types
+## Other Constraint Types
 
 Not all constraints are based solely off of a `Windows` object. The main exceptions are constraints that deal with individual activity instances, because these will use the `Constraint.ForEachActivity(…)` function instead of returning a basic `Windows`. This will evaluate your `Windows` expression once for each instance of the given activity type, and associate any violations in those expressions with the activity instance it was evaluated on, which can be helpful in the UI to figure out which activity caused the violation.
 

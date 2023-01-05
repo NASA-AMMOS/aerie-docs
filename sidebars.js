@@ -49,7 +49,7 @@ const sidebars = {
         id: 'constraints/introduction',
         type: 'doc',
       },
-      items: ['constraints/authoring', 'constraints/examples'],
+      items: ['constraints/concepts', 'constraints/examples'],
     },
     {
       type: 'category',
