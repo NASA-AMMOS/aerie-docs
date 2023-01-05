@@ -44,6 +44,15 @@ const sidebars = {
     },
     {
       type: 'category',
+      label: 'Constraints',
+      link: {
+        id: 'constraints/introduction',
+        type: 'doc',
+      },
+      items: ['constraints/authoring', 'constraints/examples'],
+    },
+    {
+      type: 'category',
       label: 'Scheduling',
       link: {
         id: 'scheduling/introduction',
