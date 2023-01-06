@@ -63,12 +63,6 @@ const config = {
             sidebarId: 'upgradeGuides',
             type: 'docSidebar',
           },
-          {
-            label: 'Test Report',
-            position: 'left',
-            sidebarId: 'testReport',
-            type: 'docSidebar',
-          },
           // Right.
           {
             dropdownActiveClassDisabled: true,

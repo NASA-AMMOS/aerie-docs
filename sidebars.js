@@ -68,8 +68,20 @@ const sidebars = {
       },
       items: ['scheduling/goals', 'scheduling/global-conditions'],
     },
+    {
+      type: 'category',
+      label: 'Command Expansion',
+      link: {
+        id: 'command-expansion/introduction',
+        type: 'doc',
+      },
+      items: [
+        'command-expansion/upload-command-dictionary',
+        'command-expansion/expansion-rules',
+        'command-expansion/expansion-sets',
+      ],
+    },
   ],
-  testReport: ['test-report/introduction'],
   upgradeGuides: ['upgrade-guides/1-0-0-to-1-0-1', 'upgrade-guides/0-13-2-to-1-0-0'],
 };
 

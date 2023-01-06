@@ -1,0 +1,29 @@
+# Upload Command Dictionary
+
+To do command expansion Aerie must have a mission model and command dictionary uploaded.
+To upload a mission model first complete [the instructions here](../../planning/upload-mission-model) and then return to this page.
+
+To upload a command dictionary in the Aerie UI, open the top-level menu at the upper left corner as shown in the first figure, and navigate to the "Command Expansions" page.
+All command dictionaries previously uploaded to Aerie will be listed on this page.
+If you would like to upload a dictionary yourself you can click "Choose File" to upload a command dictionary from your local machine.
+
+Aerie only supports [AMPCS command dictionary schema](https://github.com/NASA-AMMOS/ampcs-dict-schemas/blob/main/CommandDictionary.rnc) standard.
+This schema provides a mission name and version in the command dictionary file.
+Aerie does not allow uploading the command dictionary files that has the same mission name and version.
+
+import commandDictionaryPagePng from './assets/command-dictionary-page.png';
+import navigationMenuPng from './assets/navigation-menu.png';
+
+<figure>
+  <img alt="Aerie UI - Navigation Menu" src={navigationMenuPng} />
+  <figcaption align="center">
+    Figure 1: Aerie UI Navigation Menu - Click to the 'Command Dictionaries' menu item.
+  </figcaption>
+</figure>
+
+<figure>
+  <img alt="Aerie UI - Command Dictionary Page" src={commandDictionaryPagePng} />
+  <figcaption align="center">
+    Figure 2: Aerie UI Command Dictionary Page - View, upload, or delete AMPCS command dictionaries.
+  </figcaption>
+</figure>
