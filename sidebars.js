@@ -6,6 +6,14 @@ const sidebars = {
     'introduction',
     {
       type: 'category',
+      label: 'Deployment',
+      link: {
+        type: 'generated-index',
+      },
+      items: ['deployment/advanced-ui-custom-base-path'],
+    },
+    {
+      type: 'category',
       label: 'Mission Modeling',
       link: {
         id: 'mission-modeling/introduction',
