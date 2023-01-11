@@ -66,7 +66,7 @@ const sidebars = {
         id: 'scheduling/introduction',
         type: 'doc',
       },
-      items: ['scheduling/goals', 'scheduling/global-conditions'],
+      items: ['scheduling/goals', 'scheduling/global-conditions', 'scheduling/temporal-subset'],
     },
     {
       type: 'category',
