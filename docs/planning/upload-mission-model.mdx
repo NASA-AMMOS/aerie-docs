@@ -1,6 +1,10 @@
+import uploadMissionModel from './assets/upload-mission-model.webm';
+
 # Upload Mission Model
 
-Here we describe how to upload a mission model to Aerie using the [Aerie UI](https://github.com/NASA-AMMOS/aerie-ui). This document assumes you already have the Aerie services running somewhere (either locally or remotely). To get the Aerie services running locally first follow the [fast track instructions](../../introduction#fast-track) and then come back here.
+Here we describe how to upload a mission model to Aerie using the [Aerie UI](https://github.com/NASA-AMMOS/aerie-ui).
+This document assumes you already have the Aerie services running somewhere (either locally or remotely).
+To get the Aerie services running locally first follow the [fast track instructions](../../introduction#fast-track) and then come back here.
 
 ## Instructions
 
@@ -11,5 +15,5 @@ Here we describe how to upload a mission model to Aerie using the [Aerie UI](htt
 1. Use the form on the `/models` page to upload the mission model `.jar` file. Give the mission model a name ("FireSat" in this example). The version can be any string (preferably a semantic version string like `1.0.0`). After you fill in all the fields click the 'Create' button to upload the model. Here is a video demonstration:
 
    <video controls>
-     <source src="/aerie-docs/videos/upload-mission-model.webm" type="video/webm" />
+     <source src={uploadMissionModel} type="video/webm" />
    </video>

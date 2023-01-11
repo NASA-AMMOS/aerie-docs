@@ -35,8 +35,10 @@ npm run build
 
 This command generates static content into the `build` directory and can be served using any static contents hosting service.
 
-### Adding Videos or Images
+### Adding Images or Videos
 
-Videos should be added to the repository using the [.webm](https://www.webmproject.org/) format. You can find existing videos in the [static/videos](./static/videos) directory.
+Images should be added to the repository using the [.png](https://en.wikipedia.org/wiki/Portable_Network_Graphics) format. Videos should be added to the repository using the [.webm](https://www.webmproject.org/) format.
 
-Images should be added to the repository using the [.png](https://en.wikipedia.org/wiki/Portable_Network_Graphics) format. Typically images should be placed in an [assets](https://docusaurus.io/docs/markdown-features/assets) directory in the section of documentation they correspond to. For example see the [command-expansion documentation](./docs/command-expansion/). In rare cases you may need to add [static](https://docusaurus.io/docs/static-assets) images in the [static/img](./static/img) directory.
+Typically images and videos should be placed in an [assets](https://docusaurus.io/docs/markdown-features/assets) directory in the section of documentation they correspond to. For example see the [command-expansion documentation](./docs/command-expansion/) and [planning documentation](./docs/planning/).
+
+In rare cases you may need to add [static assets](https://docusaurus.io/docs/static-assets) to the [static](./static) directory if they do not easily correspond to a documentation section.
