@@ -1,0 +1,23 @@
+name: Generate PDf
+
+on:
+  workflow_dispatch:
+
+jobs:
+  generate-pdf:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Prince
+        run: |
+          curl https://www.princexml.com/download/prince-15-ubuntu22.04-amd64.tar.gz -O
+          tar zxf prince-15-ubuntu22.04-amd64.tar.gz
+          cd prince-15-ubuntu22.04-amd64
+          yes "" | sudo ./install.sh
+      - name: Generate PDF
+        run: npx docusaurus-prince-pdf -u https://nasa-ammos.github.io/aerie-docs/introduction/ --output pdf/aerie-docs.pdf
+      - name: Upload PDF
+        uses: actions/upload-artifact@v3
+        with:
+          name: docs-pdf
+          path: pdf/aerie-docs.pdf
+          if-no-files-found: error
