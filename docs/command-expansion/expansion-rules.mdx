@@ -32,7 +32,7 @@ Once the activity type is selected, its parameters can be accessed within the ex
   <figcaption align="center">Figure 2: Aerie UI Expansion Rules Editor</figcaption>
 </figure>
 
-Note that the expansion logic starts with some boilerplate code, and users are expected to add their commands as comma-separated objects in a `return []` statement structured as the following:
+An expansion rule starts with some boilerplate code, and users are expected to add their commands as comma-separated objects in a `return []` statement structured as the following:
 
 ```ts
 return [
@@ -64,7 +64,7 @@ Values for ENUMs will be listed as strings, and must be input as strings. See th
 The true power of command expansion is to be able to map activity parameter values to command arguments.
 Note that the beginning of the expansion rule block provides a reference to an activity instance `const { activityInstance } = props`.
 This reference allows accessing various attributes of instances of the activity type selected.
-Typing `props.activityInstance.` lists properties like start time, end time, duration and type, which can be used to inform logic statements or timing of commands.
+Typing `props.activityInstance.` lists properties like start time, end time, duration and type, which can be used to inform rule statements or timing of commands.
 `props.activityInstance.attributes.arguments.` lists all parameter names of the type.
 Note that expansion request will replace these with actual values from simulated activity instances.
 
