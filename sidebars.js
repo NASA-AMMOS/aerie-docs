@@ -79,6 +79,8 @@ const sidebars = {
         'command-expansion/upload-command-dictionary',
         'command-expansion/expansion-rules',
         'command-expansion/expansion-sets',
+        'command-expansion/sequences',
+        'command-expansion/run-expansion',
       ],
     },
   ],

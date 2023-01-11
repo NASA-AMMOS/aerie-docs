@@ -1,0 +1,56 @@
+import planExpansionPanel from './assets/plan-expansion-panel.png';
+import planCreateSequence from './assets/plan-create-sequence.png';
+
+# Sequences
+
+The output of command expansion is not only time-ordered commands per activity, but rather complete sequence products.
+These sequences can contain commands from multiple activities from a simulation dataset.
+Users can query these sequences through the Aerie API to get them in the `seqJSON` format.
+In order to generate these sequences, Aerie requires sequence ids (seqIDs) to be declared, and mapped to simulated activities.
+To do so users should first open the "Expansion" panel in the [Aerie Planning UI](../../planning/create-plan-and-simulate), from any open panel as shown below.
+
+<figure>
+  <img alt="Aerie UI - Plan Expansion Panel" src={planExpansionPanel} />
+  <figcaption align="center">Figure 1: Plan Expansion Panel </figcaption>
+</figure>
+
+## Adding Sequences to a Simulation Dataset
+
+The recommended order of operations is:
+
+1. Finalize activity planning
+1. Run simulation
+1. Declare sequences for simulated activities from previous step
+1. Map activities to sequences
+1. Run command expansion
+
+:::caution
+
+Since Aerie expands simulated activities from a simulation dataset, currently we only allow seqIDs to be associated with the simulation dataset.
+This means that when you re-run a simulation, seqIDs have to be declared again for the new simulation dataset.
+We are exploring several options to mitigate the rework.
+
+:::
+
+The figure below lists all sequences declared for the last simulation dataset.
+To declare a new sequence, simply type the seqID and press "Create".
+
+<figure>
+  <img alt="Aerie UI - Plan Create Sequence" src={planCreateSequence} />
+  <figcaption align="center">Figure 2: Plan Create Sequence </figcaption>
+</figure>
+
+## Assigning seqIDs to Simulated Activities
+
+After the seqIDs are declared they must be associated with the simulated activities.
+To do so, open the "Selected Activity" panel, and scroll down to the "Sequencing" section as shown on the bottom right corner of the Figure 2 above.
+Clicking on the Sequence ID input field lists all of the declared sequence IDs and allows the user to choose one.
+Note that this association is the mechanism for mapping expansion output of multiple activities to the same sequence output.
+
+:::note
+
+Aerie recommends automating the seqID declaration and seqID-activity association steps using Aerie API, such that the information can be recreated automatically after every simulation run.
+Aerie currently does not support time sorting commands from multiple activities.
+The commands will be added to the sequence in the order of activity start times.
+
+:::
