@@ -1,4 +1,4 @@
-name: Generate PDf
+name: Generate PDF
 
 on:
   workflow_dispatch:
