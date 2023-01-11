@@ -1,0 +1,89 @@
+import rulesPage from './assets/rules-page.png';
+import rulesEditor from './assets/rules-editor.png';
+import rulesEditorCommandAutocomplete from './assets/rules-editor-command-autocomplete.png';
+import rulesEditorCommandArgsError from './assets/rules-editor-command-args-error.png';
+import rulesEditorCommandArgs1 from './assets/rules-editor-command-args-1.png';
+import rulesEditorCommandArgs2 from './assets/rules-editor-command-args-2.png';
+
+# Expansion Rules
+
+## Managing
+
+Navigate to the "Expansion" page from the Aerie UI top-level menu, to view, edit or delete existing expansion rules.
+The expansion rules page shown in Figure 1 below lists all expansion rules authored by any user who has access to the Aerie deployment.
+Click on "New" above the table to the right to create a new expansion rule.
+
+<figure>
+  <img alt="Aerie UI - Expansion Rules Page" src={rulesPage} />
+  <figcaption align="center">
+    Figure 1: Aerie UI Expansion Rules Page - View, create, or delete expansion rules
+  </figcaption>
+</figure>
+
+## Authoring
+
+Navigate to the expansion rule editor by clicking "New" on the expansion rules page, or by clicking the edit icon for any existing expansion rule listed there.
+The expansion rule editor page allows selecting a command dictionary version and a mission model version.
+Once the mission model version is selected, the "Activity Type" drop-down menu lists all the activity types defined in the selected mission model.
+Once the activity type is selected, its parameters can be accessed within the expansion rule.
+
+<figure>
+  <img alt="Aerie UI - Expansion Rules Editor" src={rulesEditor} />
+  <figcaption align="center">Figure 2: Aerie UI Expansion Rules Editor</figcaption>
+</figure>
+
+Note that the expansion logic starts with some boilerplate code, and users are expected to add their commands as comma-separated objects in a `return []` statement structured as the following:
+
+```ts
+return [
+  Timing.CommandStem(argument_1, argument_2, ...),
+  ...
+];
+```
+
+Each command stem must be preceded by a time type including one of the following: `C command complete`, `A(YYYY-DDDThh:mm:ss) absolute time`, `E(durationOffset) epoch relative`, or `R(durationOffset) command relative`.
+All of these time types are supported in the [AMPCS command dictionary spec](https://github.com/NASA-AMMOS/ampcs-dict-schemas/blob/main/CommandDictionary.rnc).
+Duration offset for epoch and command relative time types should be defined as a [Temporal.Duration](https://tc39.es/proposal-temporal/docs/duration.html) object.
+To learn more about the specific behavior of these time tags, please refer to the flight software sequence behavior functional documentation of your mission.
+
+Once a time type is selected and ended with a `.`, the editor provides a drop-down list of all commands available in the selected dictionary.
+The list of commands will be filtered as the user starts typing the command stem.
+Once a command stem is selected the editor will list all the arguments and expected types for those arguments.
+Values for ENUMs will be listed as strings, and must be input as strings. See the below figures for details.
+
+<figure>
+  <img alt="Aerie UI Expansion Rules Editor - Command Autocomplete" src={rulesEditorCommandAutocomplete} />
+  <figcaption align="center">Figure 3: Aerie UI Expansion Rules Editor - Command Autocomplete</figcaption>
+</figure>
+
+<figure>
+  <img alt="Aerie UI Expansion Rules Editor - Command Arguments Error" src={rulesEditorCommandArgsError} />
+  <figcaption align="center">Figure 4: Aerie UI Expansion Rules Editor - Command Arguments Error</figcaption>
+</figure>
+
+The true power of command expansion is to be able to map activity parameter values to command arguments.
+Note that the beginning of the expansion rule block provides a reference to an activity instance `const { activityInstance } = props`.
+This reference allows accessing various attributes of instances of the activity type selected.
+Typing `props.activityInstance.` lists properties like start time, end time, duration and type, which can be used to inform logic statements or timing of commands.
+`props.activityInstance.attributes.arguments.` lists all parameter names of the type.
+Note that expansion request will replace these with actual values from simulated activity instances.
+
+<figure>
+  <img alt="Aerie UI Expansion Rules Editor - Command Arguments for Activity" src={rulesEditorCommandArgs1} />
+  <img alt="Aerie UI Expansion Rules Editor - Command Arguments for Activity" src={rulesEditorCommandArgs2} />
+  <figcaption align="center">
+    Figure 5: Aerie UI Expansion Rules Editor - Passing Command Arguments from Activity
+  </figcaption>
+</figure>
+
+Expansion rules can also access computed attributes of an activity.
+These are values computed during the activity simulation and returned.
+The mechanism can be used to report value of a specific resource at the time of activity simulation, or an internal parameter derived from other parameters along with other inputs, such as a static lookup table.
+
+:::caution
+
+The Aerie expansion API exposes duration, computed attributes and similar data that is **only** available post simulation.
+Hence input to expansion is a simulation dataset.
+Any change to activity plan that invalidates simulation also invalidates command expansion outputs.
+
+:::
