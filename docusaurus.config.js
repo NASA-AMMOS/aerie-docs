@@ -63,33 +63,28 @@ const config = {
             sidebarId: 'upgradeGuides',
             type: 'docSidebar',
           },
-          {
-            label: 'Test Reports',
-            position: 'left',
-            sidebarId: 'testReports',
-            type: 'docSidebar',
-          },
           // Right.
-          {
-            dropdownActiveClassDisabled: true,
-            dropdownItemsAfter: [
-              {
-                type: 'html',
-                value: '<hr class="dropdown-separator">',
-              },
-              {
-                type: 'html',
-                className: 'dropdown-archived-versions',
-                value: '<b>Archived versions</b>',
-              },
-              {
-                href: 'https://nasa-ammos.github.io/aerie-docs/1.0.0',
-                label: '1.0.0',
-              },
-            ],
-            position: 'right',
-            type: 'docsVersionDropdown',
-          },
+          // TODO: Uncomment to enable version dropdown.
+          // {
+          //   dropdownActiveClassDisabled: true,
+          //   dropdownItemsAfter: [
+          //     {
+          //       type: 'html',
+          //       value: '<hr class="dropdown-separator">',
+          //     },
+          //     {
+          //       type: 'html',
+          //       className: 'dropdown-archived-versions',
+          //       value: '<b>Archived versions</b>',
+          //     },
+          //     {
+          //       href: 'https://nasa-ammos.github.io/aerie-docs/1.0.0',
+          //       label: '1.0.0',
+          //     },
+          //   ],
+          //   position: 'right',
+          //   type: 'docsVersionDropdown',
+          // },
           {
             'aria-label': 'GitHub repository',
             className: 'header-github-link',
