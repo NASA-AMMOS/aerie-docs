@@ -9,9 +9,9 @@ jobs:
     steps:
       - name: Install Prince
         run: |
-          curl https://www.princexml.com/download/prince-15-ubuntu22.04-amd64.tar.gz -O
-          tar zxf prince-15-ubuntu22.04-amd64.tar.gz
-          cd prince-15-ubuntu22.04-amd64
+          curl https://www.princexml.com/download/prince-15-linux-generic-x86_64.tar.gz -O
+          tar zxf prince-15-linux-generic-x86_64.tar.gz
+          cd prince-15-linux-generic-x86_64
           yes "" | sudo ./install.sh
       - name: Generate PDF
         run: npx docusaurus-prince-pdf -u https://nasa-ammos.github.io/aerie-docs/introduction/ --output pdf/aerie-docs.pdf
