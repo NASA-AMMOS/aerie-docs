@@ -1,7 +1,0 @@
-# Constraints
-
-When analyzing simulation results, it may be useful to detect windows where certain conditions are met. Constraints are the Aerie tool for fulfilling that role. A constraint is a condition on activities and resources that must hold through an entire simulation. If a constraint does not hold true at any point in a simulation, this is considered a violation.
-
-## Managing Constraints
-
-All constraints are associated with either a mission model or a specific plan. If associated with a model, a constraint will be applied to all plans made with that model. If associated with a plan, it will only applied to the plan, and it will have access to any [external datasets](../../planning/external-datasets) associated with the plan as well.

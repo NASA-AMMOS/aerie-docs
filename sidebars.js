@@ -90,7 +90,15 @@ const sidebars = {
         id: 'constraints/introduction',
         type: 'doc',
       },
-      items: ['constraints/concepts', 'constraints/examples'],
+      items: [
+        'constraints/concepts',
+        'constraints/examples',
+        {
+          label: 'EDSL Docs',
+          type: 'link',
+          href: 'https://nasa-ammos.github.io/aerie/develop/constraints-edsl-api/',
+        },
+      ],
     },
     {
       type: 'category',
@@ -99,7 +107,16 @@ const sidebars = {
         id: 'scheduling/introduction',
         type: 'doc',
       },
-      items: ['scheduling/goals', 'scheduling/global-conditions', 'scheduling/temporal-subset'],
+      items: [
+        'scheduling/goals',
+        'scheduling/global-conditions',
+        'scheduling/temporal-subset',
+        {
+          label: 'EDSL Docs',
+          type: 'link',
+          href: 'https://nasa-ammos.github.io/aerie/develop/scheduling-edsl-api/',
+        },
+      ],
     },
     {
       type: 'category',
