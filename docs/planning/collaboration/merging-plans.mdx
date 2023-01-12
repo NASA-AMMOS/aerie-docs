@@ -1,1 +1,137 @@
 # Merging Plans
+
+## Create a Merge Request
+
+In order to merge changes between two related plans (most commonly between a branch and its parent),
+a merge request must first be created between the **source plan** (the one supplying changes) and the **target plan** (the one to receive changes).
+
+From the child plan in the Aerie UI, open the dropdown and select "Create merge request".
+Confirm which plan you wish to be the target plan and press "Create merge request":
+
+import createMergeRq from './assets/create-merge-rq.png';
+import createMergeRqModal from './assets/create-merge-rq-modal.png';
+
+<figure align="center">
+  <div>
+    <img alt="Aerie UI - Create Merge Request Menu" src={createMergeRq} />
+  </div>
+  <img alt="Aerie UI - Create Merge Request" src={createMergeRqModal} />
+  <figcaption>Figure 1: Aerie UI - Create Merge Request</figcaption>
+</figure>
+
+:::note
+
+Currently it is only possible to select the parent branch as the target plan via the Aerie UI.
+To merge between other related plans, use the [Aerie API](../../../api/examples/planning/collaboration).
+
+:::
+
+## Withdraw a Merge Request
+
+You can withdraw a merge request so long as it is in the `pending` state.
+A withdrawn merge request cannot be used to begin a merge.
+
+While on the **source plan**, select the "Merge requests" text besides the plan's name.
+Then, press the "Withdraw" button next to the merge request you wish to withdraw:
+
+import outgoingMergeRequests from './assets/outgoing-merge-rqs.png';
+import withdrawMergeRequestModal from './assets/withdraw-merge-rq-modal.png';
+
+<figure align="center">
+  <div>
+    <img alt="Aerie UI - Outgoing Merge Requests" src={outgoingMergeRequests} />
+  </div>
+  <img alt="Aerie UI - Withdraw Merge Request" src={withdrawMergeRequestModal} />
+  <figcaption>Figure 2: Aerie UI - Withdraw Merge Request</figcaption>
+</figure>
+
+## Begin a Merge
+
+You can begin a merge from a `pending` merge request so long as the plan is not currently locked.
+
+:::note
+
+Beginning a merge locks the target plan until the merge is either `cancelled`, `denied`, or `committed`.
+
+:::
+
+While on the **target plan**, select the "Merge requests" text beside the list of branches to see the incoming requests.
+Then, press "Review" next to the merge request you wish to begin:
+
+import incomingMergeRequests from './assets/incoming-merge-rqs.png';
+import beginMergeModal from './assets/begin-merge-modal.png';
+
+<figure align="center">
+  <div>
+    <img alt="Aerie UI - Incoming Merge Requests" src={incomingMergeRequests} />
+  </div>
+  <img alt="Aerie UI - Begin Merge" src={beginMergeModal} />
+  <figcaption>Figure 3: Aerie UI - Begin Merge</figcaption>
+</figure>
+
+## Cancel a Merge
+
+You can cancel any `in-progress` merge. From the merge review screen, press the "Cancel" button in the bottom-right corner:
+
+import cancelMerge from './assets/cancel-merge.png';
+
+<figure align="center">
+  <img alt="Aerie UI - Cancel Merge" src={cancelMerge} />
+  <figcaption>Figure 4: Aerie UI - Cancel Merge</figcaption>
+</figure>
+
+## Resolving Conflicts
+
+Before a merge can be committed, all conflicts must be resolved to either **source** or **target**.
+
+First, select a conflicting activity from the list.
+The version of the activity in the source and target plan will appear to the right, with the differing fields highlighted.
+Then, determine which version to keep by pressing either "Keep Source Activity" or "Keep Target Activity":
+
+import unresolvedConflict from './assets/unresolved-conflict.png';
+import resolvedConflict from './assets/resolved-conflict.png';
+
+<figure align="center">
+  <img alt="Aerie UI - Unresolved Conflict" src={unresolvedConflict} />
+  <figcaption>Figure 5: Aerie UI - Unresolved Merge Conflict</figcaption>
+</figure>
+
+<figure align="center">
+  <img alt="Aerie UI - Resolved Conflict" src={resolvedConflict} />
+  <figcaption>Figure 6: Aerie UI - Resolved Merge Conflict</figcaption>
+</figure>
+
+You can also resolve conflicts in bulk:
+
+import resolveConflictsBulk from './assets/resolve-conflicts-bulk.png';
+
+<figure align="center">
+  <img alt="Aerie UI - Resolve Merge Conflicts in Bulk" src={resolveConflictsBulk} />
+  <figcaption>Figure 7: Aerie UI - Resolve Merge Conflicts in Bulk</figcaption>
+</figure>
+
+## Deny a Merge
+
+It is possible to deny an `in-progress` merge, for example, if a request is outdated.
+Once a merge has been denied, that request cannot be used to begin a merge.
+
+From the merge review screen, press the "Deny Changes" button in the bottom-right corner:
+
+import denyMerge from './assets/deny-merge.png';
+
+<figure align="center">
+  <img alt="Aerie UI - Deny Merge" src={denyMerge} />
+  <figcaption>Figure 8: Aerie UI - Deny Merge</figcaption>
+</figure>
+
+## Commit a Merge
+
+Once all conflicts have been resolved, you can commit a merge.
+From the merge review screen, press the "Approve Changes" button in the bottom-right corner:
+
+import approveMerge from './assets/approve-merge.png';
+
+<figure align="center">
+  <img alt="Aerie UI - Approve Merge" src={approveMerge} />
+  <figcaption>Figure 9: Aerie UI - Approve Merge</figcaption>
+</figure>
