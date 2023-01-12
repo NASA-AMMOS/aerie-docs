@@ -81,6 +81,7 @@ const sidebars = {
           },
           items: ['planning/collaboration/merging-plans'],
         },
+        'planning/ui-views',
       ],
     },
     {
@@ -133,6 +134,7 @@ const sidebars = {
         'command-expansion/run-expansion',
       ],
     },
+    'glossary',
   ],
   upgradeGuides: ['upgrade-guides/1-0-0-to-1-0-1', 'upgrade-guides/0-13-2-to-1-0-0'],
 };
