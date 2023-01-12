@@ -2,6 +2,30 @@
 
 /** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig} */
 const sidebars = {
+  api: [
+    'api/introduction',
+    {
+      type: 'category',
+      label: 'Examples',
+      link: {
+        type: 'doc',
+        id: 'api/examples/introduction',
+      },
+      items: [
+        {
+          type: 'category',
+          label: 'Planning',
+          link: {
+            type: 'doc',
+            id: 'api/examples/planning/introduction',
+          },
+          items: ['api/examples/planning/collaboration'],
+        },
+        'api/examples/constraints',
+        'api/examples/scheduling',
+      ],
+    },
+  ],
   docs: [
     'introduction',
     {

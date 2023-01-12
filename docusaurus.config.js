@@ -58,6 +58,12 @@ const config = {
             type: 'doc',
           },
           {
+            label: 'API',
+            position: 'left',
+            sidebarId: 'api',
+            type: 'docSidebar',
+          },
+          {
             label: 'Upgrade Guides',
             position: 'left',
             sidebarId: 'upgradeGuides',
