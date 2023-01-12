@@ -48,6 +48,15 @@ const sidebars = {
         'planning/create-plan-and-simulate',
         'planning/external-datasets',
         'planning/activity-directive-metadata',
+        {
+          type: 'category',
+          label: 'Collaboration',
+          link: {
+            id: 'planning/collaboration/introduction',
+            type: 'doc',
+          },
+          items: ['planning/collaboration/merging-plans'],
+        },
       ],
     },
     {

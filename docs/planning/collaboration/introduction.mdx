@@ -1,0 +1,59 @@
+import createBranchMenu from './assets/create-branch-menu.png';
+import createBranchModal from './assets/create-branch-modal.png';
+import openParentPlan from './assets/open-parent-plan.png';
+import openBranchHeader from './assets/open-branch-header.png';
+import openBranchModal from './assets/open-branch-modal.png';
+
+# Collaboration
+
+Aerie supports two forms of collaboration during planning:
+
+1. **Real-time collaboration**, where multiple users can work on the same plan at the same time
+1. **Branch-based collaboration**, where users can branch existing plans and later merge their changes into other related plans
+
+## Real-Time
+
+In the Aerie UI real-time collaboration occurs automatically whenever multiple users have the same plan open.
+
+## Branch-Based
+
+Branches can be made from any existing plan.
+A branched plan will have the same start and end time as its parent plan, as well as a copy of all the activities in the parent at the moment it was branched.
+It will not, however, contain any simulation data, scheduling goals, or constraints that were associated with the parent plan.
+
+For information on merging branches, see [Merging Plans](../../collaboration/merging-plans).
+
+### Branching a Plan
+
+When on a plan in the Aerie UI, select the drop-down from beside the plan's name and select "Create branch":
+
+<figure align="center">
+  <img alt="Aerie UI - Create Plan Branch Menu" src={createBranchMenu} />
+  <figcaption>Figure 1: Aerie UI - Create Plan Branch Menu</figcaption>
+</figure>
+
+That will open a modal where you can enter the new branch's name.
+Selecting "Create Branch" will open the new branch:
+
+<figure align="center">
+  <img alt="Aerie UI - Create Plan Branch Modal" src={createBranchModal} />
+  <figcaption>Figure 2: Aerie UI - Create Plan Branch Modal</figcaption>
+</figure>
+
+To return to the parent plan, either click the parent plan's name or select "Open parent plan" from the dropdown:
+
+<figure align="center">
+  <img alt="Aerie UI - Open Parent Plan" src={openParentPlan} />
+  <figcaption>Figure 3: Aerie UI - Open Parent Plan</figcaption>
+</figure>
+
+To return to a branch from the parent plan, click the 1 branch text from beside the name of the plan.
+Then select the plan from the list of branches:
+
+<figure align="center">
+  <div>
+    <img alt="Aerie UI - Open Branch Header" src={openBranchHeader} />
+  </div>
+  <img alt="Aerie UI - Open Branch Modal" src={openBranchModal} />
+  <figcaption>Figure 4: Aerie UI - Open Branch Modal</figcaption>
+</figure>
