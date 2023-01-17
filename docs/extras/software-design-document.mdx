@@ -1,0 +1,101 @@
+# Software Design Document (SDD)
+
+## Introduction
+
+### Purpose
+
+This document details the current state of the design of the Aerie system. The document defines the components which make up the Aerie system and how these relate to the higher level architecture description document. Additionally, design rationale and the trade studies are described to provide guidance and support for design decisions. Where available the many Aerie component interface definitions and relevant published Software Interface Specification documents will be provided inline or referenced.
+
+### Overview
+
+Aerie is a software system being developed by the MPSA element of Multi-mission Ground System and Services (MGSS), a subsystem of [AMMOS (Advanced Multi-mission Operations System)](https://ammos.nasa.gov/). Aerie will support activity planning, sequencing, and spacecraft analysis of mission operations. This document will be updated as further aspects of the design are completed.
+
+### Terminology and Notation
+
+- **Container** – in this document the term container primarily refers to the Container level of architecture as defined in the [C4 Model](https://c4model.com/) approach to describing software architecture. Other types of container, such as a Docker container, will be denoted or made clear by context.
+
+- **Mission model** - The term "adaptation" has become significantly overloaded at JPL. The word is used in many different contexts to convey or denote a range of different and often unrelated entities or concepts. Often, the ability of one to understand the entity or concept which term denotes, relies on one’s ability to understand the wider context in which it being used. This requires a burdensome amount of understanding of the domain before the term becomes specific and useful. Additionally, the boundary or extents of what the term denotes is unclear. Take for example the commonly termed mission planning adaptation. On first mention, it is not clear here if such usage indicates the specific APGen code written, or wider, the APGen code plus any modeling integrations, or wider still, the integrated system which performs a MP simulation. Finally, this term is very JPL centric and does not comport with other language in the domain of modeling, simulation, discrete event simulation etc.
+
+  As a result Aerie has chosen to use the term mission model to denote the modeling code (and integrations e.g. FMU) written, defined in a [.JAR](https://docs.oracle.com/javase/8/docs/technotes/guides/jar/jarGuide.html), which run as an Aerie simulation. It's specific as to the purpose of the code written, unambiguous (not confused with other terms in use), and better comports to the domain of simulation and modeling in general.
+
+### References
+
+Table 1: Applicable JPL Rules Documents
+
+| Title                          | Doc ID |
+| ------------------------------ | ------ |
+| JPL Software Development Rules | 57653  |
+
+Table 2: Applicable MGSS Documents
+
+| Title                                                 | Doc ID     |
+| ----------------------------------------------------- | ---------- |
+| AMMOS Technical Standards Profile                     | DOC-001101 |
+| MGSS Implementation and Maintenance Task Requirements | DOC-001455 |
+| Aerie Software Requirements Document (Aerie SRD)      | DOC-002388 |
+| Aerie Product Guide                                   | DOC-002537 |
+| MGSS Implementation and Task Requirements             | DOC-001455 |
+
+## Allocated Requirements
+
+Please refer to the Aerie Software Requirements Document referenced in Table 2.
+
+## Design Context / Principles
+
+[In progress...]
+
+The following provides a summary discussion of the reasoning behind the Aerie architecture. This section will detail the design's guiding principles, assumptions, and constraints.
+
+An incremental/evolving potential in the design. The component based system design provides the benefits of component based [LIST THESE BENEFITS]. In the case where application need to accommodate growing or new capabilities, where those new capabilities are satisfied by separating a component into its own process, this can be done. A well designed monolith in many ways should resemble a distributed system. This means one should avoid shared state, strict definition and adherence to interfaces a service interface is equal to a component’s exposed interface. A message passing reactive system can exists whether the components are in the same process, in separate processes, or even separate infrastructure.
+
+[Discuss Bounded Contexts and their definition/extraction from the domain model]
+
+For example the [merlin-worker](https://github.com/NASA-AMMOS/aerie/tree/develop/merlin-worker) is a part of the Merlin bounded context. Much of Aerie has been designed with the [DDD principle of bounded contexts](https://martinfowler.com/bliki/BoundedContext.html). Among the many implications of this is that the data within each bounded context shall only be manipulated by the components explicitly contained within the defined context. It is important not to mistake the fact that the merlin-worker is a separate container image as indicating that it is part of a separate bounded context. Rather, it is simply a separate container so that the merlin-server can account for the aforementioned process separation concerns. Therefore, each merlin-worker has a direct connection to the merlin database.
+
+## Aerie System Design
+
+### System Architecture
+
+This section describes the Aerie system architecture, the guiding component-based design philosophy, and an overview of the key components.
+
+The architectural diagramming approach taken in this document follows the C4 Model for visualizing and discussing software architecture. This approach abstracts a software system into roughly four levels, Context, Containers, Components, and Code. A brief description of each level of abstraction is provided in [Appendix A](#a---the-c4-model).
+
+import c4AerieContext from './assets/c4-aerie-context.png';
+
+<figure align="center">
+  <img alt="Aerie Context" src={c4AerieContext} width="512" />
+  <figcaption>Figure 1: Aerie Context</figcaption>
+</figure>
+
+- [TODO] Update software design document to discus the fact that a component focused approach will satisfy Aerie's needs
+  Aerie's load needs aren't addressed by spinning up many instances of a service (horizontal scaling)
+  Discuss why this leads to a design: is appropriately extensible and key points for needed modularity
+
+### Container Level Component Overview
+
+## Appendix
+
+### A - The C4 Model
+
+The architectural diagramming approach taken in this document follows the [C4 Model](https://c4model.com/) for visualizing and discussing software architecture. This approach abstracts a software system into roughly four level, Context, Containers, Components, and Code. A brief overview of the first three levels of abstraction is given below to help the reader of this document better understand what is being communicated in the various diagrams.
+
+1. The Context diagram shows the software system (Aerie) in its broadest scope.
+
+   **Scope:** A single software system.<br />
+   **Primary elements:** The software system in scope.<br />
+   **Supporting elements:** People (e.g., users, actors, roles, or personas) and software systems (external dependencies) that are directly connected to the software system in scope. Typically, these other software systems sit outside the scope or boundary of your own software system, and you don’t have responsibility or ownership of them.<br />
+   **Intended audience:** Everybody, both technical and non-technical people, inside and outside of the software development team.
+
+2. The Container diagram shows the high-level shape of the software architecture and how responsibilities are distributed across it. It also shows the major technology choices and how the containers communicate with one another. A container is a separately runnable/deployable unit (e.g., a separate process space) that executes code or stores data.
+
+   **Scope:** A single software system.<br />
+   **Primary elements:** Containers within the software system in scope.<br />
+   **Supporting elements:** People and software systems directly connected to the containers.<br />
+   **Intended audience:** Technical people inside and outside of the software development team; including software architects, developers and operations/support staff. Notes: This diagram says nothing about deployment scenarios, clustering, replication, failover, etc.
+
+3. The Component diagram specifies the "components" which comprise a Container, what each of those components are, their responsibilities and the technology/implementation details.
+
+   **Scope:** A single container.<br />
+   **Primary elements:** Components within the container in scope.<br />
+   **Supporting elements:** Containers (within the software system in scope) plus people and software systems directly connected to the components.<br />
+   **Intended audience:** Software architects and developers.

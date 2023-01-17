@@ -134,6 +134,14 @@ const sidebars = {
         'command-expansion/run-expansion',
       ],
     },
+    {
+      type: 'category',
+      label: 'Extras',
+      link: {
+        type: 'generated-index',
+      },
+      items: ['extras/software-design-document', 'extras/concept-of-operations'],
+    },
     'glossary',
   ],
   upgradeGuides: ['upgrade-guides/1-0-0-to-1-0-1', 'upgrade-guides/0-13-2-to-1-0-0'],
