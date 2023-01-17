@@ -33,7 +33,7 @@ query GetPlan($id: Int!) {
 
 ## Query for All Activity Directives (aka Instances) for a Plan
 
-Notice how in this query we get the same `plan` data as the previous query, but also the nested `activity_directives`. If you are familiar with relational databases you can think of this as a join query between the `plan` table and `activity_directive` table (in Hasura these joins are made via [relationships](https://hasura.io/learn/graphql/hasura/relationships/)). This is the sweet sauce behind GraphQL. It allows us to query for deeply-nested data across the Aerie system in a single unified way.
+Notice how in this query we get the same `plan` data as the previous query, but also the nested `activity_directives`. If you are familiar with relational databases you can think of this as a join query between the `plan` table and `activity_directive` table (in Hasura these joins are made via [relationships](https://hasura.io/learn/graphql/hasura/relationships/)). This is the secret sauce behind GraphQL. It allows us to query for deeply-nested data across the Aerie system in a single unified way.
 
 ```graphql
 query GetActivityDirectivesForPlan($id: Int!) {
@@ -105,6 +105,65 @@ query Simulate($planId: Int!) {
     reason
     simulationDatasetId
     status
+  }
+}
+```
+
+## Query for Simulation Results
+
+The output of a simulation is stored in a `simulation_dataset`. A `simulation_dataset` has both profiles (aka states or resources), and simulated activities. The following query fetches latest `simulation_dataset` for a given plan:
+
+```graphql
+query GetSimulationDataset($planId: Int!) {
+  plan_by_pk(id: $planId) {
+    simulations(order_by: { id: desc }, limit: 1) {
+      simulation_datasets(order_by: { id: desc }, limit: 1) {
+        dataset {
+          id
+          profiles {
+            id
+            name
+            type
+            profile_segments {
+              profile_id
+              dynamics
+              start_offset
+            }
+          }
+        }
+        id
+        reason
+        simulated_activities {
+          activity_directive {
+            id
+            metadata
+          }
+          activity_type_name
+          attributes
+          directive_id
+          duration
+          end_time
+          id
+          parent_id
+          start_offset
+          start_time
+        }
+        status
+      }
+    }
+    start_time
+  }
+}
+```
+
+Note for performance it can sometimes be beneficial to request profile segments separately. The profile segments are the actual simulated resource data:
+
+```graphql
+query GetProfileSegments($datasetId: Int!) {
+  profile_segment(where: { dataset_id: { _eq: $datasetId } }) {
+    profile_id
+    dynamics
+    start_offset
   }
 }
 ```
