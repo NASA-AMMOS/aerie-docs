@@ -42,7 +42,14 @@ const sidebars = {
       link: {
         type: 'generated-index',
       },
-      items: ['deployment/advanced-ui-custom-base-path'],
+      items: [
+        'deployment/advanced-ui-custom-base-path',
+        {
+          label: 'Environment Variables',
+          type: 'link',
+          href: 'https://github.com/NASA-AMMOS/aerie/blob/develop/deployment/Environment.md',
+        },
+      ],
     },
     {
       type: 'category',
