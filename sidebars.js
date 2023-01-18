@@ -30,6 +30,14 @@ const sidebars = {
     'introduction',
     {
       type: 'category',
+      label: 'Overview',
+      link: {
+        type: 'generated-index',
+      },
+      items: ['overview/concept-of-operations', 'overview/software-design-document'],
+    },
+    {
+      type: 'category',
       label: 'Deployment',
       link: {
         type: 'generated-index',
@@ -133,14 +141,6 @@ const sidebars = {
         'command-expansion/sequences',
         'command-expansion/run-expansion',
       ],
-    },
-    {
-      type: 'category',
-      label: 'Extras',
-      link: {
-        type: 'generated-index',
-      },
-      items: ['extras/software-design-document', 'extras/concept-of-operations'],
     },
     'glossary',
   ],
