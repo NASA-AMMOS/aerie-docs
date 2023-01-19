@@ -1,0 +1,77 @@
+# Run Scheduling
+
+## Scheduling Specification
+
+After you have created one or several goals, you will see them in the scheduling pane of the plan in Aerie UI.
+
+The Aerie scheduler accepts a list of goals, and tries to satisfy them one by one by adding activities to your plan. We refer to this list of goals as a **scheduling specification**. Aerie creates one scheduling specification per plan. A goal's priority is a number reflecting that goal's position in the scheduling specification. The first goal will always have priority `0`, and the n-th goal will always have priority `n - 1`. Within a scheduling specification, a scheduling goal can be toggled enabled or disabled. A disabled scheduling goal will be excluded from scheduling execution. The priority ordering of the scheduling goals remains unchanged whether a goal is enabled or disabled.
+
+import schedulingSpecification from './assets/scheduling-specification.png';
+
+<figure align="center">
+  <img alt="Aerie UI - Scheduling Specification" src={schedulingSpecification} />
+  <figcaption>Figure 1: Aerie UI Scheduling Specification</figcaption>
+</figure>
+
+In this image, you can see a specification with three goals. Goal 1 has priority `0`, and goal 3 has priority `2`. You can modify the priorities directly by typing numbers or use the arrows. You can disable a goal by toggling it off with the checkbox.
+
+:::caution
+
+You must use priorities in the `[0, n-1]` range, `n` being the number of goals.
+
+:::
+
+## Running the Scheduler
+
+To run the scheduler, click on the play button:
+
+import runScheduling from './assets/run-scheduling.png';
+
+<figure align="center">
+  <img alt="Aerie UI - Run Scheduling" src={runScheduling} />
+  <figcaption>Figure 2: Aerie UI Run Scheduling</figcaption>
+</figure>
+
+If the scheduler fails, a failure icon will appear next to the buttons:
+
+import schedulingFailed from './assets/scheduling-failed.png';
+
+<figure align="center">
+  <img alt="Aerie UI - Scheduling Failed" src={schedulingFailed} />
+  <figcaption>Figure 3: Aerie UI Scheduling Failed</figcaption>
+</figure>
+
+An error message will also appear in the bottom error panel. For example:
+
+import schedulingError from './assets/scheduling-error.png';
+
+<figure align="center">
+  <img alt="Aerie UI - Scheduling Error" src={schedulingError} />
+  <figcaption>Figure 4: Aerie UI Scheduling Error</figcaption>
+</figure>
+
+If scheduling succeeded, some information about the satisfaction of the goal appears next to each goal. For example:
+
+import schedulingSuccess from './assets/scheduling-success.png';
+
+<figure align="center">
+  <img alt="Aerie UI - Scheduling Success" src={schedulingSuccess} />
+  <figcaption>Figure 5: Aerie UI Scheduling Success</figcaption>
+</figure>
+
+- The round blue checkmark means that the goal is completely satisfied
+- `174` means that there are `174` activity directives that contribute to the satisfaction of the goal
+- `+3` means that 3 new activities have been inserted in the plan to satisfied the goal during the last scheduling run
+
+## Running a Scheduling Analysis
+
+The scheduler has an analysis mode that will evaluate the satisfaction of goals but will not place any new activities. To run the scheduler in analysis mode, click on the "analysis" button:
+
+import runSchedulingAnalysis from './assets/run-scheduling-analysis.png';
+
+<figure align="center">
+  <img alt="Aerie UI - Scheduling Analysis" src={runSchedulingAnalysis} />
+  <figcaption>Figure 6: Aerie UI Run Scheduling Analysis</figcaption>
+</figure>
+
+Information about the satisfaction of the goals will be the same as when the scheduler is run normally.

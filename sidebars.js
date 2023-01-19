@@ -125,6 +125,7 @@ const sidebars = {
       },
       items: [
         'scheduling/goals',
+        'scheduling/run-scheduling',
         'scheduling/global-conditions',
         'scheduling/temporal-subset',
         {
