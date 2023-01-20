@@ -331,3 +331,16 @@ RESULT:              [++-----++---] // (the second one is applied independently 
 
 When mapping out a temporal window to apply a goal over, keep in mind that the ending boundary of the goal is exclusive, i.e. if I want to apply a goal in the window of 10-12 seconds, it will apply only on seconds 10 and 11.
 This is in line with the [fencepost problem](https://en.wikipedia.org/wiki/Off-by-one_error#Fencepost_error).
+
+## Creating a New Goal
+
+This section describes how to create a new scheduling goal via the Aerie UI. In the UI, open the scheduling pane by clicking on the top-right bar.
+
+import schedulingPanel from './assets/scheduling-panel.png';
+
+<figure align="center">
+  <img alt="Aerie UI - Scheduling Panel" src={schedulingPanel} />
+  <figcaption>Figure 1: Aerie UI Scheduling Panel</figcaption>
+</figure>
+
+Next click "New" to create a new scheduling goal in the specification for the plan you are viewing. This will open the goal editor.
