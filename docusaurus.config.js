@@ -12,6 +12,9 @@ const config = {
     defaultLocale: 'en',
     locales: ['en'],
   },
+  markdown: {
+    mermaid: true,
+  },
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   organizationName: 'NASA-AMMOS',
@@ -111,6 +114,7 @@ const config = {
         theme: lightCodeTheme,
       },
     }),
+  themes: ['@docusaurus/theme-mermaid'],
   title: 'Aerie Documentation',
   trailingSlash: true,
   url: 'https://nasa-ammos.github.io/',
