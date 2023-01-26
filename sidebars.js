@@ -152,7 +152,7 @@ const sidebars = {
     },
     'glossary',
   ],
-  upgradeGuides: ['upgrade-guides/1-0-0-to-1-0-1', 'upgrade-guides/0-13-2-to-1-0-0'],
+  upgradeGuides: ['upgrade-guides/1-0-1-to-1-0-2', 'upgrade-guides/1-0-0-to-1-0-1', 'upgrade-guides/0-13-2-to-1-0-0'],
 };
 
 module.exports = sidebars;
