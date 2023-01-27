@@ -44,6 +44,7 @@ const sidebars = {
       },
       items: [
         'deployment/advanced-ui-custom-base-path',
+        'deployment/advanced-kubernetes',
         {
           label: 'Environment Variables',
           type: 'link',
