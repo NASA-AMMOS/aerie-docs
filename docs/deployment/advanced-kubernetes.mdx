@@ -1,0 +1,159 @@
+import kubeDemo from './assets/kube-demo.webm';
+
+# Advanced - Kubernetes
+
+If you're already familiar with Kubernetes, feel free to jump to [Within Aerie Context](/aerie-docs/deployment/advanced-kubernetes/#within-aerie-context)
+
+## Introduction
+[Kubernetes](https://kubernetes.io/) (often shortened to k8s) is an open-source platform for automating deployment, scaling, and management of containerized applications. It provides abstractions around container primitives like networking, storage, and runtimes, allowing deployment operators to declartively define the desired state of the cluster, which Kubernetes works to maintain.
+
+<video controls>
+    <source src={kubeDemo} type="video/webm" />
+</video>
+
+## Features
+
+### Declarative desired state
+
+Desired state for a Kubernetes cluster is defined using the `yaml` format, in files referred to as manifests. An example manifest for creating an `aerie-ui` container looks like this:
+
+```yaml
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aerie-ui-deployment
+  labels:
+    app: aerie-ui
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: aerie-ui
+  template:
+    metadata:
+      labels:
+        app: aerie-ui
+    spec:
+      containers:
+      - name: aerie-ui
+        image: ghcr.io/nasa-ammos/aerie-ui:v1.0.1
+        ports:
+        - containerPort: 80
+        env:
+        - name: EXAMPLE_VAR
+          value: "example_value"
+```
+
+*These manifests are quite long-winded, but much of that is boilerplate.*
+
+This manifest defines an "aerie-ui" `Pod`, which is a wrapper around a container, that listens on port 80 and has the `EXAMPLE_VAR` environment variable available to it. This `Pod` template is wrapped by a `Deployment` object, which allows defining how many replicas of this `Pod` we want. In this example, the Kubernetes engine will work to ensure 2 instances of this UI `Pod` are running in our cluster at all times.
+
+Kubernetes manifests can be applied to the cluster using the `kubectl` command line tool. We could apply the above example using `kubectl apply -f aerie-ui-deployment.yaml`. `kubectl` will need to be configured to point at and authenticate with an existing Kubernetes cluster.
+
+Read more about Kubernetes abstractions and objects that can be defined in manifests [here](https://kubernetes.io/docs/concepts/).
+
+### DNS and load balancing
+
+`Deployments` can be wrapped in a `Service` object, which abstracts away the underlying `Pods` and instead exposes a single endpoint and DNS entry. The following example exposes our `aerie-ui` `Deployment` from before and will make it available to all other pods in the cluster at `http://aerie-ui`.
+
+```yaml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aerie-ui
+  labels:
+    app: aerie-ui
+spec:
+  selector:
+    app: aerie-ui
+  ports:
+  - name: http
+    port: 80
+```
+
+If a `Service` points to a `Deployment` that has multiple replicas, Kubernetes will intelligently load balance between the `Pods` replicas.
+
+### Orchestration and healing
+
+The example `Deployment` above defined the cluster's desired state to have 2 replicas of `aerie-ui`. If one of these `Pods` were to go down, i.e. stop responding to health checks, Kubernetes would automatically spin up a new instance of that `Pod` and start diverting traffic from the unhealthy `Pod` to the newly created one.
+
+### Rollout and rollback
+
+Kubernetes allows for simple yet robust rollouts of new container image versions.
+
+The following would initiate a rolling deployment of a new `aerie-ui` version. Kubernetes would spin up new `Pods` with version `v1.0.2`, slowly divert traffic to them, and then terminate the old `v1.0.1` `Pods`.
+
+```sh
+kubectl set image deployment/aerie-ui-deployment aerie-ui=ghcr.io/nasa-ammos/aerie-ui:v1.0.2
+```
+
+## Within Aerie context
+
+Aerie is provided as a set of container images, which makes it a perfect match for a Kubernetes deployment. Manifests for Aerie on Kubernetes are provided in the [Aerie repo](https://github.com/NASA-AMMOS/aerie/tree/develop/deployment/kubernetes). These manifests create `Deployments` for each of the Aerie services, e.g. `aerie-merlin`, `hasura`, etc. with one replica of each `Pod`. An existing Kubernetes cluster will be needed. See one of the following sections for instructions on spinning up a cluster varying environments.
+
+## Local Kubernetes deployment
+
+### Cluster creation
+
+First, a local Kubernetes cluster is needed. An easy way to get a development cluster running is to run Kubernetes components within Docker. A tool called [k3d](https://k3d.io) can easily spin up a lightweight distrubution of Kubernetes called [k3s](https://k3s.io/). Create a cluster with the following command
+
+```sh
+k3d cluster create -p "80:80@loadbalancer" -p "8080:30080@server:0" -p "9000:30000@server:0" aerie-dev
+```
+
+This creates two Docker containers, running Kubernetes services as well as a proxy that can forward traffic to our cluster. The `-p` options exposes and maps port from our local machine to the Kubernetes docker container.
+
+Then, assuming you already have `kubectl` installed, you can access the cluster with
+
+```sh
+kubectl get nodes
+```
+
+and you should see one Kubernetes worker node running within Docker.
+
+### Manifest prerequisites
+
+A few objects need to be created before applying the provided aerie manifests. Navigate to `deployment/kubernetes`.
+
+First, create the `aerie-dev` namespace by issuing the following command:
+```sh
+kubectl create namespace aerie-dev
+```
+
+Then, create a Kubernetes `Secret` that holds username and password info for Postgres:
+```sh
+kubectl -n aerie-dev create secret generic dev-env --from-env-file=.env
+```
+
+The referenced `.env` file will need to be created or copied from `deployment/.env` and filled in with your desired username/passwords. The follwing environment variables are required (shown with resonable defaults):
+
+```sh
+AERIE_USERNAME=aerie
+AERIE_PASSWORD=aerie
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+```
+
+### Manifest application
+
+Then, apply aerie manifests within `deployment/kubernetes` by running:
+```sh
+kubectl apply -f .
+```
+
+Wait a few minutes for images to be pulled and deployed, then visit `http://localhost` in your browser to see the familiar `aerie-ui`!
+
+### Spinning Aerie down
+
+To remove the Aerie deployment, simply run:
+```sh
+kubectl delete -f .
+```
+
+This will remove all Aerie `Pods`, but preserve the `aerie-dev` namespace and `Secret` we created earlier, since we created those ad-hoc, not from a manifest. This allows you to quickly iterate on manifests.
+
+## AWS
+
+Coming Soon...
