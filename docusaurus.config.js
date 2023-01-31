@@ -40,9 +40,9 @@ const config = {
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
       algolia: {
-        appId: '6JHHKJXI6J',
-        apiKey: 'c63a6f050345f86d5ccbc967ad793257',
-        indexName: 'aerie-documentation',
+        appId: '8JHCZUL0FX',
+        apiKey: 'a1dbcf32b9808b0ecaf9c7402952d6d3',
+        indexName: 'aerie',
         replaceSearchResultPathname: isDev ? { from: /^\/docs\/next/g, to: '/docs' } : undefined,
       },
       docs: {
