@@ -31,6 +31,59 @@ query GetPlan($id: Int!) {
 }
 ```
 
+## Create a Single Plan
+
+Here is a mutation that creates a single plan and returns the `id` of the new plan:
+
+```graphql
+mutation CreatePlan($plan: plan_insert_input!) {
+  insert_plan_one(object: $plan) {
+    id
+  }
+}
+```
+
+Here is an example query variable for the mutation above that creates a 24-hour long plan called "New Plan" starting on January 1st, 2030. It is for a model with ID 1:
+
+```json
+{
+  "plan": {
+    "duration": "24:00:00",
+    "model_id": 1,
+    "name": "New Plan",
+    "start_time": "2030-001T00:00:00"
+  }
+}
+```
+
+Notice the `duration` is a [Postgres interval](https://www.postgresqltutorial.com/postgresql-tutorial/postgresql-interval/) of the format `hh:mm:ss`.
+
+After you create a plan you should also create an associated [simulation](../introduction#create-a-simulation-for-a-plan) and [scheduling specification](../../scheduling#create-scheduling-specification).
+
+## Create a Simulation for a Plan
+
+Here is a mutation that creates a single simulation and returns the `id` of the new simulation:
+
+```graphql
+mutation CreateSimulation($simulation: simulation_insert_input!) {
+  insert_simulation_one(object: $simulation) {
+    id
+  }
+}
+```
+
+Here is an example query variable for the mutation above that creates a simulation for a plan with ID 1:
+
+```json
+{
+  "simulation": {
+    "arguments": {},
+    "plan_id": 1,
+    "simulation_template_id": null
+  }
+}
+```
+
 ## Query for All Activity Directives (aka Instances) for a Plan
 
 Notice how in this query we get the same `plan` data as the previous query, but also the nested `activity_directives`. If you are familiar with relational databases you can think of this as a join query between the `plan` table and `activity_directive` table (in Hasura these joins are made via [relationships](https://hasura.io/learn/graphql/hasura/relationships/)). This is the secret sauce behind GraphQL. It allows us to query for deeply-nested data across the Aerie system in a single unified way.
