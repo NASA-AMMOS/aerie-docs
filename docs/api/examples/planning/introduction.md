@@ -56,7 +56,8 @@ Here is an example query variable for the mutation above that creates a 24-hour 
 }
 ```
 
-Notice the `duration` is a [Postgres interval](https://www.postgresqltutorial.com/postgresql-tutorial/postgresql-interval/) of the format `hh:mm:ss`.
+Notice the `duration` is a [Postgres interval](https://www.postgresqltutorial.com/postgresql-tutorial/postgresql-interval/) of the format `hh:mm:ss`.  
+The `start_time` is in the [day-of-year](https://nsidc.org/data/user-resources/help-center/day-year-doy-calendar) format `YYYY-DDDThh:mm:ss`.
 
 After you create a plan you should also create an associated [simulation](../introduction#create-a-simulation-for-a-plan) and [scheduling specification](../../scheduling#create-scheduling-specification).
 
