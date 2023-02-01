@@ -151,6 +151,20 @@ const sidebars = {
         'command-expansion/run-expansion',
       ],
     },
+    {
+      type: 'category',
+      label: 'Sequencing',
+      link: {
+        type: 'generated-index',
+      },
+      items: [
+        {
+          label: 'Seq JSON Schema',
+          type: 'link',
+          href: 'https://github.com/NASA-AMMOS/seq-json-schema',
+        },
+      ],
+    },
     'glossary',
   ],
   upgradeGuides: ['upgrade-guides/1-0-1-to-1-0-2', 'upgrade-guides/1-0-0-to-1-0-1', 'upgrade-guides/0-13-2-to-1-0-0'],
