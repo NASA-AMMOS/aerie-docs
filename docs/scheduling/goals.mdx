@@ -344,3 +344,109 @@ import schedulingPanel from './assets/scheduling-panel.png';
 </figure>
 
 Next click "New" to create a new scheduling goal in the specification for the plan you are viewing. This will open the goal editor.
+
+import goalEditorNew from './assets/goal-editor-new.png';
+
+<figure align="center">
+  <img alt="Aerie UI - Scheduling Goal Editor - New Goal" src={goalEditorNew} />
+  <figcaption>Figure 2: Scheduling Goal Editor - New Goal</figcaption>
+</figure>
+
+The default new goal shown in the editor is the following:
+
+```ts
+export default (): Goal => {
+  // Your code here...
+};
+```
+
+This is a [TypeScript](https://www.typescriptlang.org/) function that takes no arguments and returns a Goal. To unpack all of the parts:
+
+- `export default` signals to Aerie that this is the function that defines the Goal.
+- `() => {}` in TypeScript is called an [arrow function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions).
+- The parenthesis `()` represent the parameters that the function takes. Scheduling goals cannot take any parameters, so these parenthesis must be empty.
+- The curly braces `{}` represent the definition of the goal. The return statement for the function must go inside the braces.
+- The `: Goal` part signifies that this function returns a Goal. TypeScript will check that the function does indeed return a Goal - if it does not, it will underline your code in red.
+
+In the initial code provided in the new goal editor the function does not yet return anything, so you should see the word Goal underlined in red (see Figure 2 above).
+
+Mousing over the word Goal, you should see something akin to the following message:
+
+```text
+A function whose declared type is neither 'void' nor 'any' must return a value.
+```
+
+This message means that the function has promised to return a value, but it currently lacks a return statement. Between the curly braces, add the following code:
+
+```ts
+export default (): Goal => {
+  return Goal.ActivityRecurrenceGoal();
+};
+```
+
+The editor should tell you that `ActivityRecurrenceGoal()` takes one argument:
+
+import invalidRecurrenceGoal from './assets/invalid-recurrence-goal.png';
+
+<figure align="center">
+  <img alt="Aerie UI - Invalid Recurrence Goal" src={invalidRecurrenceGoal} />
+  <figcaption>Figure 3: Invalid Recurrence Goal</figcaption>
+</figure>
+
+The argument that we’re missing is the "options" object. Objects in typescript are defined using curly braces `{}` with key-value pairs, like so:
+
+```ts
+{
+  key: value;
+}
+```
+
+If we pass an empty object `{}` to `ActivityRecurrenceGoal`:
+
+```ts
+export default (): Goal => {
+  return Goal.ActivityRecurrenceGoal({}); // The empty object is written as {}
+};
+```
+
+We get an error message that tells us what keys our object needs:
+
+```text
+Argument of type '{}' is not assignable to parameter of type '{ activityTemplate: ActivityTemplate; interval: number; }'.
+Type '{}' is missing the following properties from type '{ activityTemplate: ActivityTemplate; interval: number;}': activityTemplate, interval
+```
+
+This error message tells us that our object is missing two keys: `activityTemplate`, and `interval`. If we look up the definition of [ActivityRecurrenceGoal](#activity-recurrence-goal), we see that it does indeed need an activity template and an interval. Let’s add those:
+
+```ts
+export default (): Goal => {
+  return Goal.ActivityRecurrenceGoal({
+    activityTemplate: null,
+    interval: Temporal.Duration.from({ hours: 24 }),
+  });
+};
+```
+
+Now, we just need to finish specifying the `activityTemplate`. Start by typing `ActivityTemplates.` (note the period), and select an activity type. Provide your activity an object with the arguments that that activity takes. Once the editor is no longer underlining your code, save your goal by clicking on "Save".
+
+## Deleting or Editing a Goal
+
+To delete or edit a scheduling goal via the UI, open the scheduling pane and right-click on the goal you want to delete or edit:
+
+import goalContextMenu from './assets/goal-context-menu.png';
+
+<figure align="center">
+  <img alt="Aerie UI - Goal Context Menu" src={goalContextMenu} />
+  <figcaption>Figure 4: Goal Context Menu</figcaption>
+</figure>
+
+Click on "Delete Goal" to delete the goal. If you click on "Edit Goal" it will open a new tab with an editor:
+
+import goalEditorEdit from './assets/goal-editor-edit.png';
+
+<figure align="center">
+  <img alt="Aerie UI - Scheduling Goal Editor - Edit Goal" src={goalEditorEdit} />
+  <figcaption>Figure 5: Scheduling Goal Editor - Edit Goal</figcaption>
+</figure>
+
+When you are done with editing the goal, click on "Save". Your goal is saved, and you can close the tab or continue working.
