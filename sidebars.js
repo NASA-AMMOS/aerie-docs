@@ -113,7 +113,7 @@ const sidebars = {
         {
           label: 'EDSL Docs',
           type: 'link',
-          href: 'https://nasa-ammos.github.io/aerie/develop/constraints-edsl-api/',
+          href: 'https://nasa-ammos.github.io/aerie/constraints-edsl-api/',
         },
       ],
     },
@@ -132,7 +132,7 @@ const sidebars = {
         {
           label: 'EDSL Docs',
           type: 'link',
-          href: 'https://nasa-ammos.github.io/aerie/develop/scheduling-edsl-api/',
+          href: 'https://nasa-ammos.github.io/aerie/scheduling-edsl-api/modules/Scheduling_eDSL.html',
         },
       ],
     },
