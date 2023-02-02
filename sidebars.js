@@ -43,6 +43,11 @@ const sidebars = {
         type: 'generated-index',
       },
       items: [
+        {
+          label: 'Fast Track ⏱️',
+          type: 'link',
+          href: '/introduction/#fast-track',
+        },
         'deployment/advanced-ui-custom-base-path',
         'deployment/advanced-kubernetes',
         {
