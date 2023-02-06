@@ -1,44 +1,49 @@
 # Concept of Operations
 
 ## Introduction
-The planning, scheduling and sequencing are common needs across many space missions, yet a common solution does not yet exist. Many space missions clone and own legacy solutions inherited from a similar, previous mission. AMMOS is dedicated to provide solutions shared across missions, liberating them from re-inventing the wheel addressing same issues and major cost of maintenance. However, the legacy AMMOS solutions pose limitations, rendering few expert users as bottleneck in the activity planning process. Aerie is designed to address the following capability gaps: 
-- simplify mission modeling experience by adopting a common programming language instead of a domain specific language (DSL),
-- simplify mission modeling experience by reducing interdependencies in the mission model code base, 
-- allow missions to make use of existing libraries for modeling, and write custom code in their mission model as they see fit, 
-- allow missions to provide a web deployment of a planning tool such that operators with limited programming skills can create valid activity plans and run simulations, 
-- support real time collaboration and and parallel hypothesis testing such that many more iterations of an activity plan can be tested within the same time frame, 
-- allow automation and manual modifications to coexist through out the planning process,
-- provide a low code constraint checking mechanism to validate simulation outputs which can be automated largely, 
-- provide a low code scheduling mechanism that can scaffold parts of or generate complete activity plans according to goal snippets, 
-- support an easy to use and verified translation from activities to flight system recognized sequences of commands. 
 
-Note that none of the capabilities above are completely new. Different software solutions have offered pieces of the listed capabilities,  different or more limited flavors. Aerie's mission is to cover as many key steps in the whole activity planning and sequencing workflow in one deployed tool with dedicated components.
+The planning, scheduling and sequencing are common needs across many space missions, yet a common solution does not yet exist. Many space missions clone and own legacy solutions inherited from a similar, previous mission. AMMOS is dedicated to provide solutions shared across missions, liberating them from re-inventing the wheel addressing same issues and major cost of maintenance. However, the legacy AMMOS solutions pose limitations, rendering few expert users as bottleneck in the activity planning process. Aerie is designed to address the following capability gaps:
 
-Although Aerie does not aim to be a complete solution for every mission, it has a strong emphasis on extensibility, customization and 3rd party tool integrations.  
+- Simplify mission modeling experience by adopting a common programming language instead of a domain specific language (DSL)
+- Simplify mission modeling experience by reducing interdependencies in the mission model code base
+- Allow missions to make use of existing libraries for modeling, and write custom code in their mission model as they see fit
+- Allow missions to provide a web deployment of a planning tool such that operators with limited programming skills can create valid activity plans and run simulations
+- Support real time collaboration and and parallel hypothesis testing such that many more iterations of an activity plan can be tested within the same time frame
+- Allow automation and manual modifications to coexist through out the planning process
+- Provide a low code constraint checking mechanism to validate simulation outputs which can be automated largely
+- Provide a low code scheduling mechanism that can scaffold parts of or generate complete activity plans according to goal snippets
+- Support an easy to use and verified translation from activities to flight system recognized sequences of commands
+
+Note that none of the capabilities above are completely new. Different software solutions have offered pieces of the listed capabilities, different or more limited flavors. Aerie's mission is to cover as many key steps in the whole activity planning and sequencing workflow in one deployed tool with dedicated components.
+
+Although Aerie does not aim to be a complete solution for every mission, it has a strong emphasis on extensibility, customization and 3rd party tool integrations.
 
 ## Design Tenets of Aerie
 
 ### ENHANCE AUTOMATION
-Mission operations may involve labour intensive, error prone tasks such as authoring sequences that implement activities or creating a valid activity plan that does not violate flight rules. Aerie supports automation for key areas including scheduling, constraint checking and traslation into commands, which we refer to as command expansion. Aerie is designed to simplify these automations and improve their accessibility and usability for mission operators with diverse skillsets.
 
+Mission operations may involve labour intensive, error prone tasks such as authoring sequences that implement activities or creating a valid activity plan that does not violate flight rules. Aerie supports automation for key areas including scheduling, constraint checking and translation into commands, which we refer to as command expansion. Aerie is designed to simplify these automations and improve their accessibility and usability for mission operators with diverse skill sets.
 
 ### DESIGN FOR CUSTOMIZATION AND CONFIGURABILITY
-Aerie tools and services allow systems and services to be configured customized to meet different mission and user needs. For instance, Aerie simulations can be cofigured to run at different fidelity levels depending on the planners' need at different steps of the planning process. Or an Aerie deployment can be customized to accomodate many parallel simulation and scheduling requests scaled for usage. Similarly Aerie UI can be customized by mission system or by the users interactively to display data relevant for different contexts. 
+
+Aerie tools and services allow systems and services to be configured customized to meet different mission and user needs. For instance, Aerie simulations can be configured to run at different fidelity levels depending on the planners' need at different steps of the planning process. Or an Aerie deployment can be customized to accommodate many parallel simulation and scheduling requests scaled for usage. Similarly Aerie UI can be customized by mission system or by the users interactively to display data relevant for different contexts.
 
 ### DESIGN FOR USABILITY
-An integral design guideline for Aerie is to improve user experience for all users. Note that the experience of mission modelers creating a mission model with Aerie framework is highly different than the experience of scientists performing activity planning through a web application, or the experience of an engineer deploying Aerie for all mission users. Aerie mission modeling framework is striking tough balance between expressibility and ease of learning. One of the key advantages of using Aerie for modeling is the discrete event simulation engine that takes care of integrating resources for the modelers, handling concurrency of events. This allows mission modelers to model unit behaviors independent from one another. Similarly Aerie web application enables scientists engineers to trigger simulation with a no code approach, and perform automated scheduling and simulation analysis with a low code approach. 
 
+An integral design guideline for Aerie is to improve user experience for all users. Note that the experience of mission modelers creating a mission model with Aerie framework is highly different than the experience of scientists performing activity planning through a web application, or the experience of an engineer deploying Aerie for all mission users. Aerie mission modeling framework is striking tough balance between expressibility and ease of learning. One of the key advantages of using Aerie for modeling is the discrete event simulation engine that takes care of integrating resources for the modelers, handling concurrency of events. This allows mission modelers to model unit behaviors independent from one another. Similarly Aerie web application enables scientists engineers to trigger simulation with a no code approach, and perform automated scheduling and simulation analysis with a low code approach.
 
 ### DESIGN FOR MANY USE CONTEXTS
-Aerie can be used in many different contexts other than mission operations where planning and scheduling generally follows a strict processes. Aerie can be used to model and simulate any discrete events that effect shared resources. Aerie can be effectively used in mission planning to generate and evaluate long term schedules for the purposes of validating high level mission requirements and to derive low level requirements. Similarly Aerie can be used even earlier phases to develop mission concepts. By design Aerie does not implement mission business logic or dictate workflows.  
 
+Aerie can be used in many different contexts other than mission operations where planning and scheduling generally follows a strict processes. Aerie can be used to model and simulate any discrete events that effect shared resources. Aerie can be effectively used in mission planning to generate and evaluate long term schedules for the purposes of validating high level mission requirements and to derive low level requirements. Similarly Aerie can be used even earlier phases to develop mission concepts. By design Aerie does not implement mission business logic or dictate workflows.
 
-### ELIMINATE DUALITY IN PLANNING AND SEQUENCING 
-Traditionally planning and sequencing are independent, serial processes where operators are responsible from accurately translating activities into spacecraft commands. This duality reduces time efficiency, leads to redundant validations at the activity planning and sequencing steps, and can be error prone. Whereas, principles of modelling an activity and a command and simulating their effects, validating outcomes are 
-embarrassingly similar. While Aerie does not require missions to do so, it opens an option for combining activity planning and sequencing in a more coupled single step. While Aerie has not yet implemented all necessary capabilities to achieve such an operations paradigm, the design allows the tool to grow in this direction. 
+### ELIMINATE DUALITY IN PLANNING AND SEQUENCING
+
+Traditionally planning and sequencing are independent, serial processes where operators are responsible from accurately translating activities into spacecraft commands. This duality reduces time efficiency, leads to redundant validations at the activity planning and sequencing steps, and can be error prone. Whereas, principles of modelling an activity and a command and simulating their effects, validating outcomes are
+embarrassingly similar. While Aerie does not require missions to do so, it opens an option for combining activity planning and sequencing in a more coupled single step. While Aerie has not yet implemented all necessary capabilities to achieve such an operations paradigm, the design allows the tool to grow in this direction.
 
 <!--
 ### CLOSE THE U BETWEEN UPLINK AND DOWNLINK
+
 Another significant limitation of the legacy tools is the disconnect between downlink data
 analysis and uplink simulations. Downlink data provides the ultimate validation for models implemented
 in an adaptation. Downlink data should define the initial context for a simulation. However, it is no
@@ -48,6 +53,7 @@ recorded in telemetry. Aerie provides constructs in adaptations to explicitly de
 Figure 4 Illustration of state to EHA mapping in an adaptation.
 
 ### IMPROVE PERFORMANCE
+
 One of the key limitations of the legacy tools is the time it takes to run a simulation during the
 limited operations timeline. Aerie shall improve the performance of activity planning and sequencing
 processes overall by performing the required calculations in less time. For instance, introducing a local
@@ -68,7 +74,9 @@ configurations to identify requirements for different subsystems. In contrast, d
 models in an adaptation hardly change, while scheduling can involve manual refinements. Hence, Aerie
 adaptations should be highly configurable to satisfy mission planning needs, and support both
 automated and manual scheduling to satisfy the needs of mission planning and operations.
+
 2.2.7 DESIGN FOR CUSTOMIZATION
+
 Aerie tools and services should be extendable and customizable to answer the needs of missions
 with different levels of complexity. In the following sections, we describe how Aerie can be used at its
 full capacity by a highly complex and automated mission. On the other end of the spectrum, one
@@ -79,49 +87,51 @@ scenarios in Section 4.14.
 -->
 
 ## Scope
-Aerie is an extensible framework designed to cover as many key steps in the planning and sequencing process of ground operations all the way up to the uplinkable binary products generation. While there are long term plans to add command level simulations that mimic command execution hardware behavior more closely, and supporting downlink data (telemetry) analysis along with simulation data to close the loop between uplink and downlink, current focus of the product extends until sequence generation. Below diagram summarizes current Aerie capabilities. 
+
+Aerie is an extensible framework designed to cover as many key steps in the planning and sequencing process of ground operations all the way up to the uplinkable binary products generation. While there are long term plans to add command level simulations that mimic command execution hardware behavior more closely, and supporting downlink data (telemetry) analysis along with simulation data to close the loop between uplink and downlink, current focus of the product extends until sequence generation. Below diagram summarizes current Aerie capabilities.
 
 <figure>
   <img alt="Current Aerie Capabilities" src={aerie_capabilities} />
   <figcaption align="center">Aerie offers a wide range of capabilities.</figcaption>
 </figure>
 
-While Aerie does not support observation (science) planning it can be easily integrated with tools that provide specialized features for target selection, surface coverage analysis through its powerful API. Such tools can import a scaffolded schedule, modify observation activities and feed them back to Aerie. 
+While Aerie does not support observation (science) planning it can be easily integrated with tools that provide specialized features for target selection, surface coverage analysis through its powerful API. Such tools can import a scaffolded schedule, modify observation activities and feed them back to Aerie.
 
-Similarly Aerie is not a workflow manager, but its API allows missions to orchestrate events and requests across multiple tools that they utilize during their ground operations. You can read more about subscriptions at the API documentation page to learn more about integrating Aerie in complex workflows.  
+Similarly Aerie is not a workflow manager, but its API allows missions to orchestrate events and requests across multiple tools that they utilize during their ground operations. You can read more about subscriptions at the API documentation page to learn more about integrating Aerie in complex workflows.
 
- 
-## Conceptual view
-Aerie is a planning and simulation tool powered by a discrete event simulation engine. Running your first simulation in Aerie requires having a mission model that defines activity types, which are units for planning, and resources that will be tracked over the course of the simulation. Mission model simply defines how activities will effect these resources as they execute. Modelers can define additional dynamic behavior for these activities, expose cofiguration parameters to modulate simulation behavior and utilize any library or custom code during these calculations.  
+## Conceptual View
+
+Aerie is a planning and simulation tool powered by a discrete event simulation engine. Running your first simulation in Aerie requires having a mission model that defines activity types, which are units for planning, and resources that will be tracked over the course of the simulation. Mission model simply defines how activities will effect these resources as they execute. Modelers can define additional dynamic behavior for these activities, expose configuration parameters to modulate simulation behavior and utilize any library or custom code during these calculations.
 
 <figure>
   <img alt="Aerie steps to simulation" src={missionModel} />
 </figure>
 
-Activity type as a planning unit defines parameters that modulate its behavior, an effect model that can query and effect resources. A simple example would be modeling amount of data that will be produced for an imaging activity depending on the resolution and size of the image determined by the corresponding arguments. Similarly required power can be modeled based on resources like spacecraft orientation. Activities can invoke other activities in their effect model. Aerie allows arbitrary, dynamic hierarchies which we refer to as decomposition. Finally, activities can return values computed during their execution which we refer to as computed attributes.  
+Activity type as a planning unit defines parameters that modulate its behavior, an effect model that can query and effect resources. A simple example would be modeling amount of data that will be produced for an imaging activity depending on the resolution and size of the image determined by the corresponding arguments. Similarly required power can be modeled based on resources like spacecraft orientation. Activities can invoke other activities in their effect model. Aerie allows arbitrary, dynamic hierarchies which we refer to as decomposition. Finally, activities can return values computed during their execution which we refer to as computed attributes.
+
 <figure>
   <img alt="Aerie steps to simulation" src={activityType} />
 </figure>
 
-
-Once a mission model is available, creating plans and running simulations can be accessible to a larger operations team through the Aerie UI. Below diagram summarizes steps to run your first simulation through Aerie. The moment that an Aerie installation and a mission model jar is accessible to the operators, they can upload the model to Aerie, create and validate a plan, configure and run simulations and view the results all through the Aerie UI in a no code manner. 
+Once a mission model is available, creating plans and running simulations can be accessible to a larger operations team through the Aerie UI. Below diagram summarizes steps to run your first simulation through Aerie. The moment that an Aerie installation and a mission model jar is accessible to the operators, they can upload the model to Aerie, create and validate a plan, configure and run simulations and view the results all through the Aerie UI in a no code manner.
 
 <figure>
   <img alt="Aerie steps to simulation" src={starting_w_aerie} />
   <figcaption align="center">Steps required to run your first simulation in Aerie.</figcaption>
 </figure>
 
-Note that a single Aerie instance can work with multiple models, such that planners can make use of different activity sets in different plans. This allows testing and iterating models and activity type definitions much faster in early mission phases. It is possible to restrict one model to one venue for more strict operation workflows. 
+Note that a single Aerie instance can work with multiple models, such that planners can make use of different activity sets in different plans. This allows testing and iterating models and activity type definitions much faster in early mission phases. It is possible to restrict one model to one venue for more strict operation workflows.
 
+## How Aerie is Used by Existing Customers
 
+## Using Aerie in Different Contexts
 
-## How Aerie is used by existing customers
+Mission phase A, mission planning, operations.
 
-## Using Aerie in different contexts 
-Mission phase A, mission planning, operations
+## Aerie with 3rd Party Tools
 
-## Aerie with 3rd party tools 
- description of how the system will interact with other systems or products
+Description of how the system will interact with other systems or products.
 
 ## Dependencies
- identification of underlying assumptions and dependencies that will impact the system's success
+
+Identification of underlying assumptions and dependencies that will impact the system's success.
