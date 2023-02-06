@@ -90,9 +90,11 @@ scenarios in Section 4.14.
 
 Aerie is an extensible framework designed to cover as many key steps in the planning and sequencing process of ground operations all the way up to the uplinkable binary products generation. While there are long term plans to add command level simulations that mimic command execution hardware behavior more closely, and supporting downlink data (telemetry) analysis along with simulation data to close the loop between uplink and downlink, current focus of the product extends until sequence generation. Below diagram summarizes current Aerie capabilities.
 
-<figure>
-  <img alt="Current Aerie Capabilities" src={aerie_capabilities} />
-  <figcaption align="center">Aerie offers a wide range of capabilities.</figcaption>
+import aerieCapabilities from './assets/aerie-capabilities.png';
+
+<figure align="center">
+  <img alt="Current Aerie Capabilities" src={aerieCapabilities} />
+  <figcaption>Aerie offers a wide range of capabilities</figcaption>
 </figure>
 
 While Aerie does not support observation (science) planning it can be easily integrated with tools that provide specialized features for target selection, surface coverage analysis through its powerful API. Such tools can import a scaffolded schedule, modify observation activities and feed them back to Aerie.
@@ -103,21 +105,29 @@ Similarly Aerie is not a workflow manager, but its API allows missions to orches
 
 Aerie is a planning and simulation tool powered by a discrete event simulation engine. Running your first simulation in Aerie requires having a mission model that defines activity types, which are units for planning, and resources that will be tracked over the course of the simulation. Mission model simply defines how activities will effect these resources as they execute. Modelers can define additional dynamic behavior for these activities, expose configuration parameters to modulate simulation behavior and utilize any library or custom code during these calculations.
 
-<figure>
-  <img alt="Aerie steps to simulation" src={missionModel} />
+import missionModel from './assets/mission-model.png';
+
+<figure align="center">
+  <img alt="Aerie mission model" src={missionModel} />
+  <figcaption>Aerie mission model</figcaption>
 </figure>
 
 Activity type as a planning unit defines parameters that modulate its behavior, an effect model that can query and effect resources. A simple example would be modeling amount of data that will be produced for an imaging activity depending on the resolution and size of the image determined by the corresponding arguments. Similarly required power can be modeled based on resources like spacecraft orientation. Activities can invoke other activities in their effect model. Aerie allows arbitrary, dynamic hierarchies which we refer to as decomposition. Finally, activities can return values computed during their execution which we refer to as computed attributes.
 
-<figure>
-  <img alt="Aerie steps to simulation" src={activityType} />
+import activityType from './assets/activity-type.png';
+
+<figure align="center">
+  <img alt="Aerie activity type" src={activityType} width="300" />
+  <figcaption>Aerie activity type</figcaption>
 </figure>
 
 Once a mission model is available, creating plans and running simulations can be accessible to a larger operations team through the Aerie UI. Below diagram summarizes steps to run your first simulation through Aerie. The moment that an Aerie installation and a mission model jar is accessible to the operators, they can upload the model to Aerie, create and validate a plan, configure and run simulations and view the results all through the Aerie UI in a no code manner.
 
-<figure>
-  <img alt="Aerie steps to simulation" src={starting_w_aerie} />
-  <figcaption align="center">Steps required to run your first simulation in Aerie.</figcaption>
+import startingWithAerie from './assets/starting-with-aerie.png';
+
+<figure align="center">
+  <img alt="Aerie steps to simulation" src={startingWithAerie} />
+  <figcaption>Steps required to run your first simulation in Aerie</figcaption>
 </figure>
 
 Note that a single Aerie instance can work with multiple models, such that planners can make use of different activity sets in different plans. This allows testing and iterating models and activity type definitions much faster in early mission phases. It is possible to restrict one model to one venue for more strict operation workflows.
