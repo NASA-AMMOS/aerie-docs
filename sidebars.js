@@ -19,7 +19,10 @@ const sidebars = {
             type: 'doc',
             id: 'api/examples/planning/introduction',
           },
-          items: ['api/examples/planning/collaboration'],
+          items: [
+            'api/examples/planning/collaboration',
+            'api/examples/planning/anchors'
+          ],
         },
         'api/examples/constraints',
         'api/examples/scheduling',
@@ -103,6 +106,7 @@ const sidebars = {
           },
           items: ['planning/collaboration/merging-plans'],
         },
+        'planning/anchors',
         'planning/ui-views',
       ],
     },

@@ -1,0 +1,66 @@
+import Link from '@docusaurus/Link';
+import invalidAnchorsList from './assets/invalid_anchors_list.png';
+import invalidAnchorTooltip from './assets/invalid_anchor_tooltip.png';
+import setAnchorsDemo from './assets/anchoring_ui_demo.mov';
+import removeAnchorsDemo from './assets/remove_anchors_demo.mov';
+
+# Anchors
+
+It is possible to define the start time of an activity directive as relative to the start or end time of another directive. This is known as "Anchoring".
+
+## Anchor to Another Activity Directive
+
+Anchors can be added to an existing activity directive as follows:
+
+1. Select the directive.
+2. Expand the `Anchor` dropdown in the `Definition` section of the `Selected Activity` pane.
+3. In the `Relative To` entry, enter the activity directive you wish to anchor this directive to.
+4. Toggle whether the directive is anchored to the start or end of the anchored directive (by default, activities are anchored to the start).
+5. Set the offset to desired value.
+
+A video of how to follow these steps is below:
+
+<video controls>
+  <source src={setAnchorsDemo} />
+</video>
+
+To remove an anchor, clear the textbox besides the `Relative To` field or set it to `To Plan`.
+
+<video controls>
+  <source src={removeAnchorsDemo} />
+</video>
+
+## Invalid Anchors
+
+For ease of use, Aerie allows anchors that are not able to be simulated to exist. These anchors are considered to be invalid.
+
+:::info Note
+
+A plan **cannot** be simulated or scheduled while there are invalid anchors.
+
+:::
+
+If an activity directive has an invalid anchor, the error message can be viewed by hovering over the problematic field in the `Selected Activity` pane.
+
+<figure align="center">
+  <img alt="Aerie UI - Anchor Validation Error in a Tooltip" src={invalidAnchorTooltip}/>
+  <figcaption>Figure 1: Aerie UI - Anchor Validation Error in a Tooltip</figcaption>
+</figure>
+
+To see a full list of the invalid anchors for a plan, select the `Anchor Validation Errors` tab from the Error Console
+
+<figure align="center">
+  <img alt="Aerie UI - Anchor Validation Errors in the Error Console" src={invalidAnchorsList} />
+  <figcaption>Figure 2: Aerie UI - Anchor Validation Errors in the Error Console</figcaption>
+</figure>
+
+
+## Delete Activity Directive with Anchors
+
+<div>
+  <p>
+    Currently, it is impossible to delete an activity directive that has other directives anchored to it via the UI.
+    If you would like to delete an activity directive that has other directives anchored to it, either manually remove the
+    anchors from the dependent directives or <Link to="/api/examples/planning/anchors">use the API</Link> for more options.
+  </p>
+</div>
