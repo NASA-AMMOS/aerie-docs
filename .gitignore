@@ -13,3 +13,5 @@ npm-debug.log*
 /pdf
 yarn-debug.log*
 yarn-error.log*
+.idea
+.vscode
