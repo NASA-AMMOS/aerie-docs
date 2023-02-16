@@ -16,6 +16,8 @@ An `ActivityTemplate` specifies the type of an activity, as well as the argument
 Activity templates are generated for each mission model.
 You can get the full list of activity templates by typing `ActivityTemplates.` (note the period) into the scheduling goal editor, and viewing the auto-complete options.
 
+An activity template passed with a goal will be used for searching activities in the plan that satisfies the template. They will also be used for creating activities to satisfy this goal.
+
 If the activity has parameters, pass them into the constructor in a dictionary as key-value pairs. For example:
 
 ```ts
@@ -27,6 +29,8 @@ If the activity has no parameters, do not pass a dictionary. For example:
 ```ts
 ActivityTemplate.ParameterlessActivity();
 ```
+
+The value of a parameter can also be a profile (see  [windows](../../constraints/concepts)). This capability is currently restricted to the use of a Coexistence Goal, see [Coexistence Goal](#coexistence-goal) for more details on how to write activity templates in this case.
 
 ## Goal Types
 
@@ -41,7 +45,7 @@ The Activity Recurrence Goal (sometimes referred to as a "frequency goal") speci
 
 #### Behavior
 
-The `interval` is treated as an upper bound - so if the activity occurs more frequently, that is not considered a failure.
+The `interval` parameter is treated as a lower bound - so if the activity occurs more frequently, that is not considered a failure.
 The scheduler will find places in the plan where the given activity has not occurred within the given interval, and it will place an instance of that activity there.
 
 :::note
@@ -73,7 +77,9 @@ The Coexistence Goal specifies that a certain activity should occur once **for e
 #### Inputs
 
 - `forEach` - A set of time `Windows`, or a set of activities (`ActivityExpression`)
-- `activityTemplate` - The description of the activity to insert after each activity identified by `forEach`
+- `activityTemplate` - The description of the activity to insert after each activity identified by `forEach`. This can be an `ActivityTemplate` object but also an
+[arrow function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions) whose parameter would be an `ActivityInstance` object and its return would be an `ActivityTemplate`.
+This allows to define the content of the `ActivityTemplate` with components of the anchor activity.
 - `startsAt` - Optionally specify a specific time when the activity should start relative to the window
 - `startsWithin` - Optionally specify a range when the activity should start relative to the window
 - `endsAt` - Optionally specify a specific time when the activity should end relative to the window
@@ -115,7 +121,7 @@ export default () =>
   });
 ```
 
-This final example specifies a `CoexistenceGoal` where for each continuous period of time during which the `/fruit` resource is equal to `4`, place an activity of type `PeelBanana` ending exactly at the end of "A" + 6 minutes:
+This example specifies a `CoexistenceGoal` where for each continuous period of time during which the `/fruit` resource is equal to `4`, place an activity of type `PeelBanana` ending exactly at the end of "A" + 6 minutes:
 
 ```ts
 export default () =>
@@ -129,13 +135,44 @@ export default () =>
 Note that the scheduler will allow a default timing error of 500 milliseconds for temporal constraints.
 This parameter will be configurable in an upcoming release.
 
+In this example, we use the arrow definition of activity template to use the value of one of the parameter of the anchor activity inside the activity template of the activity to create.
+Let's imagine that the base plan would contain A and B of type `GrowBanana` and that `A.quantity = 3` and `B.quantity = 4`. After applying this goal, two new activities of type `PickBanana`, `C` (with `A` for anchor) and `D` (with `B` for anchor) would be created
+and their parameters would be `C.quantity = 3` and `D.quantity = 4`.
+
+```ts
+export default () =>
+  Goal.CoexistenceGoal({
+    forEach: ActivityExpression.ofType(ActivityTypes.GrowBanana),
+    activityTemplate: growBananaActivity =>
+      ActivityTemplates.PickBanana({ quantity: growBananaActivity.parameters.quantity }),
+    startsAt: TimingConstraint.singleton(WindowProperty.END).plus(Temporal.Duration.from({ minutes: 5 })),
+  });
+```
+
+You may want to get access the value of a resource at a defined timepoint in the activity template. For that, you can use the `valueAt` operator on `Real` and `Discrete` classes. For now, this operation takes a `Spans` object as argument (see [concepts](../../constraints/concepts). This span should be reduced to a single timepoint for this to work. This is only possible
+by referencing the span of an activity such as in the following example :
+
+```ts
+export default () =>
+  Goal.CoexistenceGoal({
+    forEach: ActivityExpression.ofType(ActivityTypes.GrowBanana),
+    activityTemplate: growBananaActivity =>
+      ActivityTemplates.ChangeProducer({
+        producer: Discrete.Resource('/producer').valueAt(growBananaActivity.span().starts()),
+      }),
+    startsAt: TimingConstraint.singleton(WindowProperty.END).plus(Temporal.Duration.from({ minutes: 5 })),
+  });
+```
+
+In this example the value of the `/producer` resource is taken at the beginning of the anchor activity and assigned to the `producer` parameter.
+
+
 :::caution
 
 If the end is unconstrained while the activity has an [uncontrollable duration](../../mission-modeling/activity-types/parameters#duration-types), the scheduler may fail to place the activity.
 To work around this, add an `endsWithin` constraint that encompasses your expectation for the duration of the activity - this will help the scheduler narrow the search space.
 
 :::
-
 ### Cardinality Goal
 
 The Cardinality Goal specifies that a certain activity should occur in the plan either a certain number of times, or for a certain total duration.
@@ -198,7 +235,7 @@ export default function cardinalityGoalExample() {
 
 :::note
 
-In order to avoid placing multiple activities at the same start time, the `CardinalityGoal` introduces an assumed mutual exclusion constraint - namely that new activities will not be allowed to overlap with existing activities.
+Make sure to specify the proper mutual exclusion constraint as [global scheduling conditions](../global-conditions) - namely that new activities will not be allowed to overlap with existing activities. Otherwise, the cardinality goal may stack activities at one spot in the plan. There is no default constraint in place.
 
 :::
 
@@ -308,15 +345,17 @@ export default function applyWhenExample() {
 }
 ```
 
+Note that when using this feature with a `CardinalityGoal`, the counters for duration and numbers of occurrence will reset for each window of the set (as `Windows` is a set of non-overlapping intervals). In other words, the goal will be applied multiple times, one for each window.
+
 ## Goal Boundary Exclusivity
 
 Note if you are trying to schedule an activity, or a recurrence within a window but that window cuts off either the activity or the recurrence interval (depending on the goal type), it will not be scheduled.
 For example, if you had a recurrence interval of 3 seconds, scheduling a 2 second activity each recurrence, and had the following window, you'd get the following:
 
 ```txt
-RECURRENCE INTERVAL: [++-++-++-]
-GOAL WINDOW:         [+++++----]
-RESULT:              [++-------]
+Recurrence Interval: [++-++-++-]
+Goal Window:         [+++++----]
+Result:              [++-------]
 ```
 
 That, is, the second activity won't be scheduled as the goal window cuts off its recurrence interval.
@@ -324,13 +363,43 @@ Scheduling is _local_, not global. This means for every window that is matched (
 So for that same recurrence interval setup as before, we could have:
 
 ```txt
-RECURRENCE INTERVAL: [++-++-++-++-]
-GOAL WINDOW:         [+++++--+++--]
-RESULT:              [++-----++---] // (the second one is applied independently of the first!)
+Recurrence Interval: [++-++-++-++-]
+Goal Window:         [+++++--+++--]
+Result:              [++-----++---] // (the second one is applied independently of the first!)
 ```
 
 When mapping out a temporal window to apply a goal over, keep in mind that the ending boundary of the goal is exclusive, i.e. if I want to apply a goal in the window of 10-12 seconds, it will apply only on seconds 10 and 11.
 This is in line with the [fencepost problem](https://en.wikipedia.org/wiki/Off-by-one_error#Fencepost_error).
+
+## Satisfaction of a goal - backtracking
+
+The scheduler will take each goal and try to satisfy it. In terms of satisfaction, the two extreme cases are
+- a goal cannot be satisfied at all, no activity could be found or could be inserted
+- a goal is totally satisfied.
+but sometimes, a goal is only partially satisfied. In other words, only a subset of the activities that would have been necessary for total satisfaction could have been inserted in the plan.
+In this case, there are two strategies that the scheduler can take:
+- either adopt a best-effort approach: mark the goal unsatisfied but let activities partially satisfying it in the plan. These activities consume resources and time but as the goals are evaluated in a decreasing priority manner,
+the completion of the current goal is more important than completion of the goals that have not been evaluated yet.
+- or adopt a all-or-nothing approach: mark the goal unsatisfied and remove activities inserted in the plan specifically for satisfying the goal.
+
+In both cases, the goal is marked as unsatisfied but
+
+You can control this behavior with a setter function of the `Goal` class, the `backtrackIfUnsatisfied(boolean)`. If the argument of this function is set to `false`, the scheduler will adopt the best-effort approach for this goal.
+If the argument of this function is set to `true`, the scheduler will adopt the all-or-nothing approach for this goal. The best-effort behavior is the default for all goals.
+
+Let's take one of the cardinality goal example and add this :
+```ts
+export default function cardinalityGoalExample() {
+  return Goal.CardinalityGoal({
+    activityTemplate: ActivityTemplates.GrowBanana({
+      quantity: 1,
+      growingDuration: Temporal.Duration.from({ seconds: 1 }),
+    }),
+    specification: { occurrence: 10 },
+  }).backtrackIfUnsatisfied(true);
+}
+```
+
 
 ## Creating a New Goal
 
