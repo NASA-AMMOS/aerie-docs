@@ -1,0 +1,135 @@
+# Anchors
+
+It is possible to define the start time of an activity directive as relative to the start or end time of another directive. This is known as "Anchoring".
+
+## Anchor to Another Activity Directive
+
+Anchors can be declared while inserting an activity directive:
+
+```graphql
+mutation InsertDirectiveWithAnchor(
+  $plan_id: Int!, $name: String!, $tags: _text, $type: String!, $arguments: jsonb!, $metadata: jsonb
+  $anchor_id: Int, $anchored_to_start: Boolean!, $start_offset: interval!)
+{
+  insert_activity_directive(
+    objects: {
+                plan_id: $plan_id,
+                name: $name
+                tags: $tags,
+                type: $type,
+                arguments: $arguments,
+                metadata: $metadata,
+                anchor_id: $anchor_id,
+                anchored_to_start: $anchored_to_start,
+                start_offset: $start_offset
+             }) {
+    returning {
+      id
+      plan_id
+      name
+      type
+      created_at
+      anchor_id
+      anchored_to_start
+      start_offset
+      anchor_validations {
+        reason_invalid
+      }
+    }
+  }
+}
+```
+
+Or can be added as an update to an existing directive:
+
+```graphql
+mutation UpdateAnchor($id: Int!, $plan_id: Int!, $anchor_id: Int, $anchored_to_start: Boolean!, $start_offset: interval!) {
+  update_activity_directive_by_pk(pk_columns: {id: $id, plan_id: $plan_id}, _set: {anchor_id: $anchor_id, anchored_to_start: $anchored_to_start, start_offset: $start_offset}) {
+    id
+    anchor_id
+    anchored_to_start
+    start_offset
+    anchor_validations {
+      reason_invalid
+    }
+  }
+}
+```
+
+If you have previously anchored an activity directive to another directive and wish to remove the anchor, you can anchor it back to plan by setting its `anchor_id` to `null`.
+
+## Invalid Anchors
+
+For ease of use, Aerie allows anchors that are not able to be simulated to exist. These anchors are considered to be invalid.
+
+:::info Note
+
+A plan **cannot** be simulated or scheduled while there are invalid anchors.
+
+:::
+
+To get all invalid anchors for a plan, along with the reason why each anchor is invalid, use the following query:
+
+```graphql
+query QueryAllInvalidAnchors($plan_id: Int!) {
+  anchor_validation_status(where: {plan_id: {_eq: $plan_id}, _and: {reason_invalid: {_neq: ""}}}, order_by: {activity_id: asc}) {
+    activity_id
+    reason_invalid
+  }
+}
+```
+
+## Delete Activity Directive with Anchors
+
+If an activity directive has other directives anchored to it, it cannot be deleted directly.
+Instead, all anchors onto it must either be manually removed from the dependent directives or handled in bulk
+using one of the following options:
+
+### Delete Entire Subtree
+
+This option deletes both the directive and all directives anchored to it at once.
+
+```graphql
+mutation DeleteSubtree($plan_id: Int!, $activity_id: Int!) {
+  delete_activity_by_pk_delete_subtree(args: {_plan_id: $plan_id, _activity_id: $activity_id}) {
+    change_type
+    affected_row
+  }
+}
+```
+
+### Reanchor Subtree
+
+This option keeps the directives that were anchored to the activity directive to be deleted (referred to here as the "root directive"),
+but modifies their anchors so they are no longer anchored to the root directive. It then deletes the root directive.
+
+:::caution
+
+When reanchoring the subtrees, Aerie **does not** account for the duration the root directive might have when simulated.
+If any activity directives were anchored to the end of the root directive, they may be simulated earlier than expected.
+
+:::
+
+#### Reanchor Subtree to Plan Start
+
+```graphql
+mutation ReanchorPlanStart($plan_id: Int!, $activity_id: Int!) {
+  delete_activity_by_pk_reanchor_plan_start(args: {_plan_id: $plan_id, _activity_id: $activity_id}) {
+    change_type
+    affected_row
+  }
+}
+```
+
+#### Reanchor Subtree to Root Directive's Anchor
+
+If the root directive was anchored to another activity directive, you can choose to reanchor the subtrees to that directive.
+
+```graphql
+mutation ReanchorRootAnchor($plan_id: Int!, $activity_id: Int!) {
+  delete_activity_by_pk_reanchor_to_anchor(args: {_plan_id: $plan_id, _activity_id: $activity_id}) {
+    change_type
+    affected_row
+  }
+}
+```
