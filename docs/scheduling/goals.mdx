@@ -30,7 +30,7 @@ If the activity has no parameters, do not pass a dictionary. For example:
 ActivityTemplate.ParameterlessActivity();
 ```
 
-The value of a parameter can also be a profile (see  [windows](../../constraints/concepts)). This capability is currently restricted to the use of a Coexistence Goal, see [Coexistence Goal](#coexistence-goal) for more details on how to write activity templates in this case.
+The value of a parameter can also be a profile (see [windows](../../constraints/concepts)). This capability is currently restricted to the use of a Coexistence Goal, see [Coexistence Goal](#coexistence-goal) for more details on how to write activity templates in this case.
 
 ## Goal Types
 
@@ -77,9 +77,7 @@ The Coexistence Goal specifies that a certain activity should occur once **for e
 #### Inputs
 
 - `forEach` - A set of time `Windows`, or a set of activities (`ActivityExpression`)
-- `activityTemplate` - The description of the activity to insert after each activity identified by `forEach`. This can be an `ActivityTemplate` object but also an
-[arrow function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions) whose parameter would be an `ActivityInstance` object and its return would be an `ActivityTemplate`.
-This allows to define the content of the `ActivityTemplate` with components of the anchor activity.
+- `activityTemplate` - The description of the activity to insert after each activity identified by `forEach`. This can be an `ActivityTemplate` object but also an [arrow function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions) whose parameter would be an `ActivityInstance` object and its return would be an `ActivityTemplate`. This allows to define the content of the `ActivityTemplate` with components of the anchor activity.
 - `startsAt` - Optionally specify a specific time when the activity should start relative to the window
 - `startsWithin` - Optionally specify a range when the activity should start relative to the window
 - `endsAt` - Optionally specify a specific time when the activity should end relative to the window
@@ -166,13 +164,13 @@ export default () =>
 
 In this example the value of the `/producer` resource is taken at the beginning of the anchor activity and assigned to the `producer` parameter.
 
-
 :::caution
 
 If the end is unconstrained while the activity has an [uncontrollable duration](../../mission-modeling/activity-types/parameters#duration-types), the scheduler may fail to place the activity.
 To work around this, add an `endsWithin` constraint that encompasses your expectation for the duration of the activity - this will help the scheduler narrow the search space.
 
 :::
+
 ### Cardinality Goal
 
 The Cardinality Goal specifies that a certain activity should occur in the plan either a certain number of times, or for a certain total duration.
@@ -371,23 +369,25 @@ Result:              [++-----++---] // (the second one is applied independently 
 When mapping out a temporal window to apply a goal over, keep in mind that the ending boundary of the goal is exclusive, i.e. if I want to apply a goal in the window of 10-12 seconds, it will apply only on seconds 10 and 11.
 This is in line with the [fencepost problem](https://en.wikipedia.org/wiki/Off-by-one_error#Fencepost_error).
 
-## Satisfaction of a goal - backtracking
+## Satisfaction of a Goal - Backtracking
 
 The scheduler will take each goal and try to satisfy it. In terms of satisfaction, the two extreme cases are
-- a goal cannot be satisfied at all, no activity could be found or could be inserted
-- a goal is totally satisfied.
-but sometimes, a goal is only partially satisfied. In other words, only a subset of the activities that would have been necessary for total satisfaction could have been inserted in the plan.
-In this case, there are two strategies that the scheduler can take:
-- either adopt a best-effort approach: mark the goal unsatisfied but let activities partially satisfying it in the plan. These activities consume resources and time but as the goals are evaluated in a decreasing priority manner,
-the completion of the current goal is more important than completion of the goals that have not been evaluated yet.
-- or adopt a all-or-nothing approach: mark the goal unsatisfied and remove activities inserted in the plan specifically for satisfying the goal.
 
-In both cases, the goal is marked as unsatisfied but
+- A goal cannot be satisfied at all, no activity could be found or could be inserted.
+- A goal is totally satisfied.
+
+But sometimes, a goal is only partially satisfied. In other words, only a subset of the activities that would have been necessary for total satisfaction could have been inserted in the plan. In this case, there are two strategies that the scheduler can take:
+
+- Either adopt a best-effort approach: mark the goal unsatisfied but let activities partially satisfying it in the plan. These activities consume resources and time but as the goals are evaluated in a decreasing priority manner, the completion of the current goal is more important than completion of the goals that have not been evaluated yet.
+- Or adopt a all-or-nothing approach: mark the goal unsatisfied and remove activities inserted in the plan specifically for satisfying the goal.
+
+In both cases, the goal is marked as unsatisfied.
 
 You can control this behavior with a setter function of the `Goal` class, the `backtrackIfUnsatisfied(boolean)`. If the argument of this function is set to `false`, the scheduler will adopt the best-effort approach for this goal.
 If the argument of this function is set to `true`, the scheduler will adopt the all-or-nothing approach for this goal. The best-effort behavior is the default for all goals.
 
-Let's take one of the cardinality goal example and add this :
+Let's take one of the cardinality goal example and add this:
+
 ```ts
 export default function cardinalityGoalExample() {
   return Goal.CardinalityGoal({
@@ -399,7 +399,6 @@ export default function cardinalityGoalExample() {
   }).backtrackIfUnsatisfied(true);
 }
 ```
-
 
 ## Creating a New Goal
 

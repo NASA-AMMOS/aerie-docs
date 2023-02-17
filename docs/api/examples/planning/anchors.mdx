@@ -8,21 +8,29 @@ Anchors can be declared while inserting an activity directive:
 
 ```graphql
 mutation InsertDirectiveWithAnchor(
-  $plan_id: Int!, $name: String!, $tags: _text, $type: String!, $arguments: jsonb!, $metadata: jsonb
-  $anchor_id: Int, $anchored_to_start: Boolean!, $start_offset: interval!)
-{
+  $plan_id: Int!
+  $name: String!
+  $tags: _text
+  $type: String!
+  $arguments: jsonb!
+  $metadata: jsonb
+  $anchor_id: Int
+  $anchored_to_start: Boolean!
+  $start_offset: interval!
+) {
   insert_activity_directive(
     objects: {
-                plan_id: $plan_id,
-                name: $name
-                tags: $tags,
-                type: $type,
-                arguments: $arguments,
-                metadata: $metadata,
-                anchor_id: $anchor_id,
-                anchored_to_start: $anchored_to_start,
-                start_offset: $start_offset
-             }) {
+      plan_id: $plan_id
+      name: $name
+      tags: $tags
+      type: $type
+      arguments: $arguments
+      metadata: $metadata
+      anchor_id: $anchor_id
+      anchored_to_start: $anchored_to_start
+      start_offset: $start_offset
+    }
+  ) {
     returning {
       id
       plan_id
@@ -43,8 +51,17 @@ mutation InsertDirectiveWithAnchor(
 Or can be added as an update to an existing directive:
 
 ```graphql
-mutation UpdateAnchor($id: Int!, $plan_id: Int!, $anchor_id: Int, $anchored_to_start: Boolean!, $start_offset: interval!) {
-  update_activity_directive_by_pk(pk_columns: {id: $id, plan_id: $plan_id}, _set: {anchor_id: $anchor_id, anchored_to_start: $anchored_to_start, start_offset: $start_offset}) {
+mutation UpdateAnchor(
+  $id: Int!
+  $plan_id: Int!
+  $anchor_id: Int
+  $anchored_to_start: Boolean!
+  $start_offset: interval!
+) {
+  update_activity_directive_by_pk(
+    pk_columns: { id: $id, plan_id: $plan_id }
+    _set: { anchor_id: $anchor_id, anchored_to_start: $anchored_to_start, start_offset: $start_offset }
+  ) {
     id
     anchor_id
     anchored_to_start
@@ -72,7 +89,10 @@ To get all invalid anchors for a plan, along with the reason why each anchor is 
 
 ```graphql
 query QueryAllInvalidAnchors($plan_id: Int!) {
-  anchor_validation_status(where: {plan_id: {_eq: $plan_id}, _and: {reason_invalid: {_neq: ""}}}, order_by: {activity_id: asc}) {
+  anchor_validation_status(
+    where: { plan_id: { _eq: $plan_id }, _and: { reason_invalid: { _neq: "" } } }
+    order_by: { activity_id: asc }
+  ) {
     activity_id
     reason_invalid
   }
@@ -91,7 +111,7 @@ This option deletes both the directive and all directives anchored to it at once
 
 ```graphql
 mutation DeleteSubtree($plan_id: Int!, $activity_id: Int!) {
-  delete_activity_by_pk_delete_subtree(args: {_plan_id: $plan_id, _activity_id: $activity_id}) {
+  delete_activity_by_pk_delete_subtree(args: { _plan_id: $plan_id, _activity_id: $activity_id }) {
     change_type
     affected_row
   }
@@ -114,7 +134,7 @@ If any activity directives were anchored to the end of the root directive, they 
 
 ```graphql
 mutation ReanchorPlanStart($plan_id: Int!, $activity_id: Int!) {
-  delete_activity_by_pk_reanchor_plan_start(args: {_plan_id: $plan_id, _activity_id: $activity_id}) {
+  delete_activity_by_pk_reanchor_plan_start(args: { _plan_id: $plan_id, _activity_id: $activity_id }) {
     change_type
     affected_row
   }
@@ -127,7 +147,7 @@ If the root directive was anchored to another activity directive, you can choose
 
 ```graphql
 mutation ReanchorRootAnchor($plan_id: Int!, $activity_id: Int!) {
-  delete_activity_by_pk_reanchor_to_anchor(args: {_plan_id: $plan_id, _activity_id: $activity_id}) {
+  delete_activity_by_pk_reanchor_to_anchor(args: { _plan_id: $plan_id, _activity_id: $activity_id }) {
     change_type
     affected_row
   }
