@@ -2,7 +2,6 @@
 
 We would love for you to contribute to the Aerie documentation and help make it even better than it is today!
 
-- [Question or Problem?](#question)
 - [Prerequisite Knowledge](#prerequisite-knowledge)
 - [Prerequisite Software](#prerequisite-software)
 - [Editor](#editor)
@@ -12,14 +11,11 @@ We would love for you to contribute to the Aerie documentation and help make it 
 - [Adding a New Document](#new)
 - [Adding Images or Videos](#assets)
 - [Submitting a Pull Request](#submit-pr)
-
-## <a name="question"></a> Got a Question or Problem?
-
-If you would like to chat about the question in real-time, you can reach out via [our Slack channel](https://join.slack.com/t/nasa-ammos/shared_invite/zt-1mlgmk5c2-MgqVSyKzVRUWrXy87FNqPw).
+- [Question or Problem?](#question)
 
 ## Prerequisite Knowledge
 
-The Aerie documentation is built with [Docusaurus](https://docusaurus.io/). Documents can be written in either vanilla [Markdown](https://www.markdownguide.org/) (`.md` files), or [MDX](https://mdxjs.com/) (`.mdx` files). Most of the time you will want to use `.mdx` to [add assets](#adding-images-or-videos), or things like [admonitions](https://docusaurus.io/docs/2.0.1/markdown-features/admonitions). Please see the [Docusaurus documentation](https://docusaurus.io/docs/next/markdown-features) for the complete set of available markdown features.
+The Aerie documentation is built with [Docusaurus](https://docusaurus.io/). Documents can be written in either vanilla [Markdown](https://www.markdownguide.org/) (`.md` files), or [MDX](https://mdxjs.com/) (`.mdx` files). Most of the time you will want to use `.mdx` to [add assets](#assets), or things like [admonitions](https://docusaurus.io/docs/2.0.1/markdown-features/admonitions). Please see the [Docusaurus documentation](https://docusaurus.io/docs/next/markdown-features) for the complete set of available markdown features.
 
 ## Prerequisite Software
 
@@ -144,3 +140,7 @@ After your pull request is merged, you can safely delete your branch and pull th
   ```shell
   git branch -D my-fix-branch
   ```
+
+## <a name="question"></a> Got a Question or Problem?
+
+If you would like to chat about the question in real-time, you can reach out via [our Slack channel](https://join.slack.com/t/nasa-ammos/shared_invite/zt-1mlgmk5c2-MgqVSyKzVRUWrXy87FNqPw).
