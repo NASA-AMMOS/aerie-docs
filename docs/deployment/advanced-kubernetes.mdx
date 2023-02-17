@@ -5,10 +5,11 @@ import kubeDemo from './assets/kube-demo.webm';
 If you're already familiar with Kubernetes, feel free to jump to [Within Aerie Context](/aerie-docs/deployment/advanced-kubernetes/#within-aerie-context)
 
 ## Introduction
+
 [Kubernetes](https://kubernetes.io/) (often shortened to k8s) is an open-source platform for automating deployment, scaling, and management of containerized applications. It provides abstractions around container primitives like networking, storage, and runtimes, allowing deployment operators to declartively define the desired state of the cluster, which Kubernetes works to maintain.
 
 <video controls>
-    <source src={kubeDemo} type="video/webm" />
+  <source src={kubeDemo} type="video/webm" />
 </video>
 
 ## Features
@@ -36,16 +37,16 @@ spec:
         app: aerie-ui
     spec:
       containers:
-      - name: aerie-ui
-        image: ghcr.io/nasa-ammos/aerie-ui:v1.0.1
-        ports:
-        - containerPort: 80
-        env:
-        - name: EXAMPLE_VAR
-          value: "example_value"
+        - name: aerie-ui
+          image: ghcr.io/nasa-ammos/aerie-ui:v1.0.1
+          ports:
+            - containerPort: 80
+          env:
+            - name: EXAMPLE_VAR
+              value: 'example_value'
 ```
 
-*These manifests are quite long-winded, but much of that is boilerplate.*
+_These manifests are quite long-winded, but much of that is boilerplate._
 
 This manifest defines an "aerie-ui" `Pod`, which is a wrapper around a container, that listens on port 80 and has the `EXAMPLE_VAR` environment variable available to it. This `Pod` template is wrapped by a `Deployment` object, which allows defining how many replicas of this `Pod` we want. In this example, the Kubernetes engine will work to ensure 2 instances of this UI `Pod` are running in our cluster at all times.
 
@@ -69,8 +70,8 @@ spec:
   selector:
     app: aerie-ui
   ports:
-  - name: http
-    port: 80
+    - name: http
+      port: 80
 ```
 
 If a `Service` points to a `Deployment` that has multiple replicas, Kubernetes will intelligently load balance between the `Pods` replicas.
@@ -118,11 +119,13 @@ and you should see one Kubernetes worker node running within Docker.
 A few objects need to be created before applying the provided aerie manifests. Navigate to `deployment/kubernetes`.
 
 First, create the `aerie-dev` namespace by issuing the following command:
+
 ```sh
 kubectl create namespace aerie-dev
 ```
 
 Then, create a Kubernetes `Secret` that holds username and password info for Postgres:
+
 ```sh
 kubectl -n aerie-dev create secret generic dev-env --from-env-file=.env
 ```
@@ -139,6 +142,7 @@ POSTGRES_PASSWORD=postgres
 ### Manifest application
 
 Then, apply aerie manifests within `deployment/kubernetes` by running:
+
 ```sh
 kubectl apply -f .
 ```
@@ -148,6 +152,7 @@ Wait a few minutes for images to be pulled and deployed, then visit `http://loca
 ### Spinning Aerie down
 
 To remove the Aerie deployment, simply run:
+
 ```sh
 kubectl delete -f .
 ```

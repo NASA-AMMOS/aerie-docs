@@ -2,8 +2,7 @@
 
 ## Introduction
 
-The planning, scheduling and sequencing are common needs across many space missions, yet a common solution does not yet exist. Many space missions clone and own legacy solutions inherited from a similar, previous mission. AMMOS is dedicated to provide solutions shared across missions, liberating them from re-inventing the wheel that address the same needs and major cost of maintenance. Aerie is the new generation AMMOS product, not only providing a powerful simulation framework like its predecessors, it also addresses the crucial need of enabling less expert users to input their planning requests, trigger simulations, automate scheduling and similar through a collaborative web application. 
-
+The planning, scheduling and sequencing are common needs across many space missions, yet a common solution does not yet exist. Many space missions clone and own legacy solutions inherited from a similar, previous mission. AMMOS is dedicated to provide solutions shared across missions, liberating them from re-inventing the wheel that address the same needs and major cost of maintenance. Aerie is the new generation AMMOS product, not only providing a powerful simulation framework like its predecessors, it also addresses the crucial need of enabling less expert users to input their planning requests, trigger simulations, automate scheduling and similar through a collaborative web application.
 
 Aerie is designed to address the following capability gaps:
 
@@ -27,7 +26,7 @@ Although Aerie does not aim to be a complete solution for every mission, it has 
 
 Mission operations may involve labour intensive, error prone tasks such as authoring sequences that implement activities or creating a valid activity plan that does not violate flight rules. Aerie supports automation for key areas including scheduling, constraint checking and translation into commands, which we refer to as command expansion. Aerie is designed to simplify these automations and improve their accessibility and usability for mission operators with diverse skill sets.
 
-### Design for customization and configurability 
+### Design for customization and configurability
 
 Aerie tools and services allow systems and services to be configured customized to meet different mission and user needs. For instance, Aerie simulations can be configured to run at different fidelity levels depending on the planners' need at different steps of the planning process. Or an Aerie deployment can be customized to accommodate many parallel simulation and scheduling requests scaled for usage. Similarly Aerie UI can be customized by mission system or by the users interactively to display data relevant for different contexts.
 
@@ -41,8 +40,7 @@ Aerie can be used in many different contexts other than mission operations where
 
 ### Eliminate duality in planning and sequencing
 
-Traditionally planning and sequencing are independent, serial processes where operators are responsible from accurately translating activities into spacecraft commands. This duality reduces efficiency, leads to redundant validations at the activity planning and sequencing steps, and can be error prone. Whereas, principles of  and simulation are embarrassingly similar for activities and commands. Aerie aims to eliminate this duality by using the same simulation engine for activity and command simulations, which can provide an option for missions to do one simulation where abstracted activities decompose into acctual commands. 
-
+Traditionally planning and sequencing are independent, serial processes where operators are responsible from accurately translating activities into spacecraft commands. This duality reduces efficiency, leads to redundant validations at the activity planning and sequencing steps, and can be error prone. Whereas, principles of and simulation are embarrassingly similar for activities and commands. Aerie aims to eliminate this duality by using the same simulation engine for activity and command simulations, which can provide an option for missions to do one simulation where abstracted activities decompose into actual commands.
 
 <!--
 ### CLOSE THE U BETWEEN UPLINK AND DOWNLINK
@@ -136,23 +134,28 @@ import startingWithAerie from './assets/starting-with-aerie.png';
 Note that a single Aerie instance can work with multiple models, such that planners can make use of different activity sets in different plans. This allows testing and iterating models and activity type definitions much faster in early mission phases. It is possible to restrict one or few models to one venue for more strict operation workflows.
 
 ## How Aerie is Used by Existing Customers
-Here we describe a notional operations workflow to illustrate how different features of Aerie can be used in different steps. 
 
-### Scaffold a plan 
-Most missions create a scaffold plan built around a notional DSN schedule. To do so, a DSN schedule can be input to an Aerie simulation, translated to a resource. Various scheduling goals can be written to place telecomm activities into the viewing periods that satisfy selection criteria. Engineering calibration and turns can be placed relative to these telecomm activities. 
+Here we describe a notional operations workflow to illustrate how different features of Aerie can be used in different steps.
 
-### Create a notional science plan 
+### Scaffold a plan
+
+Most missions create a scaffold plan built around a notional DSN schedule. To do so, a DSN schedule can be input to an Aerie simulation, translated to a resource. Various scheduling goals can be written to place telecom activities into the viewing periods that satisfy selection criteria. Engineering calibration and turns can be placed relative to these telecom activities.
+
+### Create a notional science plan
+
 Science team members get together to formulate a notional science plan. Here team members collectively modify the same plan while discussing their options. They can manually add placeholder activities and do a crude simulation to have rough resource allocation.
 
 ### Subsystem activity plan refinement
-At this stage each subsystem can create a branch of the notional plan. They replace placeholder activities with actuals, refine parameters and run higher fidelity simulations. When ready, subsystems can submit their merge requests (change requests) to the main plan. Main plan owner can review these modifications, approve or reject at per activity basis. 
 
-### Observation plan from 3rd party 
-Meanwhile an instrument team is utilizing a dedicated observation planning software to optimize surface coverage for the instrument. They can do so by querying the current state of the main Aerie plan and viewing observation windows that are represented by placeholder activities. The software generates specific observation activities that replaces the placeholder ones. All such activities are then submitted to the Aerie plan through the API. Here there options to submit the changes to the main plan or a branch for a more controlled modification workflow. 
+At this stage each subsystem can create a branch of the notional plan. They replace placeholder activities with actuals, refine parameters and run higher fidelity simulations. When ready, subsystems can submit their merge requests (change requests) to the main plan. Main plan owner can review these modifications, approve or reject at per activity basis.
 
+### Observation plan from 3rd party
 
-### Last minute DSN update 
-DSN schedule gets updated close to the uplink deadline. A script can process the modifications to determine how to shift existing telecomm activities, or which ones to delete and re-create based on changes. Once these changes are done, operators check constraints to detect any violations such as an observation overlapping a telecomm activity. Depending on the density of violations, operators can chose to address them by manually modifying some activities, or deleting and rescheduling a bunch according to the updated telecomm schedule. 
+Meanwhile an instrument team is utilizing a dedicated observation planning software to optimize surface coverage for the instrument. They can do so by querying the current state of the main Aerie plan and viewing observation windows that are represented by placeholder activities. The software generates specific observation activities that replaces the placeholder ones. All such activities are then submitted to the Aerie plan through the API. Here there options to submit the changes to the main plan or a branch for a more controlled modification workflow.
+
+### Last minute DSN update
+
+DSN schedule gets updated close to the uplink deadline. A script can process the modifications to determine how to shift existing telecom activities, or which ones to delete and re-create based on changes. Once these changes are done, operators check constraints to detect any violations such as an observation overlapping a telecom activity. Depending on the density of violations, operators can chose to address them by manually modifying some activities, or deleting and rescheduling a bunch according to the updated telecom schedule.
 
 ## Using Aerie in Different Contexts
 
