@@ -2,7 +2,7 @@
 
 Aerie sequence editor is a web application with various features (auto complete, linting, hinting) to assist users while typing a sequence of commands. Aerie only supports AMPCS command dictionary schema for commands. To be able to author or edit a sequence, users must reference a command dictionary available in the Aerie instance. To upload a command dictionary [see instructions here](../../command-expansion/upload-command-dictionary).
 
-Navigate to the Aerie sequence editor from the Aerie drop down menu at the upper left corner.  
+Navigate to the Aerie sequence editor from the Aerie drop down menu at the upper left corner.
 
 import navigateSeq from './assets/navigateSeq.png';
 
@@ -11,7 +11,7 @@ import navigateSeq from './assets/navigateSeq.png';
   <figcaption>Use main Aerie drop down menu to navigate to the Aerie sequence editor.</figcaption>
 </figure>
 
-The landing page lists all sequences available at this venue in the left panel. Upon click users can view the contents of sequences in the right hand side editor in a "read only" mode. To edit an idividual sequence click the pencil icon for the sequence on the left hand side panel as shown in the image below. 
+The landing page lists all sequences available at this venue in the left panel. Upon click users can view the contents of sequences in the right hand side editor in a "read only" mode. To edit an individual sequence click the pencil icon for the sequence on the left hand side panel as shown in the image below.
 
 import viewSeq from './assets/viewSeq.png';
 
@@ -22,11 +22,11 @@ import viewSeq from './assets/viewSeq.png';
 
 :::note
 
-Currently Aerie sequence editor does not support user roles and permissions, hence all sequences authored in this venue will be accessible to everyone who has access to Aerie. User roles will allow limiting edit and/or view access to some sequences. For now, we recommend pre-appending a user name to your sequence names to indicate ownership. 
+Currently Aerie sequence editor does not support user roles and permissions, hence all sequences authored in this venue will be accessible to everyone who has access to Aerie. User roles will allow limiting edit and/or view access to some sequences. For now, we recommend pre-appending a user name to your sequence names to indicate ownership.
 
 :::
 
-In the sequence editing page users need to select a command dictionary before they can edit the sequence. Editing sequence simply means adding any of the step types defined in the [seqJSON format](https://github.com/NASA-AMMOS/seq-json-schema) to the steps section of the sequence. In addition seqJSON allows arbitrary JSON objects to be added as metadata. Refer to your mission guidelines regarding metadata format expected by downstream processes and tools.  
+In the sequence editing page users need to select a command dictionary before they can edit the sequence. Editing sequence simply means adding any of the step types defined in the [seqJSON format](https://github.com/NASA-AMMOS/seq-json-schema) to the steps section of the sequence. In addition seqJSON allows arbitrary JSON objects to be added as metadata. Refer to your mission guidelines regarding metadata format expected by downstream processes and tools.
 
 import editSeq from './assets/editSeq.png';
 
@@ -36,17 +36,18 @@ import editSeq from './assets/editSeq.png';
 </figure>
 
 ## Import / export seqJSON
-Aerie editor allows authoring and viewing sequences in a user friendly format which is more compact, easier to read and write compared to the seqJSON. However seqJSON is the exchange format that should be used to exchange sequences with upstream and downstream tools. While creating a new sequence, users can import a seqJSON using the in (``` Choose File ```)  button available at the new sequence the left pannel. After authoring a sequence, it can be downloaded to the your local machine using the (``` Download ```) button at the upper right corner of the seqJSON view panel at the bottom. 
+
+Aerie editor allows authoring and viewing sequences in a user friendly format which is more compact, easier to read and write compared to the seqJSON. However seqJSON is the exchange format that should be used to exchange sequences with upstream and downstream tools. While creating a new sequence, users can import a seqJSON using the in (`Choose File`) button available at the new sequence the left panel. After authoring a sequence, it can be downloaded to the your local machine using the (`Download`) button at the upper right corner of the seqJSON view panel at the bottom.
 
 :::note
 
-Currently Aerie sequence editor only supports outputting **sequences** in the seqJSON format. For immediate and hardware commands, users can post process the output seqJSON until that feature can be supported natively. 
+Currently Aerie sequence editor only supports outputting **sequences** in the seqJSON format. For immediate and hardware commands, users can post process the output seqJSON until that feature can be supported natively.
 
 :::
 
 ## Typing commands
 
-As explained earlier authoring a sequence simply means concatanating commands in the steps array. Example below illustrates how a simple sequence with a few commands and various time tags looks like. 
+As explained earlier authoring a sequence simply means concatenating commands in the steps array. Example below illustrates how a simple sequence with a few commands and various time tags looks like.
 
 ```ts
 export default () =>
@@ -54,21 +55,21 @@ export default () =>
     seqId: '',
     metadata: {},
     steps: [
-      C.AVS_RESET_PCE, 
-      C.BC_MANAGE_ACTIVE_BUS({bus_side:"BUS_A", ping_pong_enable_disable:"DISABLE"}), 
-      A('2024-123T00:00:00').EP_PPU_HEATER_SET({cathode_heater_current_setpoint: 120, which_ppu:"PPU1"}),
-      R('00:00:10').DP_PRIORITIZE({dp_name:"/file/path", dp_priority:23})
-    ]
+      C.AVS_RESET_PCE,
+      C.BC_MANAGE_ACTIVE_BUS({ bus_side: 'BUS_A', ping_pong_enable_disable: 'DISABLE' }),
+      A('2024-123T00:00:00').EP_PPU_HEATER_SET({ cathode_heater_current_setpoint: 120, which_ppu: 'PPU1' }),
+      R('00:00:10').DP_PRIORITIZE({ dp_name: '/file/path', dp_priority: 23 }),
+    ],
   });
 ```
-- Each command step must start with a time tag. Time tags supported in seqJSON are command complete ( ``` C. ``` ), absolute ( ``` A('2020-001T00:00:00') ```), relative ( ``` R('00:00:00') ``` ), and epoch relative (``` E('00:00:00') ```). To understand how these time tags get executed on board, refer to your missions Sequencing FDD. 
-- To view list of commands, type a time tag and a dot. 
-- To filter commands, start typing the first few letters of the command stem. 
-- After selecting the command the parameters will be listed upon hovering the stem. 
-- If command has arguments type opening and closing brackets as follows  ``` ({ }) ``` , and then list all args comma seperetad in the ``` ({ name: value, name:value }) ``` format. 
-- Editor can autocomplete argument names with the ``` control + Space ``` shortcut. 
-- For the enumareted args, ``` control + Space ``` can be used to select one of the defined enum values. 
-- All commands must be comma seperated. 
-- Errors will be linted with a red squiggly underline. Hovering over the error should provide explanation for the error as shown below. 
-- Generate seqJSON will fail if you have errors in the sequence. 
 
+- Each command step must start with a time tag. Time tags supported in seqJSON are command complete ( `C.` ), absolute ( `A('2020-001T00:00:00')`), relative ( `R('00:00:00')` ), and epoch relative (`E('00:00:00')`). To understand how these time tags get executed on board, refer to your missions Sequencing FDD.
+- To view list of commands, type a time tag and a dot.
+- To filter commands, start typing the first few letters of the command stem.
+- After selecting the command the parameters will be listed upon hovering the stem.
+- If command has arguments type opening and closing brackets as follows `({ })` , and then list all args comma separated in the `({ name: value, name:value })` format.
+- Editor can autocomplete argument names with the `control + Space` shortcut.
+- For the enumerated args, `control + Space` can be used to select one of the defined enum values.
+- All commands must be comma separated.
+- Errors will be linted with a red squiggly underline. Hovering over the error should provide explanation for the error as shown below.
+- Generate seqJSON will fail if you have errors in the sequence.
