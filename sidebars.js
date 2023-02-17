@@ -168,6 +168,7 @@ const sidebars = {
         type: 'generated-index',
       },
       items: [
+        'sequencing/editor',
         {
           label: 'Seq JSON Schema',
           type: 'link',
