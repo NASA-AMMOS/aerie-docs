@@ -3,7 +3,8 @@
 We would love for you to contribute to the Aerie documentation and help make it even better than it is today!
 
 - [Question or Problem?](#question)
-- [Prerequisite Software](#prerequisite)
+- [Prerequisite Knowledge](#prerequisite-knowledge)
+- [Prerequisite Software](#prerequisite-software)
 - [Editor](#editor)
 - [Clone the Repository](#clone)
 - [Install Dependencies](#install)
@@ -16,7 +17,11 @@ We would love for you to contribute to the Aerie documentation and help make it 
 
 If you would like to chat about the question in real-time, you can reach out via [our Slack channel](https://join.slack.com/t/nasa-ammos/shared_invite/zt-1mlgmk5c2-MgqVSyKzVRUWrXy87FNqPw).
 
-## <a name="prerequisite"></a> Prerequisite Software
+## Prerequisite Knowledge
+
+The Aerie documentation is built with [Docusaurus](https://docusaurus.io/). Documents can be written in either vanilla [Markdown](https://www.markdownguide.org/) (`.md` files), or [MDX](https://mdxjs.com/) (`.mdx` files). Most of the time you will want to use `.mdx` to [add assets](#adding-images-or-videos), or things like [admonitions](https://docusaurus.io/docs/2.0.1/markdown-features/admonitions). Please see the [Docusaurus documentation](https://docusaurus.io/docs/next/markdown-features) for the complete set of available markdown features.
+
+## Prerequisite Software
 
 Before you can run the Aerie documentation locally you must install and configure the following products on your development machine:
 
