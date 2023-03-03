@@ -17,7 +17,7 @@ In this example, activities of any type can only be placed whenever `/plant` is 
 
 ```ts
 export default function scheduleActivitiesOnlyWhenExample(): GlobalSchedulingCondition {
-  return GlobalSchedulingCondition.scheduleActivitiesOnlyWhen(Real.Resource('/plant').lowerThan(10.0));
+  return GlobalSchedulingCondition.scheduleActivitiesOnlyWhen(Real.Resource('/plant').lessThan(10.0));
 }
 ```
 
