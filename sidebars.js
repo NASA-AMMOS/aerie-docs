@@ -19,10 +19,7 @@ const sidebars = {
             type: 'doc',
             id: 'api/examples/planning/introduction',
           },
-          items: [
-            'api/examples/planning/collaboration',
-            'api/examples/planning/anchors'
-          ],
+          items: ['api/examples/planning/collaboration', 'api/examples/planning/anchors'],
         },
         'api/examples/constraints',
         'api/examples/scheduling',
@@ -179,6 +176,7 @@ const sidebars = {
     'glossary',
   ],
   upgradeGuides: [
+    'upgrade-guides/1-1-0-to-1-2-0',
     'upgrade-guides/1-0-2-to-1-1-0',
     'upgrade-guides/1-0-1-to-1-0-2',
     'upgrade-guides/1-0-0-to-1-0-1',
