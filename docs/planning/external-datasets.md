@@ -59,6 +59,30 @@ Finally, each profile requires a list of segments that describe the actual behav
 
 A discrete profile's dynamics should match the format specified by the `schema` field, while a real profile's dynamics should always contain an initial value and a rate of change. See our example external dataset query variables [below](#example-query-variables-for-the-addexternaldataset-mutation) to see both profile specification types. If the `dynamics` field of a segment isn't specified, the segment is called a "gap", and represents intervals when the value is unknown.
 
+## Extend External Dataset Mutation
+
+If your dataset is too big to upload with one request, you can extend a previously uploaded dataset using `extendExternalDataset`.
+
+```graphql
+mutation ExtendExternalDataset($datasetId: Int!, $profileSet: ProfileSet!) {
+  extendExternalDataset(datasetId: $datasetId, profileSet: $profileSet) {
+    datasetId
+  }
+}
+```
+
+The `extendExternalDataset` GraphQL mutation takes two query variables as specified below:
+
+| Parameter       | Type    | Description                                                                       |
+| --------------- | ------- | --------------------------------------------------------------------------------- |
+| `datasetId`     | Integer | The ID of the dataset to extend                                                   |
+| `$profileSet`   | Object  | The set of precomputed profiles that are to be added to the external dataset      |
+
+See [addExternalDataset mutation](#add-external-dataset-mutation) for
+the structure of the profileSet. Any profiles that already exist in
+the dataset will be appended to the end. Profiles that do not already
+exist in the dataset will start from the beginning of the dataset.
+
 ## Delete External Dataset Mutation
 
 There may be a time when you find an external dataset you've been using is no longer relevant and must be removed. You can use the following mutation:
