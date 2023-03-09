@@ -1,0 +1,24 @@
+name: Generate PDFs
+
+on:
+  workflow_dispatch:
+
+jobs:
+  generate-pdfs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Prince
+        run: |
+          curl https://www.princexml.com/download/prince-15-linux-generic-x86_64.tar.gz -O
+          tar zxf prince-15-linux-generic-x86_64.tar.gz
+          cd prince-15-linux-generic-x86_64
+          yes "" | sudo ./install.sh
+      - name: Generate PDFs
+        run: |
+          npx docusaurus-prince-pdf -pdf-only -u https://nasa-ammos.github.io/aerie-docs/overview/concept-of-operations/ --output pdf/aerie-concept-of-operations.pdf
+      - name: Upload PDF
+        uses: actions/upload-artifact@v3
+        with:
+          name: aerie-docs
+          path: pdf
+          if-no-files-found: error
