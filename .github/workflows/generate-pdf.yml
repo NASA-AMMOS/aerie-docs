@@ -14,10 +14,16 @@ jobs:
           cd prince-15-linux-generic-x86_64
           yes "" | sudo ./install.sh
       - name: Generate PDF
-        run: npx docusaurus-prince-pdf -u https://nasa-ammos.github.io/aerie-docs/introduction/ --output pdf/aerie-docs.pdf
+        run: |
+          npx docusaurus-prince-pdf -u https://nasa-ammos.github.io/aerie-docs/overview/concept-of-operations/ --output pdf/aerie-concept-of-operations.pdf
+          npx docusaurus-prince-pdf -u https://nasa-ammos.github.io/aerie-docs/overview/software-design-document/ --output pdf/aerie-software-design.pdf
+          npx docusaurus-prince-pdf -u https://nasa-ammos.github.io/aerie-docs/api/introduction/ --output pdf/aerie-api-sis.pdf
+          npx docusaurus-prince-pdf -u https://nasa-ammos.github.io/aerie-docs/introduction/ --output pdf/aerie-users-guide.pdf
+          npx docusaurus-prince-pdf -u https://nasa-ammos.github.io/aerie-docs/mission-modeling/introduction/ --output pdf/aerie-mission-modeling-guide.pdf
+          npx docusaurus-prince-pdf -u https://nasa-ammos.github.io/aerie-docs/category/deployment/ --output pdf/aerie-product-guide.pdf
       - name: Upload PDF
         uses: actions/upload-artifact@v3
         with:
-          name: docs-pdf
-          path: pdf/aerie-docs.pdf
+          name: aerie-docs
+          path: pdf
           if-no-files-found: error
