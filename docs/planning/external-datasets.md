@@ -73,10 +73,10 @@ mutation ExtendExternalDataset($datasetId: Int!, $profileSet: ProfileSet!) {
 
 The `extendExternalDataset` GraphQL mutation takes two query variables as specified below:
 
-| Parameter       | Type    | Description                                                                       |
-| --------------- | ------- | --------------------------------------------------------------------------------- |
-| `datasetId`     | Integer | The ID of the dataset to extend                                                   |
-| `$profileSet`   | Object  | The set of precomputed profiles that are to be added to the external dataset      |
+| Parameter     | Type    | Description                                                                  |
+| ------------- | ------- | ---------------------------------------------------------------------------- |
+| `datasetId`   | Integer | The ID of the dataset to extend                                              |
+| `$profileSet` | Object  | The set of precomputed profiles that are to be added to the external dataset |
 
 See [addExternalDataset mutation](#add-external-dataset-mutation) for
 the structure of the profileSet. Any profiles that already exist in
