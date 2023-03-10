@@ -7,6 +7,10 @@ jobs:
   generate-pdfs:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 'lts/*'
       - name: Install Prince
         run: |
           curl https://www.princexml.com/download/prince-15-linux-generic-x86_64.tar.gz -O
@@ -14,8 +18,7 @@ jobs:
           cd prince-15-linux-generic-x86_64
           yes "" | sudo ./install.sh
       - name: Generate PDFs
-        run: |
-          npx docusaurus-prince-pdf -pdf-only -u https://nasa-ammos.github.io/aerie-docs/overview/concept-of-operations/ --output pdf/aerie-concept-of-operations.pdf
+        run: sh ./generate-pdfs/generate-pdfs.sh
       - name: Upload PDF
         uses: actions/upload-artifact@v3
         with:
