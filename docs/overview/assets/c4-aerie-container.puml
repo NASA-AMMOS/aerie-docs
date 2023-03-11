@@ -1,0 +1,55 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+Person(planner, Planner, "A mission/instrument team planner")
+
+System_Boundary(c1, "Aerie") {
+        System_Ext(cam, "CAM")
+        Container_Boundary(ui_boundary, "UI") {
+		Container(web_app, "Aerie UI", "Typescript, Svelte", "Provides all planning, simulation, scheduling, and command expansion capabilities via a browser")
+                Container(ui_server, "UI Server", "svelte backend", "Serves the Aerie UI, performs server-side rendering")
+                ContainerDb(ui_db, "UI Config Database", "PostgreSQL", "Stores mission custom UI view configurations")
+        }
+        Container_Boundary(merlin_boundary, "Merlin") {
+                Container(merlin, "Merlin", "Javalin and Java", "Provides mission model simulation and plan management")
+                ContainerDb(merlin_db, "Merlin Database", "PostgreSQL", "Stores records of mission models and plans")
+        }
+        Container(hasura, "Hasura", "Third party, yaml config", "Receives and resolves requests against the Aerie GraphQL schema")
+        Container_Boundary(scheduler_boundary, "Scheduler") {
+                Container(scheduler, "Scheduler", "Javalin and java", "Performs automated scheduling for activity planning")
+                ContainerDb(scheduler_db, "Scheduler Database", "PostgreSQL", "Stores records of scheduling goals and specifications")
+        }
+        Container_Boundary(sequencing_boundary, "Sequencing") {
+                Container(sequencing_server, "Sequencing Server", "Typescript, Express", "Provides command expansion and sequence output capability")
+                ContainerDb(sequencing_db, "Sequencing Database", "PostgreSQL", "Stores records of expansion logic, and expanded sequences")
+        }
+        Container(gateway, "Gateway", "Typescript, Express", "Provides file upload and authentication capabilities")
+        ContainerDb(file_store, "Aerie File Store", "File system", "Stores uploaded mission models and other files")
+}
+
+Rel_R(planner, web_app, "Uses", "HTTPS")
+
+Rel_U(ui_server, web_app, "Delivers, and authenticates")
+Rel_U(ui_server, gateway, "Auth")
+Rel(merlin, merlin_db, "Reads from and writes to", "SQL")
+Rel(scheduler, scheduler_db, "Reads from and writes to", "SQL")
+Rel(sequencing_server, sequencing_db, "Reads from and writes to", "SQL")
+
+Rel(hasura, merlin, "Proxies actions", "JSON/HTTPS")
+BiRel(hasura, scheduler, "Incoming actions and outgoing GraphQL queries", "JSON/HTTPS")
+BiRel(hasura, sequencing_server, "Incoming actions and outgoing GraphQL queries", "JSON/HTTPS")
+
+Rel(hasura, ui_db, "CRUD", "SQL")
+Rel(hasura, merlin_db, "CRUD", "SQL")
+Rel(hasura, scheduler_db, "CRUD", "SQL")
+Rel(hasura, sequencing_db, "CRUD", "SQL")
+Rel(web_app, hasura, "API queries and mutations", "GraphQL")
+
+Rel_L(web_app, gateway, "file uploads", "HTTPS")
+Rel(gateway, file_store, "Save files", "")
+Rel_D(gateway, cam, "Authenticates against")
+
+Rel(scheduler, file_store, "Loads mission model jar", "")
+Rel(merlin, file_store, "Loads mission model jar", "")
+Rel(gateway, merlin_db, "Writes file metadata", "")
+@enduml
+

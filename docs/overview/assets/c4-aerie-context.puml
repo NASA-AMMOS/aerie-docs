@@ -1,0 +1,19 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+title System Context diagram for Aerie
+
+System_Ext(missionTool, "Mission Tool")
+Person(planner, "Planner", "A mission/instrument team planner")
+System(missionScheduler, "Mission Scheduler", "The mission scheduling logic system")
+
+System(aerie, "Aerie", "Provides mission activity and sequence simulation and resource analysis")
+
+System_Ext(cam, "Common Access Manager", "Central authentication and authorization provider")
+
+Rel_D(missionTool, aerie, "Query data")
+Rel_D(planner, aerie, "Views and edits plans, resource profiles, constraints")
+Rel_D(missionScheduler, aerie, "Query resource profiles and constraints, mutate plans")
+
+Rel_D(aerie, cam, "Get authentication/authorization")
+
+@enduml
