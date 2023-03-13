@@ -19,9 +19,9 @@ jobs:
           yes "" | sudo ./install.sh
       - name: Generate PDFs
         run: sh ./generate-pdfs/generate-pdfs.sh
-      - name: Upload PDF
+      - name: Upload PDFs
         uses: actions/upload-artifact@v3
         with:
-          name: aerie-docs
+          name: aerie-docs-pdfs
           path: pdf
           if-no-files-found: error
