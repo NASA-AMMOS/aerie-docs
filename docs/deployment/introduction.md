@@ -24,7 +24,7 @@ If you need a more custom deployment you can use the Aerie [deployment directory
 
 ## Environment Variables
 
-Each Aerie service is configured with environment variables. A description of those variables is found in the [Environment Variable Documentation](https://github.com/NASA-AMMOS/aerie/blob/develop/deployment/Environment.md)
+Each Aerie service is configured with environment variables. A description of those variables is found in the [Environment Variable Documentation](https://github.com/NASA-AMMOS/aerie/blob/develop/deployment/Environment.md).
 
 Of note, the `aerie-merlin`, `aerie_merlin_worker`, `aerie-scheduler`, and `aerie-scheduler-worker` containers can be provided additional JVM arguments as environment variables. For example one may choose to configure the JVM allocated heap size. On must provide any desired JVM flags to the `JAVA_OPTS` environment variable for the container being configured.
 
