@@ -40,7 +40,8 @@ const sidebars = {
       type: 'category',
       label: 'Deployment',
       link: {
-        type: 'generated-index',
+        id: 'deployment/introduction',
+        type: 'doc',
       },
       items: [
         {
