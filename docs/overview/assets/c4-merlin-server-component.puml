@@ -1,0 +1,24 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+Container_Ext(hasura, "Hasura", "Proxies GraphQL requests")
+Container_Boundary(merlin, "Merlin") {
+  Component(app, "App", "Java", "Defines handlers for HTTP queries")
+  Component(plan_logic, "Plan Logic", "Java", "Implements business logic specific to activity plans")
+  Component(mission_model_logic, "Mission Model Logic", "Java", "Implements business logic specific to mission modles and simulation results")
+  Component(sim_driver, "Simulation Driver", "Java", "Accepts a schedule, builds an initial task queue, runs a simulation, colelcts resource profiles and constraint windows")
+  Component(sim_engine, "Simulation Engine", "Java", "Manages job queues and conditions")
+}
+
+ContainerDb(merlin_db, "Merlin Database", "PostgreSQL", "Stores plans and mission model metadata")
+ContainerDb(file_store, "Aerie File Store", "File System", "Stores mission model JAR files")
+
+Rel_D(hasura, app, "Makes internal API calls", "JSON/HTTP")
+Rel_D(app, plan_logic, "Makes calls to")
+Rel_D(app, mission_model_logic, "Makes calls to")
+Rel_R(mission_model_logic, sim_driver, "Uses")
+Rel_U(sim_driver, sim_engine, "Uses")
+
+Rel_D(plan_logic, merlin_db, "Reads from and writes to")
+Rel_D(mission_model_logic, merlin_db, "Reads from and writes to")
+Rel_D(mission_model_logic, file_store, "Reads from and writes to")
+@enduml
