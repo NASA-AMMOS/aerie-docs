@@ -23,6 +23,7 @@ const sidebars = {
         },
         'api/examples/constraints',
         'api/examples/scheduling',
+        'api/examples/activity-presets',
       ],
     },
   ],
