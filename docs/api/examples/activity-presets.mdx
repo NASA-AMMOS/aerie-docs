@@ -1,0 +1,123 @@
+# Activity Presets
+
+Activity presets are used to quickly apply a set of commonly-used arguments to an activity.
+
+## Creating an Activity Preset
+
+```graphql
+mutation CreateActivityPreset($preset: activity_presets_insert_input!) {
+  insert_activity_presets_one(object: $preset) {
+    id
+  }
+}
+```
+
+Below is an example mutation that creates an activity preset called "Gluten Free Bread" for the activity type BakeBananaBread in Model 1. Note that all of BakeBananaBread's arguments are defined.
+
+```json
+{
+  "preset": {
+    "model_id": 1,
+    "name": "Gluten Free Bread",
+    "associated_activity_type": "BakeBananaBread",
+    "arguments": {
+      "temperature": 375,
+      "tbSugar": 16,
+      "glutenFree": true
+    }
+  }
+}
+```
+
+## Applying an Activity Preset
+
+:::caution
+
+Applying an activity preset will replace **all** arguments of the activity directive.
+
+:::
+
+The following mutation will apply an activity preset to an activity directive:
+
+```graphql
+mutation ApplyPreset($preset_id: Int!, $activity_id: Int!, $plan_id: Int!) {
+  apply_preset_to_activity(args: {_preset_id: $preset_id, _activity_id: $activity_id, _plan_id: $plan_id}) {
+    arguments
+  }
+}
+```
+
+## Removing an Activity Preset
+
+:::info Note
+
+Removing an activity preset will **not** modify the arguments of the activity directive.
+
+:::
+
+The following mutation will remove an activity preset from an activity directive:
+
+```graphql
+mutation DeletePreset($preset_id: Int!, $activity_id: Int!, $plan_id: Int!) {
+  delete_preset_to_directive_by_pk(activity_id: $activity_id, plan_id: $plan_id, preset_id: $preset_id) {
+    preset_id
+    activity_id
+    plan_id
+  }
+}
+```
+
+
+## Querying an Activity Preset
+
+### Get an Activity Preset
+
+```graphql
+query GetActivityPreset($preset_id: Int!) {
+  activity_preset:activity_presets_by_pk(id: $preset_id) {
+    id
+    model_id
+    name
+    associated_activity_type
+    arguments
+  }
+}
+```
+
+### Get the Activity Preset Assigned to an Activity Directive
+
+```graphql
+query GetAppliedActivityPreset($activity_id: Int!, $plan_id: Int!) {
+  preset_to_directive(where: {_and: {activity_id: {_eq: $activity_id}, plan_id: {_eq: $plan_id}}}) {
+    applied_preset:presets_applied {
+      id
+      model_id
+      name
+      associated_activity_type
+      arguments
+    }
+  }
+}
+```
+
+### Get all Activity Directives Assigned to an Activity Preset
+
+```graphql
+query GetAssociatedDirectives($preset_id: Int!) {
+  associated_directives:preset_to_directive(where: {preset_id: {_eq: $preset_id}}) {
+    directives_applied_to {
+      id
+      plan_id
+      name
+      type
+      anchor_id
+      anchored_to_start
+      start_offset
+      metadata
+      tags
+      arguments
+    }
+  }
+}
+```
+
