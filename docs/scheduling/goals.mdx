@@ -77,7 +77,7 @@ The Coexistence Goal specifies that a certain activity should occur once **for e
 #### Inputs
 
 - `forEach` - A set of time `Windows`, or a set of activities (`ActivityExpression`)
-- `activityTemplate` - The description of the activity to insert after each activity identified by `forEach`. This can be an `ActivityTemplate` object but also an [arrow function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions) whose parameter would be an `ActivityInstance` object and its return would be an `ActivityTemplate`. This allows to define the content of the `ActivityTemplate` with components of the anchor activity.
+- `activityTemplate` - The description of the activity to insert after each activity identified by `forEach`. This can be an `ActivityTemplate` object or an `ActivityTemplate` factory function with one argument of either `ActivityInstance` or `Interval`, depending on if `forEach` was an `ActivityExpression` or `Windows`, respectively. This allows to define the content of the `ActivityTemplate` with components of the anchor activity or window.
 - `startsAt` - Optionally specify a specific time when the activity should start relative to the window
 - `startsWithin` - Optionally specify a range when the activity should start relative to the window
 - `endsAt` - Optionally specify a specific time when the activity should end relative to the window
@@ -133,7 +133,7 @@ export default () =>
 Note that the scheduler will allow a default timing error of 500 milliseconds for temporal constraints.
 This parameter will be configurable in an upcoming release.
 
-In this example, we use the arrow definition of activity template to use the value of one of the parameter of the anchor activity inside the activity template of the activity to create.
+In this example, we use an activity template factory to use the value of one of the parameter of the anchor activity inside the activity template of the activity to create.
 Let's imagine that the base plan would contain A and B of type `GrowBanana` and that `A.quantity = 3` and `B.quantity = 4`. After applying this goal, two new activities of type `PickBanana`, `C` (with `A` for anchor) and `D` (with `B` for anchor) would be created
 and their parameters would be `C.quantity = 3` and `D.quantity = 4`.
 
@@ -143,6 +143,20 @@ export default () =>
     forEach: ActivityExpression.ofType(ActivityTypes.GrowBanana),
     activityTemplate: growBananaActivity =>
       ActivityTemplates.PickBanana({ quantity: growBananaActivity.parameters.quantity }),
+    startsAt: TimingConstraint.singleton(WindowProperty.END).plus(Temporal.Duration.from({ minutes: 5 })),
+  });
+```
+
+If the `forEach` field is a `Windows` object, we can also make a factory that references each individual `Interval` in the `Windows`:
+
+```ts
+export default () =>
+  Goal.CoexistenceGoal({
+    forEach: Real.Resource('/fruit').equal(4.0),
+    activityTemplate: interval => ActivityTemplates.GrowBanana({
+        growingDuration: interval.duration(),
+        quantity: 1
+    }),
     startsAt: TimingConstraint.singleton(WindowProperty.END).plus(Temporal.Duration.from({ minutes: 5 })),
   });
 ```
