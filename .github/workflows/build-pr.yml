@@ -1,0 +1,33 @@
+name: "Build Docs on PR"
+
+on:
+  pull_request:
+    branches:
+      - develop
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          lfs: true
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 'lts/*'
+          cache: npm
+      - name: Install Dependencies
+        run: npm ci
+      - name: Build
+        id: build
+        run: npm run build
+      - name: Upload Artifact
+        if: ${{ failure() && steps.build.conclusion == 'failure' }}
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: build/
+          retention-days: 7
