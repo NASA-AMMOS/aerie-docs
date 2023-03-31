@@ -335,6 +335,30 @@ export default function andGoalExample() {
 }
 ```
 
+## Accessing Activity Presets
+
+When creating an `ActivityTemplate`, you can access all the activity presets that planners can, on the `ActivityPresets` object. For example,
+if you have a preset of the `BiteBanana` activity called "big bite", you can access it like this:
+
+```ts
+export default (): Goal => {
+  return Goal.RecurrenceGoal({
+    activityTemplate: ActivityTemplates.BiteBanana(ActivityPresets.BiteBanana["big bite"]),
+    interval: ...
+  });
+}
+```
+
+`ActivityPresets.BiteBanana["big bite"]` is a concrete object containing the actual values of the preset, not a lazily-evaluated expression.
+This means it is easy for you to access and override specific values like this:
+
+```ts
+let biteArgs = ActivityPresets.BiteBanana["large bite"];
+biteArgs.biteSize += 10; // 10 bigger than the preset
+
+// use ActivityTemplates.BiteBanana(biteArgs)
+```
+
 ## Restricting When a Goal is Applied
 
 By default, a goal applies on the whole planning horizon.
