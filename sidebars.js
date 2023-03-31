@@ -21,6 +21,7 @@ const sidebars = {
           },
           items: ['api/examples/planning/collaboration', 'api/examples/planning/anchors'],
         },
+        'api/examples/simulation',
         'api/examples/constraints',
         'api/examples/scheduling',
         'api/examples/activity-presets',
