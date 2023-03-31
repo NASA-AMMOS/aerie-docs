@@ -161,7 +161,7 @@ export default () =>
   });
 ```
 
-You may want to get access the value of a resource at a defined timepoint in the activity template. For that, you can use the `valueAt` operator on `Real` and `Discrete` classes. For now, this operation takes a `Spans` object as argument (see [concepts](../../constraints/concepts). This span should be reduced to a single timepoint for this to work. This is only possible
+You may want to access the value of a resource at a defined timepoint in the activity template. For that, you can use the `valueAt` operator on `Real` and `Discrete` classes. For now, this operation takes a `Spans` object as argument (see [concepts](../../constraints/concepts). This span should be reduced to a single timepoint for this to work. This is only possible
 by referencing the span of an activity such as in the following example :
 
 ```ts
