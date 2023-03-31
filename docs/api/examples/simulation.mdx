@@ -1,0 +1,197 @@
+# Simulation
+
+A Simulation Configuration is automatically created alongside a [Plan](../planning/introduction/#create-a-single-plan).
+
+## Update a Simulation Configuration
+
+Before a plan can be simulated, the simulation bounds and arguments must be set.
+Notice that simulation bounds are in the [timestamptz](https://www.postgresql.org/docs/current/datatype-datetime.html) format `YYYY-MM-DD hh:mm:ss+0` or `YYYY-MM-DDThh:mm:ssZ`.
+
+:::info Note
+
+If your Mission Model [defines default values](../../../mission-modeling/advanced-parameters/#export-with-defaults) for an argument,
+you do not need to set those arguments in order to use the default value.
+
+:::
+
+```graphql
+mutation updateSimulationBounds($plan_id: Int!, $simulation_start_time: timestamptz!, $simulation_end_time: timestamptz!) {
+  update_simulation(
+    where: {plan_id: {_eq: $plan_id}},
+    _set: {
+      simulation_start_time: $simulation_start_time,
+      simulation_end_time: $simulation_end_time
+    }) {
+    affected_rows
+  }
+}
+```
+
+```graphql
+mutation updateSimulationArguments($plan_id: Int!, $arguments: jsonb!) {
+  update_simulation(
+    where: {plan_id: {_eq: $plan_id}},
+    _set: {arguments: $arguments}) {
+    affected_rows
+  }
+}
+```
+
+## Create a Simulation Configuration Preset
+
+Rather than defining the simulation bounds and arguments in the Simulation Configuration, they can be assigned in a Simulation Configuration Preset, also known as a Simulation Preset.
+This mutation will create a Simulation Configuration Preset and returns its ID:
+
+```graphql
+mutation CreateSimulationPreset($simulationPresetInsertInput: simulation_template_insert_input!) {
+  insert_simulation_template_one(object: $simulationPresetInsertInput) {
+    id
+  }
+}
+```
+
+Here is an example query variable that creates a Simulation Configuration Preset that sets the simulation bounds from midnight on January 10th, 2023 to noon on that same day,
+and sets the initial fruit count to 50.
+Notice that simulation bounds are in the [timestamptz](https://www.postgresql.org/docs/current/datatype-datetime.html) format `YYYY-MM-DD hh:mm:ss+0` or `YYYY-MM-DDThh:mm:ssZ`.
+
+```json
+{
+  "simulationPresetInsertInput": {
+    "description": "Midnight to Noon, January 10th, 2023",
+ 	  "model_id": 1,
+    "simulation_start_time": "2023-01-10 00:00:00+0",
+    "simulation_end_time": "2023-01-10T12:00:00Z",
+    "arguments": {
+      "initialFruitCount": 50
+    }
+  }
+}
+```
+
+### Update a Simulation Configuration Preset
+
+```graphql
+mutation UpdateSimulationPreset($simulationPresetId: Int!, $updatedPreset: simulation_template_set_input!) {
+  update_simulation_template_by_pk(pk_columns: {id: $simulationPresetId}, _set: $updatedPreset) {
+    id
+  }
+}
+```
+
+## Assign a Simulation Configuration Preset to a Simulation Configuration
+
+If you know the ID of a Simulation Configuration Preset, you can use the following mutation to assign it to a Plan's Simulation Configuration:
+
+```graphql
+mutation AssignSimulationConfigurationPreset($plan_id: Int!, $simulation_template_id: Int!) {
+  update_simulation(
+    where: {plan_id: {_eq: $plan_id}},
+    _set: {simulation_template_id: $simulation_template_id}) {
+    simulation_template_id
+  }
+}
+```
+
+:::info Note
+
+If you have previously set the simulation bounds of a Simulation Configuration but would like to use the bounds defined by the Simulation Configuration Preset,
+set the simulation bounds of the Simulation Configuration to `NULL`.
+
+:::
+
+
+## Run Simulation
+
+```graphql
+query Simulate($planId: Int!) {
+  simulate(planId: $planId) {
+    reason
+    simulationDatasetId
+    status
+  }
+}
+```
+
+## Query for Simulation Results
+
+The output of a simulation is stored in a `simulation_dataset`. A `simulation_dataset` has both profiles (aka states or resources), and simulated activities.
+The following query fetches the latest `simulation_dataset` for a given plan:
+
+```graphql
+query GetLatestSimulationDataset($planId: Int!) {
+  latest_dataset:simulation(where: {plan_id: {_eq: $planId}}) {
+    simulation_datasets(order_by: {id: desc}, limit: 1) {
+      id
+      status
+      reason
+      arguments
+      simulation_start_time
+      simulation_end_time
+      dataset {
+        id
+        profiles {
+          id
+          name
+          type
+          profile_segments {
+            profile_id
+            dynamics
+            start_offset
+          }
+        }
+      }
+      simulated_activities {
+        activity_directive {
+          id
+          metadata
+        }
+        activity_type_name
+        attributes
+        directive_id
+        duration
+        end_time
+        id
+        parent_id
+        start_offset
+        start_time
+      }
+    }
+  }
+}
+```
+
+### Query for Profile Segments
+
+Note for performance it can sometimes be beneficial to request profile segments separately. The profile segments are the actual simulated resource data:
+
+```graphql
+query GetProfileSegments($datasetId: Int!) {
+  profile_segment(where: { dataset_id: { _eq: $datasetId } }) {
+    profile_id
+    dynamics
+    start_offset
+  }
+}
+```
+
+## Query for Simulation Resource Data at a Given Time
+
+Once a simulation has been run, you can query for the profile segments at a certain duration into the results.
+This can be useful for seeding initial conditions when running a Temporal Subset Simulation.
+
+```graphql
+query GetResources($dataset_id: Int!, $start_offset: Interval! ) {
+  getResourcesAtStartOffset(args: {_dataset_id: $dataset_id, _start_offset: $start_offset}) {
+    id
+    dataset_id
+    dynamics
+    is_gap
+    name
+    start_offset
+    type
+  }
+}
+```
+
+Notice that `start_offset` is a [Postgres interval](https://www.postgresqltutorial.com/postgresql-tutorial/postgresql-interval/) of the format `hh:mm:ss`.
+
