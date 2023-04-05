@@ -15,13 +15,15 @@ you do not need to set those arguments in order to use the default value.
 :::
 
 ```graphql
-mutation updateSimulationBounds($plan_id: Int!, $simulation_start_time: timestamptz!, $simulation_end_time: timestamptz!) {
+mutation updateSimulationBounds(
+  $plan_id: Int!
+  $simulation_start_time: timestamptz!
+  $simulation_end_time: timestamptz!
+) {
   update_simulation(
-    where: {plan_id: {_eq: $plan_id}},
-    _set: {
-      simulation_start_time: $simulation_start_time,
-      simulation_end_time: $simulation_end_time
-    }) {
+    where: { plan_id: { _eq: $plan_id } }
+    _set: { simulation_start_time: $simulation_start_time, simulation_end_time: $simulation_end_time }
+  ) {
     affected_rows
   }
 }
@@ -29,9 +31,7 @@ mutation updateSimulationBounds($plan_id: Int!, $simulation_start_time: timestam
 
 ```graphql
 mutation updateSimulationArguments($plan_id: Int!, $arguments: jsonb!) {
-  update_simulation(
-    where: {plan_id: {_eq: $plan_id}},
-    _set: {arguments: $arguments}) {
+  update_simulation(where: { plan_id: { _eq: $plan_id } }, _set: { arguments: $arguments }) {
     affected_rows
   }
 }
@@ -58,7 +58,7 @@ Notice that simulation bounds are in the [timestamptz](https://www.postgresql.or
 {
   "simulationPresetInsertInput": {
     "description": "Midnight to Noon, January 10th, 2023",
- 	  "model_id": 1,
+    "model_id": 1,
     "simulation_start_time": "2023-01-10 00:00:00+0",
     "simulation_end_time": "2023-01-10T12:00:00Z",
     "arguments": {
@@ -72,7 +72,7 @@ Notice that simulation bounds are in the [timestamptz](https://www.postgresql.or
 
 ```graphql
 mutation UpdateSimulationPreset($simulationPresetId: Int!, $updatedPreset: simulation_template_set_input!) {
-  update_simulation_template_by_pk(pk_columns: {id: $simulationPresetId}, _set: $updatedPreset) {
+  update_simulation_template_by_pk(pk_columns: { id: $simulationPresetId }, _set: $updatedPreset) {
     id
   }
 }
@@ -84,9 +84,7 @@ If you know the ID of a Simulation Configuration Preset, you can use the followi
 
 ```graphql
 mutation AssignSimulationConfigurationPreset($plan_id: Int!, $simulation_template_id: Int!) {
-  update_simulation(
-    where: {plan_id: {_eq: $plan_id}},
-    _set: {simulation_template_id: $simulation_template_id}) {
+  update_simulation(where: { plan_id: { _eq: $plan_id } }, _set: { simulation_template_id: $simulation_template_id }) {
     simulation_template_id
   }
 }
@@ -98,7 +96,6 @@ If you have previously set the simulation bounds of a Simulation Configuration b
 set the simulation bounds of the Simulation Configuration to `NULL`.
 
 :::
-
 
 ## Run Simulation
 
@@ -119,8 +116,8 @@ The following query fetches the latest `simulation_dataset` for a given plan:
 
 ```graphql
 query GetLatestSimulationDataset($planId: Int!) {
-  latest_dataset:simulation(where: {plan_id: {_eq: $planId}}) {
-    simulation_datasets(order_by: {id: desc}, limit: 1) {
+  latest_dataset: simulation(where: { plan_id: { _eq: $planId } }) {
+    simulation_datasets(order_by: { id: desc }, limit: 1) {
       id
       status
       reason
@@ -180,8 +177,8 @@ Once a simulation has been run, you can query for the profile segments at a cert
 This can be useful for seeding initial conditions when running a Temporal Subset Simulation.
 
 ```graphql
-query GetResources($dataset_id: Int!, $start_offset: Interval! ) {
-  getResourcesAtStartOffset(args: {_dataset_id: $dataset_id, _start_offset: $start_offset}) {
+query GetResources($dataset_id: Int!, $start_offset: Interval!) {
+  getResourcesAtStartOffset(args: { _dataset_id: $dataset_id, _start_offset: $start_offset }) {
     id
     dataset_id
     dynamics
@@ -194,4 +191,3 @@ query GetResources($dataset_id: Int!, $start_offset: Interval! ) {
 ```
 
 Notice that `start_offset` is a [Postgres interval](https://www.postgresqltutorial.com/postgresql-tutorial/postgresql-interval/) of the format `hh:mm:ss`.
-

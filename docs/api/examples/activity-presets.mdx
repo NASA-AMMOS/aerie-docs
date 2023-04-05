@@ -41,7 +41,7 @@ The following mutation will apply an activity preset to an activity directive:
 
 ```graphql
 mutation ApplyPreset($preset_id: Int!, $activity_id: Int!, $plan_id: Int!) {
-  apply_preset_to_activity(args: {_preset_id: $preset_id, _activity_id: $activity_id, _plan_id: $plan_id}) {
+  apply_preset_to_activity(args: { _preset_id: $preset_id, _activity_id: $activity_id, _plan_id: $plan_id }) {
     arguments
   }
 }
@@ -67,14 +67,13 @@ mutation DeletePreset($preset_id: Int!, $activity_id: Int!, $plan_id: Int!) {
 }
 ```
 
-
 ## Querying an Activity Preset
 
 ### Get an Activity Preset
 
 ```graphql
 query GetActivityPreset($preset_id: Int!) {
-  activity_preset:activity_presets_by_pk(id: $preset_id) {
+  activity_preset: activity_presets_by_pk(id: $preset_id) {
     id
     model_id
     name
@@ -88,8 +87,8 @@ query GetActivityPreset($preset_id: Int!) {
 
 ```graphql
 query GetAppliedActivityPreset($activity_id: Int!, $plan_id: Int!) {
-  preset_to_directive(where: {_and: {activity_id: {_eq: $activity_id}, plan_id: {_eq: $plan_id}}}) {
-    applied_preset:presets_applied {
+  preset_to_directive(where: { _and: { activity_id: { _eq: $activity_id }, plan_id: { _eq: $plan_id } } }) {
+    applied_preset: presets_applied {
       id
       model_id
       name
@@ -104,7 +103,7 @@ query GetAppliedActivityPreset($activity_id: Int!, $plan_id: Int!) {
 
 ```graphql
 query GetAssociatedDirectives($preset_id: Int!) {
-  associated_directives:preset_to_directive(where: {preset_id: {_eq: $preset_id}}) {
+  associated_directives: preset_to_directive(where: { preset_id: { _eq: $preset_id } }) {
     directives_applied_to {
       id
       plan_id
@@ -120,4 +119,3 @@ query GetAssociatedDirectives($preset_id: Int!) {
   }
 }
 ```
-

@@ -153,10 +153,11 @@ If the `forEach` field is a `Windows` object, we can also make a factory that re
 export default () =>
   Goal.CoexistenceGoal({
     forEach: Real.Resource('/fruit').equal(4.0),
-    activityTemplate: interval => ActivityTemplates.GrowBanana({
+    activityTemplate: interval =>
+      ActivityTemplates.GrowBanana({
         growingDuration: interval.duration(),
-        quantity: 1
-    }),
+        quantity: 1,
+      }),
     startsAt: TimingConstraint.singleton(WindowProperty.END).plus(Temporal.Duration.from({ minutes: 5 })),
   });
 ```
@@ -353,7 +354,7 @@ export default (): Goal => {
 This means it is easy for you to access and override specific values like this:
 
 ```ts
-let biteArgs = ActivityPresets.BiteBanana["large bite"];
+let biteArgs = ActivityPresets.BiteBanana['large bite'];
 biteArgs.biteSize += 10; // 10 bigger than the preset
 
 // use ActivityTemplates.BiteBanana(biteArgs)
