@@ -41,10 +41,15 @@ The [Aerie scheduler](../../../scheduling/introduction) places activities in a p
 
 However, it is possible to provide information about how the duration of an activity is determined to help the scheduler. The duration of an activity can be one of the following:
 
-1. Controllable if it is only determined by **one** of the activity parameters
-1. Uncontrollable otherwise
+1. Controllable if it is equal to one of the activity parameters
+2. Fixed if it always has the same duration for all simulation states and arguments
+3. Uncontrollable otherwise
 
-By default the duration of an activity is uncontrollable. To specify that the duration of an activity is controllable, the `@ControllableDuration` annotation can be added to the effect model. For example:
+It is always better to provide this information if you can, because otherwise the scheduler may have to run extra simulations to find the duration of a possible activity.
+
+### Controllable Duration
+
+By default, the duration of an activity is uncontrollable. To specify that the duration of an activity is controllable, the `@ControllableDuration` annotation can be added to the effect model. For example:
 
 ```java
 @ActivityType("RunHeater")
@@ -63,8 +68,8 @@ public final class RunHeater {
     final double totalEnergyUsed = durationInSeconds * energyConsumptionRate;
     mission.batteryCapacity.set(totalEnergyUsed);
 
-    durationPowerOff = 100L;
-    durationPowerOn = durationInSeconds - durationPowerOff;
+    final var durationPowerOff = 100L;
+    final var durationPowerOn = durationInSeconds - durationPowerOff;
 
     delay(durationPowerOn, Duration.SECONDS);
 
@@ -80,4 +85,51 @@ If `PowerOffHeater` had an uncontrollable duration we would have to remove the `
 
 The annotation `@ControllableDuration(parameterName = "durationInSeconds")` has no effect other than to tell the scheduler that the duration of an activity can be controlled. It acts like a contract between the mission model and the scheduler ensuring that the duration of an activity will be equal to the parameter specified in the annotation.
 
-After receiving this information the scheduler determines it can control the duration of an activity, thus requiring fewer simulations and significantly improving scheduling performance for the given activity type.
+### Fixed Duration
+
+If an activity has the same duration for all simulation states, start times, and arguments, you can tell the scheduler this with the `@FixedDuration` annotation. Unlike `@ControllableDuration` which is applied to the effect model method, `@FixedDuration` is applied to either a static `Duration` field or no-argument static method that returns a `Duration`. Both kinds must be public. For example, let's change the above activity to always take 1 hour:
+
+```java
+@ActivityType("RunHeater")
+public final class RunHeater {
+  private static final int energyConsumptionRate = 1000;
+  
+  @FixedDuration
+  public static final Duration TOTAL_DURATION = Duration.HOUR;
+
+  @EffectModel
+  public void run(final Mission mission) {
+    // Spawning another activity does not affect the duration of this activity as they run in parallel.
+    spawn(new PowerOnHeater());
+
+    final double totalEnergyUsed = durationInSeconds * energyConsumptionRate;
+    mission.batteryCapacity.set(totalEnergyUsed);
+
+    final Duration durationPowerOff = Duration.of(100, Duration.SECONDS);
+    final Duration durationPowerOn = TOTAL_DURATION.minus(durationPowerOff);
+
+    delay(durationPowerOn);
+
+    // Assumes PowerOffHeater has a controllable duration.
+    call(new PowerOffHeater(durationPowerOff));
+  }
+}
+```
+
+Alternatively, if the duration is a more complex calculation (but still constant!) you can use a static method with no arguments:
+
+```java
+@FixedDuration
+public static Duration totalDuration() {
+    return ...; // some calculation
+}
+
+// in the effect model
+final Duration durationPowerOn = totalDuration().minus(durationPowerOff);
+```
+
+Some caveats:
+1. In both cases the duration is calculated once statically when the mission model is loaded into the JVM. It is assumed that the duration will never change after that for any reason, and breaking that assumption is undefined behavior.
+2. If the actual duration does not match the promised duration, the scheduler will *probably* notice and cause the goal to fail, but a) you shouldn't depend on it and b) it will not be noticed until after the produced activities have been simulated, which might be expensive.
+3. Because of 2, it is recommended to use the promised duration directly in the effect model as shown in the above examples, just to be safe.
+
