@@ -2,10 +2,9 @@
 
 A Simulation Configuration is automatically created alongside a [Plan](../planning/introduction/#create-a-single-plan).
 
-## Update a Simulation Configuration
+## Update Simulation Configuration Arguments
 
-Before a plan can be simulated, the simulation bounds and arguments must be set.
-Notice that simulation bounds are in the [timestamptz](https://www.postgresql.org/docs/current/datatype-datetime.html) format `YYYY-MM-DD hh:mm:ss+0` or `YYYY-MM-DDThh:mm:ssZ`.
+Before a plan can be simulated, the simulation arguments must be set.
 
 :::info Note
 
@@ -13,6 +12,19 @@ If your Mission Model [defines default values](../../../mission-modeling/advance
 you do not need to set those arguments in order to use the default value.
 
 :::
+
+```graphql
+mutation updateSimulationArguments($plan_id: Int!, $arguments: jsonb!) {
+  update_simulation(where: { plan_id: { _eq: $plan_id } }, _set: { arguments: $arguments }) {
+    affected_rows
+  }
+}
+```
+
+## Update Simulation Bounds
+
+By default, a simulation will go from plan start to plan end. If you would like to run simulation on only a subset of the plan, you must first update the simulation bounds in the Simulation Configuration.
+The following mutation will update the bounds. Notice that simulation bounds are in the [timestamptz](https://www.postgresql.org/docs/current/datatype-datetime.html) format `YYYY-MM-DD hh:mm:ss+0` or `YYYY-MM-DDThh:mm:ssZ`.
 
 ```graphql
 mutation updateSimulationBounds(
@@ -29,17 +41,9 @@ mutation updateSimulationBounds(
 }
 ```
 
-```graphql
-mutation updateSimulationArguments($plan_id: Int!, $arguments: jsonb!) {
-  update_simulation(where: { plan_id: { _eq: $plan_id } }, _set: { arguments: $arguments }) {
-    affected_rows
-  }
-}
-```
-
 ## Create a Simulation Configuration Preset
 
-Rather than defining the simulation bounds and arguments in the Simulation Configuration, they can be assigned in a Simulation Configuration Preset, also known as a Simulation Preset.
+Rather than defining the simulation arguments in the Simulation Configuration, they can be assigned in a Simulation Configuration Preset, also known as a Simulation Preset.
 This mutation will create a Simulation Configuration Preset and returns its ID:
 
 ```graphql
@@ -50,17 +54,13 @@ mutation CreateSimulationPreset($simulationPresetInsertInput: simulation_templat
 }
 ```
 
-Here is an example query variable that creates a Simulation Configuration Preset that sets the simulation bounds from midnight on January 10th, 2023 to noon on that same day,
-and sets the initial fruit count to 50.
-Notice that simulation bounds are in the [timestamptz](https://www.postgresql.org/docs/current/datatype-datetime.html) format `YYYY-MM-DD hh:mm:ss+0` or `YYYY-MM-DDThh:mm:ssZ`.
+Here is an example query variable that creates a Simulation Configuration Preset that sets the initial fruit count to 50.
 
 ```json
 {
   "simulationPresetInsertInput": {
-    "description": "Midnight to Noon, January 10th, 2023",
+    "description": "Only 50 Starting Fruit",
     "model_id": 1,
-    "simulation_start_time": "2023-01-10 00:00:00+0",
-    "simulation_end_time": "2023-01-10T12:00:00Z",
     "arguments": {
       "initialFruitCount": 50
     }
@@ -89,13 +89,6 @@ mutation AssignSimulationConfigurationPreset($plan_id: Int!, $simulation_templat
   }
 }
 ```
-
-:::info Note
-
-If you have previously set the simulation bounds of a Simulation Configuration but would like to use the bounds defined by the Simulation Configuration Preset,
-set the simulation bounds of the Simulation Configuration to `NULL`.
-
-:::
 
 ## Run Simulation
 
