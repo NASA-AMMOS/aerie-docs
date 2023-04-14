@@ -93,7 +93,7 @@ If an activity has the same duration for all simulation states, start times, and
 @ActivityType("RunHeater")
 public final class RunHeater {
   private static final int energyConsumptionRate = 1000;
-  
+
   @FixedDuration
   public static final Duration TOTAL_DURATION = Duration.HOUR;
 
@@ -129,7 +129,7 @@ final Duration durationPowerOn = totalDuration().minus(durationPowerOff);
 ```
 
 Some caveats:
-1. In both cases the duration is calculated once statically when the mission model is loaded into the JVM. It is assumed that the duration will never change after that for any reason, and breaking that assumption is undefined behavior.
-2. If the actual duration does not match the promised duration, the scheduler will *probably* notice and cause the goal to fail, but a) you shouldn't depend on it and b) it will not be noticed until after the produced activities have been simulated, which might be expensive.
-3. Because of 2, it is recommended to use the promised duration directly in the effect model as shown in the above examples, just to be safe.
 
+1. In both cases the duration is calculated once statically when the mission model is loaded into the JVM. It is assumed that the duration will never change after that for any reason, and breaking that assumption is undefined behavior.
+2. If the actual duration does not match the promised duration, the scheduler will _probably_ notice and cause the goal to fail, but a) you shouldn't depend on it and b) it will not be noticed until after the produced activities have been simulated, which might be expensive.
+3. Because of 2, it is recommended to use the promised duration directly in the effect model as shown in the above examples, just to be safe.
