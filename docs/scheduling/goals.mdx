@@ -10,13 +10,29 @@ Finding when an activity will start while subject to temporal constraint involve
 
 :::
 
-## ActivityTemplate
+## ActivityTemplate and ActivityExpression
+
+An `ActivityExpression` allows to search for activities in the plan. An activity expression must have an activity type and may have a subset or all of the parameter of the activity type.
+
+```ts
+ActivityExpression.ofType(ActivityTypes.ParamActivity)
+```
+
+In this case, all the activities of type `ParamActivity` will be matched (disregarding its parameters) and potentially used for satisfying the goal.
+
+```ts
+ActivityExpression.ofType(ActivityTypes.ParamActivity, { param : 1})
+```
+
+In this case, all the activities of type `ParamActivity` with parameter `param` equal to 1 will be matched and used for satisfying the goal.
+
+An optional `ActivityExpression` can be passed with the `activityFinder` parameter of goals. See below for examples of its use in goals.
 
 An `ActivityTemplate` specifies the type of an activity, as well as the arguments it should be given.
 Activity templates are generated for each mission model.
 You can get the full list of activity templates by typing `ActivityTemplates.` (note the period) into the scheduling goal editor, and viewing the auto-complete options.
 
-An activity template passed with a goal will be used for searching activities in the plan that satisfies the template. They will also be used for creating activities to satisfy this goal.
+If an `activityFinder` is not passed to a goal, the mandatory activity template passed with a goal (as the `activityTemplate` parameter) will be used for searching activities in the plan that satisfies the template. The template will also be used for creating activities to satisfy this goal.
 
 If the activity has parameters, pass them into the constructor in a dictionary as key-value pairs. For example:
 
@@ -42,6 +58,7 @@ The Activity Recurrence Goal (sometimes referred to as a "frequency goal") speci
 
 - `activityTemplate` - The description of the activity whose recurrence we're interested in
 - `interval` - A [Temporal.Duration](https://tc39.es/proposal-temporal/docs/duration.html) of time specifying how often this activity must occur
+- `activityFinder` - an optional activity expression. If present, it will be used as replacement of `activityTemplate` to match against existing activities in the plan.
 
 #### Behavior
 
@@ -70,6 +87,23 @@ export default function recurrenceGoalExample() {
 }
 ```
 
+In the following goal, an activity finder is used to match against existing activities in the plan that would satisfy the goal. Here, any GrowBanana activity with a `growingDuration` parameter equal to `Temporal.Duration.from({hours : 1})` would match, disregarding the value of the other parameter `quantity`.
+
+```
+#### With an activityFinder
+```typescript
+export default function myGoal() {
+    return Goal.ActivityRecurrenceGoal({
+            activityFinder: ActivityExpression.build(ActivityTypes.GrowBanana, {growingDuration: Temporal.Duration.from({hours : 1})})
+            activityTemplate: ActivityTemplates.GrowBanana({
+            quantity: 1,
+            growingDuration: Temporal.Duration.from({ hours: 1 })
+          }),
+          interval: Temporal.Duration.from({ hours: 2 })
+        })
+}
+```
+
 ### Coexistence Goal
 
 The Coexistence Goal specifies that a certain activity should occur once **for each** occurrence of some condition.
@@ -78,6 +112,7 @@ The Coexistence Goal specifies that a certain activity should occur once **for e
 
 - `forEach` - A set of time `Windows`, or a set of activities (`ActivityExpression`)
 - `activityTemplate` - The description of the activity to insert after each activity identified by `forEach`. This can be an `ActivityTemplate` object or an `ActivityTemplate` factory function with one argument of either `ActivityInstance` or `Interval`, depending on if `forEach` was an `ActivityExpression` or `Windows`, respectively. This allows to define the content of the `ActivityTemplate` with components of the anchor activity or window.
+- `activityFinder` - an optional activity expression. If present, it will be used as replacement of `activityTemplate` to match against existing activities in the plan.
 - `startsAt` - Optionally specify a specific time when the activity should start relative to the window
 - `startsWithin` - Optionally specify a range when the activity should start relative to the window
 - `endsAt` - Optionally specify a specific time when the activity should end relative to the window
@@ -179,6 +214,16 @@ export default () =>
 
 In this example the value of the `/producer` resource is taken at the beginning of the anchor activity and assigned to the `producer` parameter.
 
+```typescript
+export default () => Goal.CoexistenceGoal({
+  forEach: Real.Resource("/fruit").equal(4.0),
+  activityTemplate: ActivityTemplates.PeelBanana({peelDirection: "fromStem"}),
+  activityFinder: ActivityExpression.ofType(ActivityTypes.PeelBanana),
+  endsAt: TimingConstraint.singleton(WindowProperty.END).plus(Temporal.Duration.from({ minutes: 5 }))
+})
+```
+Behavior: The activity finder is being used to match against any existing PeelBanana activity in the plan, disregarding the value of its parameters.
+
 :::caution
 
 If the end is unconstrained while the activity has an [uncontrollable duration](../../mission-modeling/activity-types/parameters#duration-types), the scheduler may fail to place the activity.
@@ -194,6 +239,7 @@ The Cardinality Goal specifies that a certain activity should occur in the plan 
 
 - `activityTemplate` - The description of the activity whose recurrence we're interested in
 - `specification` - An object with either an occurrence field, a duration field, or both (see examples below)
+- `activityFinder` - an optional activity expression. If present, it will be used as replacement of `activityTemplate` to match against existing activities in the plan.
 
 #### Behavior
 
@@ -245,6 +291,21 @@ export default function cardinalityGoalExample() {
   });
 }
 ```
+With an activity finder:
+
+```typescript
+export default function myGoal() {
+    return Goal.CardinalityGoal({
+        activityTemplate: ActivityTemplates.GrowBanana({
+            quantity: 1,
+            growingDuration: Temporal.Duration.from({ seconds: 1 }),
+        }),
+        activityFinder: ActivityExpression.build(ActivityTypes.GrowBanana, {quantity: 1}),
+        specification: { occurrence: 10, duration: Temporal.Duration.from({ seconds: 10 }) }
+    })
+}
+```
+In this last example, an activity finder is used to match against existing activities in the plan that would satisfy the goal. Here, any GrowBanana activity with a `quantity` parameter equal to 1 would match, disregarding the value of the other parameter `growingDuration`.
 
 :::note
 
