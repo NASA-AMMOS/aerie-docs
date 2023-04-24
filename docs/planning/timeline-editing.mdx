@@ -1,0 +1,95 @@
+import timelineEditor from './assets/timeline-editor.png';
+import timelineRowEditor from './assets/timeline-row-editor.png';
+import timelineActivityEditingDemo from './assets/timeline-activity-layer-adding.mov';
+import timelineActivityHeightEditingDemo from './assets/timeline-activity-height-editing.mov';
+import timelineLineLayerEditingDemo from './assets/timeline-line-layer-editing.mov';
+
+# Timeline Editing
+
+Here we describe how to edit the timeline using the [Aerie UI](https://github.com/NASA-AMMOS/aerie-ui). For more details on the full timeline definition please refer to the [UI Views](./ui-views.md#timeline) documentation.
+
+## Edit Timeline Properties
+
+Edit general timeline properties from within the timeline editor panel. If multiple timelines exist you can use the top dropdown to edit different timelines.
+
+:::info Note
+Changes made in the Timeline Editor are not automatically saved and must be saved to the UI view.
+:::
+
+<figure align="center">
+  <img alt="Aerie UI - Timeline Editor" src={timelineEditor} />
+  <figcaption align="center">
+    Figure 1: Aerie UI Timeline Editor - Manage Timeline properties, Vertical Guides, and Rows
+  </figcaption>
+</figure>
+
+### Edit Timeline Margins
+
+Edit the left and right margins of the timeline. This can be useful when you have a row with many resource layer axis labels.
+
+### Manage Vertical Guides
+
+Click on the plus button to add a new vertical guide to the timeline. By default vertical guides will appear in the center of the timeline view. vertical guides that you have created directly on the timeline will also appear here. Edit the properties of your vertical guides directly in the list of vertical guides. Click on the trashcan icon to delete a vertical guide.
+
+### Manage Rows
+
+Click on the plus button to add a new row to the timeline. A row will be added below the other rows. By default rows will have no layers within them. Click and drag on a row to re-order the row. Click on the trashcan icon to delete a row.
+
+## Edit a Row
+
+Edit row properties from within the timeline row editor. If multiple rows exist you can use the top dropdown to edit different rows. A blue highlight will appear around the row in the timeline that you are currently editing. You can also edit a row by clicking on the pencil icon in the header of a row in the timeline.
+
+<figure align="center">
+  <img alt="Aerie UI - Timeline Row Editor" src={timelineRowEditor} />
+  <figcaption align="center">
+    Figure 2: Aerie UI Timeline Row Editor - Manage Row properties, Horizontal Guides, Y Axes, and Layers
+  </figcaption>
+</figure>
+
+### Add an Activity Layer
+
+To visualize activities on the timeline add a new layer using the plus button in the Layers section. By default new layers have a layer type of Activity. Additionally, the default Aerie UI view has a single row with a single activity layer with all activities visualized by default. Manage which activities are visualized in an activity layer by clicking on the search input for the layer and selecting activities. Activities can be filtered by substring match using the input. Once you have a filter applied you can also select all matches using the Select X activities button at the bottom of the result list. You can also manage the color of the layer using the color picker. Below is a demonstration of this workflow.
+
+<video controls>
+  <source src={timelineActivityEditingDemo} />
+</video>
+
+### Managing Activity Layer Height
+
+Rows by default have a manually specified height. The UI will pack directives and simulated activities in a layer to make the most efficient use of the available space. However if the packed content is still too big for the manually specified height the content will begin to overdraw upon itself. To resolve this issue you can input a larger manual height for the row or specify that the row automatically calculate the minimum height needed to prevent overdraw. Control the row height manually from within the Details section of the timeline row editor or by dragging on the bottom of the row. Alternatively use the Auto option from within the Resize Mode dropdown in the Details section to have the row automatically resize to the content.
+
+:::info Note
+Use of Auto mode can result in degraded Aerie UI performance when visualizing thousands of activities on the timeline. It is recommended that you use a smaller, manually specified height for this scenario. Alternatively you can filter the activities down to a more manageable set to improve performance.
+:::
+
+Below is a demonstration of this workflow.
+
+<video controls>
+  <source src={timelineActivityHeightEditingDemo} />
+</video>
+
+### Add a Resource Line Layer
+
+To show resources on the timeline in a line plot, add a new layer using the plus button in the Layers section and change the layer type to Line. If the row did not already contain a Y axis, a new one will automatically be created and assigned to the line layer. To select resources to plot on this layer, click on the input on the layer and select one or more resources. Control the min and max of the plot by modifying the associated Y axis above. You can use the "fit" button to automatically fit the min and max of the axis to the bounds of the data on demand.
+
+:::info Note
+Y axes are independent of layers. When you create a new line or x-range layer the layer will automatically be assigned to a Y axis. To modify which Y axis a layer is associated with you, click on the settings icon for the layer and select a Y axis from the Y Axis dropdown.
+:::
+
+Below is a demonstration of this workflow.
+
+<video controls>
+  <source src={timelineLineLayerEditingDemo} />
+</video>
+
+### Add a Resource X-Range Layer
+
+To show resources on the timeline in as an x-range plot, add a new layer using the plus button in the Layers section and change the layer type to X-Range. If the row did not already contain a Y axis, a new one will automatically be created and assigned to the x-range layer. A Y Axis is only used to provide a label to the x-range plot. To select resources to plot on this layer, click on the input on the layer and select one or more resources.
+
+### Manage Horizontal Guides
+
+Horizontal guides can be added to a row when a row has at least one line or x-range layer. Add a horizontal guide using the plus button in the Horizontal Guides section. Horizontal guides are associated with a single Y axis and will use the first available Y axis by default. You can edit the name, Y value, associated Y axis, and color of each horizontal guide from within this section.
+
+### Manage Layer Order
+
+Click and drag on a layer to re-order the layer. Note that the layers within a row are drawn on top of each other, meaning that layers will appear in reverse order from the layers list.

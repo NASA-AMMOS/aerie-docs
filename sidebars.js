@@ -108,6 +108,7 @@ const sidebars = {
         },
         'planning/anchors',
         'planning/ui-views',
+        'planning/timeline-editing',
       ],
     },
     {
