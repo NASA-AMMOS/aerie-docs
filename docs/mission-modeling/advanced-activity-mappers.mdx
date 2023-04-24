@@ -112,6 +112,16 @@ The next two methods are inverses of each other: `deserializeValue()` and `seria
 
 There are plenty of examples of value mappers over in the [contrib module](https://github.com/NASA-AMMOS/aerie/tree/develop/contrib/src/main/java/gov/nasa/jpl/aerie/contrib/serialization/mappers).
 
+### AutoValueMapper.Record
+The merlin framework provides a straightforward way to generate a value mapper for Java records. During annotation processing, the merlin framework will look for any record classes annotated with `@AutoValueMapper.Record`, and generate a value mapper for them.
+
+```java
+@AutoValueMapper.Record
+record MyCustomDataType(Foo foo, Bar bar, Baz baz) {}
+```
+
+If merlin has a registered value mapper for Foo, Bar, and Baz, it will be able to use the generated value mapper to serialize and deserialize MyCustomDataType.
+
 ### Registering Value Mappers
 
 As mentioned above, the `@WithMappers()` annotation is used to register value mappers for a mission model.
