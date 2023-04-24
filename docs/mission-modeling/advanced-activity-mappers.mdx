@@ -27,7 +27,7 @@ The first thing to notice is that the interface takes a type parameter (here cal
 - `instantiateDefault()` creates a default instance of the activity type without any values provided externally
 - `instantiate(Map<String, SerializedValue> arguments)` constructs an instance of the activity type from a the provided arguments, if possible
 - `getValidationFailures(Instance activity)` provides a list of reasons a constructed activity is invalid, if any.
-Note that validation failures are different from instantiation errors. Validation failures occur when a constructed activity instance's parameters are outside acceptable range.
+  Note that validation failures are different from instantiation errors. Validation failures occur when a constructed activity instance's parameters are outside acceptable range.
 
 The `getParameters()` method returns a `Map<String, ValueSchema>`. In this map should be a key for every parameter, with a `ValueSchema` describing the structure of that parameter. See our [Value Schema documentation](https://github.com/NASA-AMMOS/aerie/wiki/Value-Schemas#value-schemas-from-code) for more information on creating value schemas.
 
@@ -113,6 +113,7 @@ The next two methods are inverses of each other: `deserializeValue()` and `seria
 There are plenty of examples of value mappers over in the [contrib module](https://github.com/NASA-AMMOS/aerie/tree/develop/contrib/src/main/java/gov/nasa/jpl/aerie/contrib/serialization/mappers).
 
 ### AutoValueMapper.Record
+
 The merlin framework provides a straightforward way to generate a value mapper for Java records. During annotation processing, the merlin framework will look for any record classes annotated with `@AutoValueMapper.Record`, and generate a value mapper for them.
 
 ```java
@@ -127,10 +128,13 @@ If merlin has a registered value mapper for Foo, Bar, and Baz, it will be able t
 As mentioned above, the `@WithMappers()` annotation is used to register value mappers for a mission model.
 Value mappers are expected to be defined with static constructor methods within classes listed in `@WithMappers()` annotations.
 For example, if `package-info.java` contains:
+
 ```java
 @WithMappers(BananaValueMappers.class)
 ```
+
 Then the value mapper may define a custom `Configuration` value mapper with:
+
 ```java
 public final class BananaValueMappers {
   public static ValueMapper<Configuration> configuration() {
@@ -141,15 +145,19 @@ public final class BananaValueMappers {
 
 Value mappers may be created for types that use parameterized types, but the parameterized types themselves must be either unbounded bounded or `Enum<>`.
 For example:
+
 ```java
 @Parameter
 public List<? extends Foo> test;
 ```
+
 or
+
 ```java
 @Parameter
 public List<? extends Map<? super Foo, ? extends Bar>> test;
 ```
+
 are not trivially resolved to a single value mapper due to the type constraints at play here.
 
 ## What is a `SerializedValue`
@@ -211,6 +219,7 @@ The first 3 examples here are straightforward mappings from their java type to t
 Below is an example of an Activity Type and its Activity mapper for reference:
 
 **Activity Type**:
+
 ```java
 package gov.nasa.jpl.aerie.foomissionmodel.activities;
 
@@ -264,6 +273,7 @@ public final class FooActivity {
 ```
 
 **Generated Activity Mapper Example**:
+
 ```java
 package gov.nasa.jpl.aerie.foomissionmodel.generated.activities;
 
