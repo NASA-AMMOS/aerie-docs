@@ -80,7 +80,7 @@ const sidebars = {
         },
         'mission-modeling/resources-and-models',
         'mission-modeling/configuration',
-        'mission-modeling/advanced-parameters',
+        'mission-modeling/parameters',
         'mission-modeling/advanced-value-schemas',
         'mission-modeling/advanced-activity-mappers',
         'mission-modeling/advanced-the-merlin-interface',

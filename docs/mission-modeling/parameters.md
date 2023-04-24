@@ -1,4 +1,4 @@
-# Advanced - Parameters
+# Parameters
 
 The Aerie interface offers a variety of ways to define **parameters** for mission model configurations and activities.
 
