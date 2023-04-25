@@ -15,13 +15,13 @@ Finding when an activity will start while subject to temporal constraint involve
 An `ActivityExpression` allows to search for activities in the plan. An activity expression must have an activity type and may have a subset or all of the parameter of the activity type.
 
 ```ts
-ActivityExpression.ofType(ActivityTypes.ParamActivity)
+ActivityExpression.ofType(ActivityTypes.ParamActivity);
 ```
 
 In this case, all the activities of type `ParamActivity` will be matched (disregarding its parameters) and potentially used for satisfying the goal.
 
 ```ts
-ActivityExpression.ofType(ActivityTypes.ParamActivity, { param : 1})
+ActivityExpression.ofType(ActivityTypes.ParamActivity, { param: 1 });
 ```
 
 In this case, all the activities of type `ParamActivity` with parameter `param` equal to 1 will be matched and used for satisfying the goal.
@@ -89,18 +89,20 @@ export default function recurrenceGoalExample() {
 
 In the following goal, an activity finder is used to match against existing activities in the plan that would satisfy the goal. Here, any GrowBanana activity with a `growingDuration` parameter equal to `Temporal.Duration.from({hours : 1})` would match, disregarding the value of the other parameter `quantity`.
 
-```
 #### With an activityFinder
-```typescript
+
+```ts
 export default function myGoal() {
-    return Goal.ActivityRecurrenceGoal({
-            activityFinder: ActivityExpression.build(ActivityTypes.GrowBanana, {growingDuration: Temporal.Duration.from({hours : 1})})
-            activityTemplate: ActivityTemplates.GrowBanana({
-            quantity: 1,
-            growingDuration: Temporal.Duration.from({ hours: 1 })
-          }),
-          interval: Temporal.Duration.from({ hours: 2 })
-        })
+  return Goal.ActivityRecurrenceGoal({
+    activityFinder: ActivityExpression.build(ActivityTypes.GrowBanana, {
+      growingDuration: Temporal.Duration.from({ hours: 1 }),
+    }),
+    activityTemplate: ActivityTemplates.GrowBanana({
+      quantity: 1,
+      growingDuration: Temporal.Duration.from({ hours: 1 }),
+    }),
+    interval: Temporal.Duration.from({ hours: 2 }),
+  });
 }
 ```
 
@@ -214,14 +216,16 @@ export default () =>
 
 In this example the value of the `/producer` resource is taken at the beginning of the anchor activity and assigned to the `producer` parameter.
 
-```typescript
-export default () => Goal.CoexistenceGoal({
-  forEach: Real.Resource("/fruit").equal(4.0),
-  activityTemplate: ActivityTemplates.PeelBanana({peelDirection: "fromStem"}),
-  activityFinder: ActivityExpression.ofType(ActivityTypes.PeelBanana),
-  endsAt: TimingConstraint.singleton(WindowProperty.END).plus(Temporal.Duration.from({ minutes: 5 }))
-})
+```ts
+export default () =>
+  Goal.CoexistenceGoal({
+    forEach: Real.Resource('/fruit').equal(4.0),
+    activityTemplate: ActivityTemplates.PeelBanana({ peelDirection: 'fromStem' }),
+    activityFinder: ActivityExpression.ofType(ActivityTypes.PeelBanana),
+    endsAt: TimingConstraint.singleton(WindowProperty.END).plus(Temporal.Duration.from({ minutes: 5 })),
+  });
 ```
+
 Behavior: The activity finder is being used to match against any existing PeelBanana activity in the plan, disregarding the value of its parameters.
 
 :::caution
@@ -291,20 +295,22 @@ export default function cardinalityGoalExample() {
   });
 }
 ```
+
 With an activity finder:
 
-```typescript
+```ts
 export default function myGoal() {
-    return Goal.CardinalityGoal({
-        activityTemplate: ActivityTemplates.GrowBanana({
-            quantity: 1,
-            growingDuration: Temporal.Duration.from({ seconds: 1 }),
-        }),
-        activityFinder: ActivityExpression.build(ActivityTypes.GrowBanana, {quantity: 1}),
-        specification: { occurrence: 10, duration: Temporal.Duration.from({ seconds: 10 }) }
-    })
+  return Goal.CardinalityGoal({
+    activityTemplate: ActivityTemplates.GrowBanana({
+      quantity: 1,
+      growingDuration: Temporal.Duration.from({ seconds: 1 }),
+    }),
+    activityFinder: ActivityExpression.build(ActivityTypes.GrowBanana, { quantity: 1 }),
+    specification: { occurrence: 10, duration: Temporal.Duration.from({ seconds: 10 }) },
+  });
 }
 ```
+
 In this last example, an activity finder is used to match against existing activities in the plan that would satisfy the goal. Here, any GrowBanana activity with a `quantity` parameter equal to 1 would match, disregarding the value of the other parameter `growingDuration`.
 
 :::note
@@ -411,8 +417,7 @@ export default (): Goal => {
 }
 ```
 
-`ActivityPresets.BiteBanana["big bite"]` is a concrete object containing the actual values of the preset, not a lazily-evaluated expression.
-This means it is easy for you to access and override specific values like this:
+`ActivityPresets.BiteBanana["big bite"]` is a concrete object containing the actual values of the preset, not a lazily-evaluated expression. This means it is easy for you to access and override specific values like this:
 
 ```ts
 let biteArgs = ActivityPresets.BiteBanana['large bite'];
