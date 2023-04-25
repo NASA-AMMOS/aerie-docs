@@ -95,6 +95,7 @@ const sidebars = {
       items: [
         'planning/upload-mission-model',
         'planning/create-plan-and-simulate',
+        'planning/advanced-incons',
         'planning/external-datasets',
         'planning/activity-directive-metadata',
         {
