@@ -1,0 +1,170 @@
+# Advanced - Incons from a File
+
+It is possible to initialize the internal state of your model via an incons file.
+This page will go over one way to do so, using a simplified version of [the Banananation model](https://github.com/NASA-AMMOS/aerie/tree/develop/examples/banananation) as a reference.
+Note that a different implementation may suit your model better.
+
+## Configuration
+
+Before we can use an incons file in our Mission Model's constructor, we need to be able to specify what that file is in the Configuration.
+
+### Fields
+
+We first add a parameter, `inconsFile`, to specify the path to the file to be used.
+Additionally, since this model will still allow `initialPlantCount` and `initialProducer` to possibly be specified by a Planner rather than `inconsFile`,
+we include a boolean, `useInconsFile`, to determine whether we should use the default initialization or initialize from the incons file.
+
+```java
+public record Configuration(int initialPlantCount, String initialProducer, boolean useInconsFile, String inconsFile)
+```
+
+### Validation
+
+It is recommended to include a validation of the path to the incons file, should one be in use.
+
+```java
+@Export.Validation("incons file must exist")
+public boolean validateInconsFilePath() {
+  if(useInconsFile)
+    return Path.of(inconsFile.trim()).toFile().exists();
+  return true;
+}
+```
+
+### Default
+
+
+#### With @Template
+
+```java
+public static @Template Configuration defaultConfiguration() {
+  return new Configuration(DEFAULT_PLANT_COUNT, DEFAULT_PRODUCER, false, "");
+}
+```
+
+#### With @WithDefaults
+```java
+@WithDefaults
+public static final class Defaults {
+  public static Boolean useInconsFile = false;
+  public static String inconsFile = "";
+}
+```
+
+## Changes in the Mission Model Class
+
+Now that we are able to specify an incons file to use, we need to load it.
+
+### Parsing Incons
+
+In this example, we expect the incons file to be a .JSON file of the format described below, although additional fields on the resource objects are acceptable.
+
+```json
+[
+  {
+    "dynamics": 12,
+    "name": "/resource_1"
+  },
+  {
+    "dynamics": {
+      "doubleField": 1.10,
+      "stringField": "JPL"
+    },
+    "name": "/resource_2"
+  }
+]
+```
+
+Below is a parser for Bananation:
+
+```java
+private void parseInconsFile(Configuration config){
+  try(final JsonReader reader = Json.createReader(new FileReader(config.inconsFile().trim()))) {
+    JsonArray resources = reader.readArray();
+    for(int i = 0; i < resources.size(); i++){
+      final JsonObject resource = resources.getJsonObject(i);
+      switch (resource.getString("name")) {
+        case "/fruit" -> {
+          final JsonObject initialFruit = resource.getJsonObject("dynamics");
+          final double initialValue = initialFruit.getJsonNumber("initial").doubleValue();
+          final double rate = initialFruit.getJsonNumber("rate").doubleValue();
+          this.fruit = new Accumulator(initialValue, rate);
+        }
+        case "/flag" -> {
+          final String initialFlag = resource.getString("dynamics");
+          this.flag = Register.forImmutable(Flag.valueOf(initialFlag));
+          this.flag.isConflicted();
+        }
+        case "/producer" -> {
+          final String initialProducer = resource.getString("dynamics");
+          this.producer = Register.forImmutable(initialProducer);
+        }
+        case "/peel" -> {
+          final double initialPeel = resource.getJsonNumber("dynamics").doubleValue();
+          this.peel = AdditiveRegister.create(initialPeel);
+        }
+        case "/plant" -> {
+          final int initialPlantCount = resource.getInt("dynamics");
+          this.plant = Counter.ofInteger(initialPlantCount);
+        }
+      }
+    }
+  } catch (FileNotFoundException e) {
+    throw new RuntimeException(e);
+  }
+}
+```
+
+:::tip
+
+You may want to handle a missing incons file in a more graceful way, such as loading a default file or falling back on the default initialization.
+
+:::
+
+
+### Default Initialization
+
+In your Mission Model's constructor, extract your current initialization into a method like so:
+
+```java
+private void defaultInitialization(Configuration config){
+  this.fruit = new Accumulator(4.0, 0.0);
+  this.peel = AdditiveRegister.create(4.0);
+  this.flag = Register.forImmutable(Flag.A);
+  this.lineCount = Register.forImmutable(0);
+  this.plant = Counter.ofInteger(config.initialPlantCount());
+  this.producer = Register.forImmutable(config.initialProducer());
+}
+```
+
+### Updating the Mission Model Constructor
+
+Replace that initialization was with the following if statement:
+
+```java
+if(config.useInconsFile()){
+  parseInconsFile(config);
+} else {
+  defaultInitialization(config);
+}
+```
+
+This gives a final constructor of:
+
+```java
+public Mission(final Registrar registrar, final Configuration config) {
+  if(config.useInconsFile()){
+      parseInconsFile(config);
+  } else {
+    defaultInitialization(config);
+  }
+
+  registrar.discrete("/flag", this.flag, new EnumValueMapper<>(Flag.class));
+  registrar.discrete("/flag/conflicted", this.flag::isConflicted, new BooleanValueMapper());
+  registrar.discrete("/peel", this.peel, new DoubleValueMapper());
+  registrar.real("/fruit", this.fruit);
+  registrar.discrete("/plant", this.plant, new IntegerValueMapper());
+  registrar.discrete("/producer", this.producer, new StringValueMapper());
+  registrar.topic("/producer", this.producer.ref, new StringValueMapper());
+}
+```

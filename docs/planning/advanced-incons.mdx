@@ -1,0 +1,122 @@
+import simulationInconsQuery from './assets/simulation_incons_query.mov';
+import gqlDropdown from './assets/graphql_dropdown.png';
+import gatewayDropdown from './assets/gateway_dropdown.png';
+import uploadIncons from './assets/upload_incons.mov';
+import simulateIncons from './assets/simulate_with_incons.mov';
+
+# Advanced - Incons from Prior Simulation
+
+If you have previously run simulation on a plan, it is possible to use that simulation data to initialize resources in a later simulation run.
+This can be useful when running [Temporal Subset Simulation](../create-plan-and-simulate#advanced-temporal-subset-simulation),
+or if one plan's input is dependent on the output of another.
+
+In order to take advantage of this feature, the Mission Model must be written to support loading incons from a file.
+
+:::info Note
+
+The instructions on this page are designed to work with the example Mission Model changes provided [here](../../mission-modeling/advanced-incons-from-file).
+They may need to be tweaked slightly depending on how your model implemented incon loading.
+
+:::
+
+### Step 1: Get the Incons from Hasura
+
+Navigate to your deployment's Hasura GraphQL console by selecting `GraphQL Console` in the dropdown under `Aerie`.
+By default, the GraphQL console is accessible on [port 8080](http://localhost:8080).
+
+<figure>
+  <img alt="Aerie UI - Dropdown Menu Highlighting GraphQL Console Option" src={gqlDropdown} style={{ maxHeight: '50vh' }}/>
+  <figcaption>Figure 1: Dropdown Menu Highlighting GraphQL Console Option</figcaption>
+</figure>
+
+In the Hasura GraphiQL console of your deployment, enter [the following query](/api/examples/simulation/#query-for-simulation-resource-data-at-a-given-time):
+```graphql
+query GetResources($dataset_id: Int!, $start_offset: interval!) {
+  getResourcesAtStartOffset(args: { _dataset_id: $dataset_id, _start_offset: $start_offset }) {
+    id
+    dataset_id
+    dynamics
+    is_gap
+    name
+    start_offset
+    type
+  }
+}
+```
+
+In the `Query Variables` field below, enter a JSON that specifies the id of the simulation dataset to use,
+and how far into the results you'd like to get results, in the format `hh:mm:ss`.
+For example, the following sample JSON would get the values of all previously set resources four days into the thirteenth simulation:
+
+```json
+{
+  "dataset_id": 13,
+  "start_offset": "96:00:00"
+}
+```
+
+The simulation dataset ID can be found in the `Simulation History` section of the Simulation pane.
+
+:::caution
+
+If the first time a resource's value is set is after `start_offset`, it will not appear in the returned list of resources.
+
+:::
+
+<video controls>
+     <source src={simulationInconsQuery} type="video/webm" />
+</video>
+
+### Step 2: Export and Upload the Incons
+
+Take the value of `"getResourcesAtStartOffset"` from the output of the query and copy it into a JSON file.
+
+Next, navigate to your deployment's Gateway by selecting `Gateway` in the dropdown under `Aerie`.
+By default, the Gateway is accessible on [port 9000](http://localhost:9000).
+
+<figure>
+  <img alt="Aerie UI - Dropdown Menu Highlighting Gateway Option" src={gatewayDropdown} style={{ maxHeight: '50vh' }}/>
+  <figcaption>Figure 1: Dropdown Menu Highlighting Gateway Option</figcaption>
+</figure>
+
+Scroll down to `Files` and select [`POST /file`](http://localhost:9000/#/Files/post_file).
+Click the `Try it out` button.
+In the `x-auth-sso-token` field, enter your auth token if you have one, or, if auth is disabled, enter `unknown`.
+If you do not know your auth token, you can get it by logging in using the [`POST /auth/login`](http://localhost:9000/#/Auth/post_auth_login) action.
+Click the `browse` button next to file and select the JSON with the incons.
+
+Click the `Execute` button. In `ServerResponse`, you should see a response body that looks like:
+
+```json
+{
+  "file": {
+    "fieldname": "file",
+    "originalname": "incons.json",
+    "encoding": "7bit",
+    "mimetype": "application/json",
+    "destination": "files",
+    "filename": "incons-1682384407286-7ouftKBnfPWs93.json",
+    "path": "files/incons-1682384407286-7ouftKBnfPWs93.json",
+    "size": 2539
+  },
+  "id": 8
+}
+```
+
+The most important element of this JSON is `filename`. It contains the name of the file within Aerie.
+
+<video controls>
+     <source src={uploadIncons} type="video/webm" />
+</video>
+
+### Step 3: Use the Incons in Simulation
+
+Finally, open the Simulation Configuration panel and set the `inconsPath` argument to `<path-to-aerie-file-store>/<filename>`,
+where `<path-to-aerie-file-store>` is the path to where the `aerie_file_store` volume is mounted in Merlin,
+and `<filename>` is the value of `"filename"` from the earlier JSON from the Gateway.
+
+By default, `<path-to-aerie-file-store>` is `merlin_file_store`.
+
+<video controls>
+     <source src={simulateIncons} type="video/webm" />
+</video>

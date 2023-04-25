@@ -170,7 +170,7 @@ Once a simulation has been run, you can query for the profile segments at a cert
 This can be useful for seeding initial conditions when running a Temporal Subset Simulation.
 
 ```graphql
-query GetResources($dataset_id: Int!, $start_offset: Interval!) {
+query GetResources($dataset_id: Int!, $start_offset: interval!) {
   getResourcesAtStartOffset(args: { _dataset_id: $dataset_id, _start_offset: $start_offset }) {
     id
     dataset_id
