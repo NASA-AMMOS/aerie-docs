@@ -23,3 +23,22 @@ This document assumes you already uploaded a model. If you still need to upload 
    </video>
 
    Notice in this demonstration we change the activity parameter from "THRUSTERS" to "REACTION_WHEELS" which effects the resource as shown in the timeline simulation output.
+
+## Advanced: Temporal Subset Simulation
+
+:::caution
+
+Temporal Subset Simulation sets the value of all internal states to their initial values based on the Simulation Configuration.
+
+This means that running Temporal Subset Simulation on a region of a plan detached from Plan Start may produce **different** output then if you were to simulate from Plan Start.
+
+:::
+
+It is possible to simulate only a section of the plan. This can be done by setting the `Simulation Start` and `Simulation End` fields in the Simulation Configuration Panel.
+
+The bounds can be set to any point in the plan in one of three ways:
+  1. Click the bound and select from the Date Picker
+  2. Right-click on the timeline and select `Set as Plan Start` or `Set as Plan End`
+  3. Right-click on an Activity Directive or Simulated Activity and use the `Set Simulation Start` and `Set Simulation End` options.
+
+To go back to simulating the entire plan, edit `Simulation Start` and `Simulation End` and select `Plan Start` and `Plan End`, respectively.
