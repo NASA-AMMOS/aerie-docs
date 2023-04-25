@@ -25,11 +25,16 @@ Navigate to your deployment's Hasura GraphQL console by selecting `GraphQL Conso
 By default, the GraphQL console is accessible on [port 8080](http://localhost:8080).
 
 <figure>
-  <img alt="Aerie UI - Dropdown Menu Highlighting GraphQL Console Option" src={gqlDropdown} style={{ maxHeight: '50vh' }}/>
+  <img
+    alt="Aerie UI - Dropdown Menu Highlighting GraphQL Console Option"
+    src={gqlDropdown}
+    style={{ maxHeight: '50vh' }}
+  />
   <figcaption>Figure 1: Dropdown Menu Highlighting GraphQL Console Option</figcaption>
 </figure>
 
 In the Hasura GraphiQL console of your deployment, enter [the following query](/api/examples/simulation/#query-for-simulation-resource-data-at-a-given-time):
+
 ```graphql
 query GetResources($dataset_id: Int!, $start_offset: interval!) {
   getResourcesAtStartOffset(args: { _dataset_id: $dataset_id, _start_offset: $start_offset }) {
@@ -64,7 +69,7 @@ If the first time a resource's value is set is after `start_offset`, it will not
 :::
 
 <video controls>
-     <source src={simulationInconsQuery} type="video/webm" />
+  <source src={simulationInconsQuery} type="video/webm" />
 </video>
 
 ### Step 2: Export and Upload the Incons
@@ -75,7 +80,7 @@ Next, navigate to your deployment's Gateway by selecting `Gateway` in the dropdo
 By default, the Gateway is accessible on [port 9000](http://localhost:9000).
 
 <figure>
-  <img alt="Aerie UI - Dropdown Menu Highlighting Gateway Option" src={gatewayDropdown} style={{ maxHeight: '50vh' }}/>
+  <img alt="Aerie UI - Dropdown Menu Highlighting Gateway Option" src={gatewayDropdown} style={{ maxHeight: '50vh' }} />
   <figcaption>Figure 1: Dropdown Menu Highlighting Gateway Option</figcaption>
 </figure>
 
@@ -106,7 +111,7 @@ Click the `Execute` button. In `ServerResponse`, you should see a response body 
 The most important element of this JSON is `filename`. It contains the name of the file within Aerie.
 
 <video controls>
-     <source src={uploadIncons} type="video/webm" />
+  <source src={uploadIncons} type="video/webm" />
 </video>
 
 ### Step 3: Use the Incons in Simulation
@@ -118,5 +123,5 @@ and `<filename>` is the value of `"filename"` from the earlier JSON from the Gat
 By default, `<path-to-aerie-file-store>` is `merlin_file_store`.
 
 <video controls>
-     <source src={simulateIncons} type="video/webm" />
+  <source src={simulateIncons} type="video/webm" />
 </video>

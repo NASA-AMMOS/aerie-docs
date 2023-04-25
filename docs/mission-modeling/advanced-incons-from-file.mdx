@@ -33,7 +33,6 @@ public boolean validateInconsFilePath() {
 
 ### Default
 
-
 #### With @Template
 
 ```java
@@ -43,6 +42,7 @@ public static @Template Configuration defaultConfiguration() {
 ```
 
 #### With @WithDefaults
+
 ```java
 @WithDefaults
 public static final class Defaults {
@@ -67,7 +67,7 @@ In this example, we expect the incons file to be a .JSON file of the format desc
   },
   {
     "dynamics": {
-      "doubleField": 1.10,
+      "doubleField": 1.1,
       "stringField": "JPL"
     },
     "name": "/resource_2"
@@ -120,7 +120,6 @@ private void parseInconsFile(Configuration config){
 You may want to handle a missing incons file in a more graceful way, such as loading a default file or falling back on the default initialization.
 
 :::
-
 
 ### Default Initialization
 
