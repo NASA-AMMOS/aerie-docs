@@ -95,9 +95,9 @@ public class Vector3DValueMapper implements ValueMapper<Vector3D> {
   public SerializedValue serializeValue(final Vector3D value) {
     return SerializedValue.of(
         List.of(
-            SerializedValue.of(value.getX()),
-            SerializedValue.of(value.getY()),
-            SerializedValue.of(value.getZ())
+          SerializedValue.of(value.getX()),
+          SerializedValue.of(value.getY()),
+          SerializedValue.of(value.getZ())
         )
     );
   }
@@ -173,12 +173,12 @@ SerializedValue serializedInt = SerializedValue.of(exInt);
 
 List<String> exList = List.of("a", "b", "c")
 SerializedValue serializedList = SerializedValue.of(
-                                   List.of(
-                                     SerializedValue.of(exList.get(0)),
-                                     SerializedValue.of(exList.get(1)),
-                                     SerializedValue.of(exList.get(2))
-                                   )
-                                 );
+  List.of(
+    SerializedValue.of(exList.get(0)),
+    SerializedValue.of(exList.get(1)),
+    SerializedValue.of(exList.get(2))
+  )
+);
 
 Map<String, Boolean> exMap = Map.of(
   "key1", true,
@@ -186,30 +186,30 @@ Map<String, Boolean> exMap = Map.of(
   "key3", true
 );
 SerializedValue serializedMap = SerializedValue.of(
-                                  Map.of(
-                                    "key1", SerializedValue.of(exMap.get("key1")),
-                                    "key2", SerializedValue.of(exMap.get("key2")),
-                                    "key3", SerializedValue.of(exMap.get("key3"))
-                                  )
-                                );
+  Map.of(
+    "key1", SerializedValue.of(exMap.get("key1")),
+    "key2", SerializedValue.of(exMap.get("key2")),
+    "key3", SerializedValue.of(exMap.get("key3"))
+  )
+);
 
 Vector3D exampleVec = new Vector3D(0,0,0);
 
 SerializedValue serializedVec1 = SerializedValue.of(
-                                   List.of(
-                                     SerializedValue.of(exampleVec.getX()),
-                                     SerializedValue.of(exampleVec.getY()),
-                                     SerializedValue.of(exampleVec.getZ())
-                                   )
-                                 );
+  List.of(
+    SerializedValue.of(exampleVec.getX()),
+    SerializedValue.of(exampleVec.getY()),
+    SerializedValue.of(exampleVec.getZ())
+  )
+);
 
 SerializedValue serializedVec2 = SerializedValue.of(
-                                   Map.of(
-                                     "x", SerializedValue.of(exampleVec.getX()),
-                                     "y", SerializedValue.of(exampleVec.getY()),
-                                     "z", SerializedValue.of(exampleVec.getZ())
-                                   )
-                                 );
+  Map.of(
+    "x", SerializedValue.of(exampleVec.getX()),
+    "y", SerializedValue.of(exampleVec.getY()),
+    "z", SerializedValue.of(exampleVec.getZ())
+  )
+);
 ```
 
 The first 3 examples here are straightforward mappings from their java type to their serialized form, however the vector example is more interesting. To highlight this, two forms of `SerializedValue` have been given for it. In the first case, we serialize the `Vector3D` as a list of three values. This will work fine as long as whoever deserializes it knows that the list contains each component in order of x, y and z. In the second example, however, the vector is serialized as a map. Either of these representations may fit better in different scenarios. Generally, the structure of a `SerializedValue` constructed by a `ValueMapper` should match the `ValueSchema` the `ValueMapper` provides.
@@ -267,8 +267,6 @@ public final class FooActivity {
   public void run(final Mission mission) {
     ...
   }
-}
-
 }
 ```
 
