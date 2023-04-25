@@ -54,6 +54,10 @@ This is an alphabetized glossary of common term definitions used throughout the 
 
 1. [Hasura](https://hasura.io/) - A GraphQL schema compiler and GraphQL API server. As a compiler, Hasura parses a PostgresDB schema and generates a GraphQL schema defining a data graph of Queries, Mutation, and Subscriptions. Aerie utilizes a Hasura component to expose select database tables as the Aerie GraphQL API.
 
+## I
+
+1. **Initial Conditions (incons)** - The initial value of resources before a simulation.
+
 ## J
 
 1. [JUnit](https://junit.org/junit5/) - A unit testing framework for the Java programming language.

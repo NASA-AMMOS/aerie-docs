@@ -81,9 +81,9 @@ const sidebars = {
         'mission-modeling/resources-and-models',
         'mission-modeling/configuration',
         'mission-modeling/parameters',
-        'mission-modeling/advanced-incons-from-file',
-        'mission-modeling/advanced-value-schemas',
-        'mission-modeling/advanced-activity-mappers',
+        'mission-modeling/activity-mappers',
+        'mission-modeling/value-schemas',
+        'mission-modeling/advanced-incons',
         'mission-modeling/advanced-the-merlin-interface',
       ],
     },
@@ -96,7 +96,6 @@ const sidebars = {
       items: [
         'planning/upload-mission-model',
         'planning/create-plan-and-simulate',
-        'planning/advanced-incons',
         'planning/external-datasets',
         'planning/activity-directive-metadata',
         {
@@ -111,6 +110,7 @@ const sidebars = {
         'planning/anchors',
         'planning/ui-views',
         'planning/timeline-editing',
+        'planning/advanced-incons',
       ],
     },
     {

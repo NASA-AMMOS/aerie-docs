@@ -5,6 +5,6 @@ https://nasa-ammos.github.io/aerie-docs/mission-modeling/activity-types/effect-m
 https://nasa-ammos.github.io/aerie-docs/mission-modeling/resources-and-models/
 https://nasa-ammos.github.io/aerie-docs/mission-modeling/configuration/
 https://nasa-ammos.github.io/aerie-docs/mission-modeling/parameters/
-https://nasa-ammos.github.io/aerie-docs/mission-modeling/advanced-value-schemas/
-https://nasa-ammos.github.io/aerie-docs/mission-modeling/advanced-activity-mappers/
+https://nasa-ammos.github.io/aerie-docs/mission-modeling/activity-mappers/
+https://nasa-ammos.github.io/aerie-docs/mission-modeling/value-schemas/
 https://nasa-ammos.github.io/aerie-docs/mission-modeling/advanced-the-merlin-interface/

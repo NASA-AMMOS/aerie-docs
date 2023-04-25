@@ -32,7 +32,7 @@ The profile set to be uploaded should have one entry for each profile, indexed b
 
 Each profile should have a `type` field, which specifies whether the profile is real-valued or discrete-valued. It must also contain a `schema` field, which specifies the schema of the values it takes on.
 
-For discrete profiles, these are not limited to basic types, but can take on any complex structure made up using our `ValueSchema` construct (for more information, see our [ValueSchema documentation](../../mission-modeling/advanced-value-schemas)).
+For discrete profiles, these are not limited to basic types, but can take on any complex structure made up using our `ValueSchema` construct (for more information, see our [ValueSchema documentation](../../mission-modeling/value-schemas)).
 
 Currently, real profiles only support linear equations with the following schema:
 

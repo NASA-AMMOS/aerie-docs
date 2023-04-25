@@ -4,7 +4,7 @@ import gatewayDropdown from './assets/gateway_dropdown.png';
 import uploadIncons from './assets/upload_incons.mov';
 import simulateIncons from './assets/simulate_with_incons.mov';
 
-# Advanced - Incons from Prior Simulation
+# Advanced - Incons
 
 If you have previously run simulation on a plan, it is possible to use that simulation data to initialize resources in a later simulation run.
 This can be useful when running [Temporal Subset Simulation](../create-plan-and-simulate#advanced-temporal-subset-simulation),
@@ -14,7 +14,7 @@ In order to take advantage of this feature, the Mission Model must be written to
 
 :::info Note
 
-The instructions on this page are designed to work with the example Mission Model changes provided [here](../../mission-modeling/advanced-incons-from-file).
+The instructions on this page are designed to work with the example Mission Model changes provided [here](../../mission-modeling/advanced-incons).
 They may need to be tweaked slightly depending on how your model implemented incon loading.
 
 :::
@@ -24,7 +24,7 @@ They may need to be tweaked slightly depending on how your model implemented inc
 Navigate to your deployment's Hasura GraphQL console by selecting `GraphQL Console` in the dropdown under `Aerie`.
 By default, the GraphQL console is accessible on [port 8080](http://localhost:8080).
 
-<figure>
+<figure align="center">
   <img
     alt="Aerie UI - Dropdown Menu Highlighting GraphQL Console Option"
     src={gqlDropdown}
@@ -68,7 +68,7 @@ If the first time a resource's value is set is after `start_offset`, it will not
 
 :::
 
-<video controls>
+<video controls align="center">
   <source src={simulationInconsQuery} type="video/webm" />
 </video>
 
@@ -79,9 +79,9 @@ Take the value of `"getResourcesAtStartOffset"` from the output of the query and
 Next, navigate to your deployment's Gateway by selecting `Gateway` in the dropdown under `Aerie`.
 By default, the Gateway is accessible on [port 9000](http://localhost:9000).
 
-<figure>
+<figure align="center">
   <img alt="Aerie UI - Dropdown Menu Highlighting Gateway Option" src={gatewayDropdown} style={{ maxHeight: '50vh' }} />
-  <figcaption>Figure 1: Dropdown Menu Highlighting Gateway Option</figcaption>
+  <figcaption>Figure 2: Dropdown Menu Highlighting Gateway Option</figcaption>
 </figure>
 
 Scroll down to `Files` and select [`POST /file`](http://localhost:9000/#/Files/post_file).
@@ -110,7 +110,7 @@ Click the `Execute` button. In `ServerResponse`, you should see a response body 
 
 The most important element of this JSON is `filename`. It contains the name of the file within Aerie.
 
-<video controls>
+<video controls align="center">
   <source src={uploadIncons} type="video/webm" />
 </video>
 
@@ -122,6 +122,6 @@ and `<filename>` is the value of `"filename"` from the earlier JSON from the Gat
 
 By default, `<path-to-aerie-file-store>` is `merlin_file_store`.
 
-<video controls>
+<video controls align="center">
   <source src={simulateIncons} type="video/webm" />
 </video>

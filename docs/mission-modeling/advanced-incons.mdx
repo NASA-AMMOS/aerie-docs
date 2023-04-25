@@ -1,6 +1,6 @@
-# Advanced - Incons from a File
+# Advanced - Incons
 
-It is possible to initialize the internal state of your model via an incons file.
+It is possible to initialize the internal state of your model via an initial conditions (incons) file.
 This page will go over one way to do so, using a simplified version of [the Banananation model](https://github.com/NASA-AMMOS/aerie/tree/develop/examples/banananation) as a reference.
 Note that a different implementation may suit your model better.
 
@@ -75,7 +75,7 @@ In this example, we expect the incons file to be a .JSON file of the format desc
 ]
 ```
 
-Below is a parser for Bananation:
+Below is a parser for Banananation:
 
 ```java
 private void parseInconsFile(Configuration config){
