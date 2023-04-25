@@ -55,6 +55,6 @@ Aerie recommends automating the seqID declaration and seqID-activity association
 
 ## Command Sorting
 
-As of Aerie [v1.5.0](https://github.com/NASA-AMMOS/aerie/releases/tag/v1.5.0), during expansion if more than 1 activity targets a single sequence then the commands are sorted if all commands use either absolute or relative time tags, and the first command for each activity uses an absolute time tag. Otherwise none of the commands are sorted. If the commands are sorted then all time tags are converted to absolute time.
+As of Aerie [v1.5.0](https://github.com/NASA-AMMOS/aerie/releases/tag/v1.5.0), during expansion if more than one activity targets a single sequence then the commands are sorted if all commands use either absolute or relative time tags, and the first command for each activity uses an absolute time tag. Otherwise none of the commands are sorted. If the commands are sorted then all time tags are converted to absolute time.
 
 Additionally a `timeSorted` boolean property has been added to the expanded sequence `metadata` indicating if the commands have been sorted (true for sorted, false otherwise).
