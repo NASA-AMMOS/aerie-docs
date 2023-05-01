@@ -179,6 +179,101 @@ const sidebars = {
         },
       ],
     },
+    {
+      type: 'category',
+      label: 'Java Docs',
+      link: {
+        id: 'java-docs/introduction',
+        type: 'doc',
+      },
+      items: [
+        {
+          label: 'Constraints',
+          type: 'link',
+          href: 'https://nasa-ammos.github.io/aerie/javadoc/constraints/',
+        },
+        {
+          label: 'Contrib',
+          type: 'link',
+          href: 'https://nasa-ammos.github.io/aerie/javadoc/contrib/',
+        },
+        {
+          label: 'Examples - Banananation',
+          type: 'link',
+          href: 'https://nasa-ammos.github.io/aerie/javadoc/examples/banananation/',
+        },
+        {
+          label: 'Examples - Config With Defaults',
+          type: 'link',
+          href: 'https://nasa-ammos.github.io/aerie/javadoc/examples/config-with-defaults/',
+        },
+        {
+          label: 'Examples - Config Without Defaults',
+          type: 'link',
+          href: 'https://nasa-ammos.github.io/aerie/javadoc/examples/config-without-defaults/',
+        },
+        {
+          label: 'Examples - Foo Mission Model',
+          type: 'link',
+          href: 'https://nasa-ammos.github.io/aerie/javadoc/examples/foo-missionmodel/',
+        },
+        {
+          label: 'Merlin Driver',
+          type: 'link',
+          href: 'https://nasa-ammos.github.io/aerie/javadoc/merlin-driver/',
+        },
+        {
+          label: 'Merlin Framework',
+          type: 'link',
+          href: 'https://nasa-ammos.github.io/aerie/javadoc/merlin-framework/',
+        },
+        {
+          label: 'Merlin Framework JUnit',
+          type: 'link',
+          href: 'https://nasa-ammos.github.io/aerie/javadoc/merlin-framework-junit/',
+        },
+        {
+          label: 'Merlin Framework Processor',
+          type: 'link',
+          href: 'https://nasa-ammos.github.io/aerie/javadoc/merlin-framework-processor/',
+        },
+        {
+          label: 'Merlin SDK',
+          type: 'link',
+          href: 'https://nasa-ammos.github.io/aerie/javadoc/merlin-sdk/',
+        },
+        {
+          label: 'Merlin Server',
+          type: 'link',
+          href: 'https://nasa-ammos.github.io/aerie/javadoc/merlin-server/',
+        },
+        {
+          label: 'Merlin Worker',
+          type: 'link',
+          href: 'https://nasa-ammos.github.io/aerie/javadoc/merlin-worker/',
+        },
+        {
+          label: 'Parsing Utilities',
+          type: 'link',
+          href: 'https://nasa-ammos.github.io/aerie/javadoc/parsing-utilities/',
+        },
+        {
+          label: 'Scheduler Driver',
+          type: 'link',
+          href: 'https://nasa-ammos.github.io/aerie/javadoc/scheduler-driver/',
+        },
+        {
+          label: 'Scheduler Server',
+          type: 'link',
+          href: 'https://nasa-ammos.github.io/aerie/javadoc/scheduler-server/',
+        },
+        {
+          label: 'Scheduler Worker',
+          type: 'link',
+          href: 'https://nasa-ammos.github.io/aerie/javadoc/scheduler-worker/',
+        },
+      ],
+    },
     'glossary',
   ],
   upgradeGuides: [
