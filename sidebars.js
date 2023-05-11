@@ -54,6 +54,7 @@ const sidebars = {
         'deployment/advanced-ui-custom-base-path',
         'deployment/advanced-kubernetes',
         'deployment/advanced-database-migrations',
+        'deployment/advanced-authentication',
         {
           label: 'Environment Variables',
           type: 'link',

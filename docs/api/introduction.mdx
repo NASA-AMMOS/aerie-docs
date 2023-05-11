@@ -1,3 +1,7 @@
+import apiPlayground from './assets/api-playground.png';
+import apiPlaygroundHeaders from './assets/api-playground-headers.png';
+import gatewayAuthLogin from './assets/gateway-auth-login.png';
+
 # Introduction
 
 The Aerie API uses [GraphQL](https://graphql.org/) via [Hasura](https://hasura.io/) to allow for complex querying of **any Aerie data**. If this is your first time using GraphQL we recommend the following resources:
@@ -58,6 +62,55 @@ Regardless of the method by which the query and variables are sent, the response
 
 If there were no errors returned, the `"errors"` field is not present in the response. If no data is returned, the `"data"` field is only included if the error occurred during execution.
 
+## Authentication
+
+To interact with the API you need to be authenticated. For each request Hasura requires an [Authorization header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Authorization) to be set, which contains a token in the [bearer format](https://hasura.io/docs/latest/auth/authentication/jwt/#hasura-jwt-format): `"Bearer YOUR_TOKEN_HERE"`. To get a token you can make an HTTP request to the gateway with your credentials either using the gateway UI, or an HTTP library of your choosing. If you are using Aerie locally you can just use the admin password and skip using a token.
+
+### Gateway UI
+
+To get a token from the gateway UI you can visit [http://localhost:9000/#/Auth/post_auth_login](http://localhost:9000/#/Auth/post_auth_login), and enter your JPL username and password (change `localhost` do your deployment URL if you are running Aerie on a different domain).
+
+<figure>
+  <img alt="Aerie Gateway UI - Auth Login" src={gatewayAuthLogin} />
+  <figcaption align="center">Figure 1: Aerie Gateway UI - Auth Login</figcaption>
+</figure>
+
+The JSON response contains a token, which you can use in the `Authorization` request header in downstream tools to query Hasura.
+
+```json
+{
+  "message": "Login successful",
+  "success": true,
+  "token": "YOUR_TOKEN_HERE"
+}
+```
+
+### Python
+
+You can also query the gateway from Python using HTTP to obtain a token.
+
+```python
+import json
+import requests
+
+# Query the gateway to get a token.
+response = requests.post(
+  url='http://localhost:9000/auth/login', # Change from 'localhost' as needed.
+  json={ 'username': 'YOUR_USERNAME_HERE', 'password': 'YOUR_PASSWORD_HERE' }
+)
+
+# Grab the token from the gateway response and strip quotes.
+token = json.dumps(response.json().get('token')).strip("\"")
+
+# Print the token in Bearer format.
+# You can copy and paste this into the 'Authorization' header for Hasura requests.
+print(f'Bearer {token}')
+```
+
+### Admin Mode
+
+If you are using Aerie locally, or have the [admin secret](https://hasura.io/docs/latest/deployment/graphql-engine-flags/reference/#admin-secret-key), you can query Hasura without a token and instead set the [x-hasura-admin-secret](https://hasura.io/docs/latest/auth/authentication/admin-secret-access/) header. This allows you to skip querying the gateway for a token.
+
 ## GraphQL Clients
 
 Since a GraphQL API has more underlying structure than a REST API, there are a range of methods by which a client application may choose to interact with the API. A simple usage could use the [curl](https://curl.se/) command line tool, whereas a full featured web application may integrate a more powerful client library like [Apollo Client](https://www.apollographql.com/docs/react/) or [Relay](https://relay.dev/) which automatically handle query building, batching and caching.
@@ -66,9 +119,50 @@ Since a GraphQL API has more underlying structure than a REST API, there are a r
 
 One may build and send a query or mutation via any means that enable an HTTP POST request to be made against the API. For example, this can be easily done using the command line tool [graphqurl](https://github.com/hasura/graphqurl).
 
-### GraphQL Console
+### GraphQL Playground
 
-Aerie uses Hasura to generate it's GraphQL API. You can use the Hasura Console user interface to query the Aerie API directly via GraphQL. It is a great way to start exploring Aerie data and get familiar with GraphQL. If you are running Aerie locally you can view the Hasura Console at [http://localhost:8080/console](http://localhost:8080/console).
+Aerie provides an API playground via the [Altair](https://altairgraphql.dev/) GraphQL client. You can use the playground user interface to query the Aerie API directly. It is a great way to start exploring Aerie data and get familiar with GraphQL. If you are running Aerie locally you can view the playground (via the gateway server) at [http://localhost:9000/api-playground/](http://localhost:9000/api-playground/) (change the `localhost` domain as needed).
+
+<figure>
+  <img alt="Aerie API Playground - Altair" src={apiPlayground} />
+  <figcaption align="center">Figure 2: Aerie API Playground - Altair</figcaption>
+</figure>
+
+:::info
+
+Previously our recommendation was to use the Hasura Console to explore the Aerie API. As of Aerie `1.7.0` the Hasura Console requires the admin password to access, which makes it unavailable to most for non-local use cases.
+
+:::
+
+To use the API playground you need to set the proper authorization header (either `Authorization` or `x-hasura-admin-secret` - see the [Authentication section above](#authentication)). Here is an example on how to set either one in the playground:
+
+<figure>
+  <img alt="Aerie API Playground - Altair Authorization Headers" src={apiPlaygroundHeaders} />
+  <figcaption align="center">Figure 3: Aerie API Playground - Altair Authorization Headers</figcaption>
+</figure>
+
+### Python
+
+You can query the API using an HTTP request in Python. Here is a simple example querying for plan data:
+
+```python
+import json
+import requests
+
+response = requests.post(
+  url='http://localhost:8080/v1/graphql',
+  headers={ 'Authorization': 'Bearer YOUR_TOKEN_HERE' }, # See 'Authorization' section above to get this.
+  json={ 'query': 'query { plan { id } }' }
+)
+
+print(json.dumps(response.json(), indent=2))
+```
+
+If you have the admin password you can just use it to make your request. Set the `x-hasura-admin-secret` header (default admin password shown below):
+
+```python
+headers={ 'x-hasura-admin-secret': 'aerie' }
+```
 
 ### Browser Developer Console
 
@@ -77,7 +171,10 @@ Requests can also be tested using JavaScript from a web-browser (or Node.js). Fo
 ```js
 const response = await fetch('http://localhost:8080/v1/graphql', {
   body: JSON.stringify({ query: 'query { plan { id } }' }),
-  headers: { 'Content-Type': 'application/json' },
+  headers: {
+    Authorization: `Bearer YOUR_TOKEN_HERE`, // See the 'Authentication' section above to get this.
+    'Content-Type': 'application/json',
+  },
   method: 'POST',
 });
 const data = await response.json();
