@@ -1,0 +1,56 @@
+import uiLoginPage from './assets/ui-login-page.png';
+
+# Advanced - Authentication
+
+Aerie currently only supports authentication for applications internal to JPL via CAM. This document describes how to enable CAM authentication.
+
+Note that Hasura _authorization_ is enabled by default (even without CAM authentication enabled), so you need either an admin token or JWT provided by the gateway to access it.
+
+:::info
+
+To learn how to programmatically authenticate with Aerie to get a token, see the [API docs on the topic](../../api/introduction/#authentication).
+
+:::
+
+## Service Environment Variables
+
+The default Aerie [docker-compose.yml](https://github.com/NASA-AMMOS/aerie/blob/develop/deployment/docker-compose.yml) file requires certain environment variables to be set to enable authentication. This section outlines the variable definitions and the services that require them for authentication.
+
+### AUTH_TYPE
+
+- Description: Authentication method (currently only supports CAM or none)
+- Service: aerie_gateway
+- Accepted values: `cam` or `none`
+- Default: `none`
+
+### AUTH_URL
+
+- Description: URL of CAM server
+- Service: aerie_gateway
+- Accepted values: Any valid CAM API URL
+- Default: `https://atb-ocio-12b.jpl.nasa.gov:8443/`
+
+### HASURA_GRAPHQL_JWT_SECRET
+
+- Description: A JSON string containing a type property set equal to the method of encryption (HS256) and the JWK (key)
+- Services: hasura, aerie_gateway
+- Accepted values: `{"type": "HS256", "key": "SET_SECRET_PRIVATE_KEY_HERE"}`
+- Default: `null`
+- See: https://hasura.io/docs/latest/deployment/graphql-engine-flags/reference/#jwt-secret
+
+### HASURA_GRAPHQL_ADMIN_SECRET
+
+- Description: Secret password that gives admin access to query Hasura
+- Services: hasura, aerie_scheduler, aerie_scheduler_workers, aerie_sequencing
+- Accepted values: Any password string
+- Default: `null`
+- See: https://hasura.io/docs/latest/deployment/graphql-engine-flags/reference/#admin-secret-key
+
+## Aerie UI Login Page
+
+With CAM authentication enabled you can login to the Aerie UI with your JPL username and password.
+
+<figure>
+  <img alt="Aerie UI - Login Page" src={uiLoginPage} />
+  <figcaption align="center">Figure 1: Aerie UI - Login Page</figcaption>
+</figure>
