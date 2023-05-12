@@ -65,7 +65,7 @@ If there were no errors returned, the `"errors"` field is not present in the res
 
 ## Authentication
 
-To interact with the API you need to be authenticated. For each request Hasura requires an [Authorization header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Authorization) to be set, which contains a token in the [bearer format](https://hasura.io/docs/latest/auth/authentication/jwt/#hasura-jwt-format): `"Bearer YOUR_TOKEN_HERE"`. To get a token you can make an HTTP request to the gateway with your credentials either using the gateway UI, or an HTTP library of your choosing. If you are using Aerie locally you can just use the admin password and skip using a token.
+To interact with the API you need to be authenticated. For each request Hasura requires an [Authorization header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Authorization) to be set, which contains a token in the [bearer format](https://hasura.io/docs/latest/auth/authentication/jwt/#hasura-jwt-format): `"Bearer YOUR_TOKEN_HERE"`. To get a token you can make an HTTP request to the gateway with your credentials either using the gateway UI, or an HTTP library of your choosing. If you are using Aerie locally you can just use the admin secret and skip using a token.
 
 ### Gateway UI
 
@@ -100,8 +100,8 @@ response = requests.post(
   json={ 'username': 'YOUR_USERNAME_HERE', 'password': 'YOUR_PASSWORD_HERE' }
 )
 
-# Grab the token from the gateway response and strip quotes.
-token = json.dumps(response.json().get('token')).strip("\"")
+# Grab the token from the gateway response.
+token = response.json().get('token')
 
 # Print the token in Bearer format.
 # You can copy and paste this into the 'Authorization' header for Hasura requests.
@@ -132,13 +132,7 @@ To use the API playground you need to set the proper authorization header (eithe
   <figcaption>Figure 3: Aerie API Playground - Altair Authorization Headers</figcaption>
 </figure>
 
-:::info
-
-Previously our recommendation was to use the Hasura Console to explore the Aerie API. As of Aerie `1.7.0` the Hasura Console requires the admin password to access, which makes it unavailable to most for non-local use cases.
-
-:::
-
-Additionally, if you have the admin secret you can still use the Hasura Console by supplying the secret on the login page.
+Previously our recommendation was to use the Hasura Console to explore the Aerie API. As of Aerie `1.7.0` the Hasura Console requires the admin secret to access, which makes it unavailable to most for non-local use cases. If you have the admin secret you can still use the Hasura Console by supplying the secret on the login page.
 
 <figure align="center">
   <img alt="Aerie Hasura Console - Admin Login" src={hasuraConsoleLogin} />
@@ -162,7 +156,7 @@ response = requests.post(
 print(json.dumps(response.json(), indent=2))
 ```
 
-If you have the admin password you can just use it to make your request. Set the `x-hasura-admin-secret` header (default admin password shown below):
+If you have the admin secret you can just use it to make your request. Set the `x-hasura-admin-secret` header (default admin secret shown below):
 
 ```python
 headers={ 'x-hasura-admin-secret': 'aerie' }
