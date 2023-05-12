@@ -1,6 +1,7 @@
 import apiPlayground from './assets/api-playground.png';
 import apiPlaygroundHeaders from './assets/api-playground-headers.png';
 import gatewayAuthLogin from './assets/gateway-auth-login.png';
+import hasuraConsoleLogin from './assets/hasura-console-login.png';
 
 # Introduction
 
@@ -70,9 +71,9 @@ To interact with the API you need to be authenticated. For each request Hasura r
 
 To get a token from the gateway UI you can visit [http://localhost:9000/#/Auth/post_auth_login](http://localhost:9000/#/Auth/post_auth_login), and enter your JPL username and password (change `localhost` do your deployment URL if you are running Aerie on a different domain).
 
-<figure>
+<figure align="center">
   <img alt="Aerie Gateway UI - Auth Login" src={gatewayAuthLogin} />
-  <figcaption align="center">Figure 1: Aerie Gateway UI - Auth Login</figcaption>
+  <figcaption>Figure 1: Aerie Gateway UI - Auth Login</figcaption>
 </figure>
 
 The JSON response contains a token, which you can use in the `Authorization` request header in downstream tools to query Hasura.
@@ -87,7 +88,7 @@ The JSON response contains a token, which you can use in the `Authorization` req
 
 ### Python
 
-You can also query the gateway from Python using HTTP to obtain a token.
+You can also query the gateway from Python using the [requests](https://pypi.org/project/requests/) library (or any other HTTP library) to obtain a token.
 
 ```python
 import json
@@ -109,23 +110,26 @@ print(f'Bearer {token}')
 
 ### Admin Mode
 
-If you are using Aerie locally, or have the [admin secret](https://hasura.io/docs/latest/deployment/graphql-engine-flags/reference/#admin-secret-key), you can query Hasura without a token and instead set the [x-hasura-admin-secret](https://hasura.io/docs/latest/auth/authentication/admin-secret-access/) header. This allows you to skip querying the gateway for a token.
+If you are using Aerie locally, or have the [admin secret](https://hasura.io/docs/latest/deployment/graphql-engine-flags/reference/#admin-secret-key), you can query Hasura without a token and instead set the [x-hasura-admin-secret](https://hasura.io/docs/latest/auth/authentication/admin-secret-access/) header. This allows you to skip querying the gateway for a token. This is also good if you have a highly-privileged service that needs to query Hasura since it allows access without needing to give the service a user account.
 
 ## GraphQL Clients
 
 Since a GraphQL API has more underlying structure than a REST API, there are a range of methods by which a client application may choose to interact with the API. A simple usage could use the [curl](https://curl.se/) command line tool, whereas a full featured web application may integrate a more powerful client library like [Apollo Client](https://www.apollographql.com/docs/react/) or [Relay](https://relay.dev/) which automatically handle query building, batching and caching.
 
-### Command Line
-
-One may build and send a query or mutation via any means that enable an HTTP POST request to be made against the API. For example, this can be easily done using the command line tool [graphqurl](https://github.com/hasura/graphqurl).
-
-### GraphQL Playground
+### Playground
 
 Aerie provides an API playground via the [Altair](https://altairgraphql.dev/) GraphQL client. You can use the playground user interface to query the Aerie API directly. It is a great way to start exploring Aerie data and get familiar with GraphQL. If you are running Aerie locally you can view the playground (via the gateway server) at [http://localhost:9000/api-playground/](http://localhost:9000/api-playground/) (change the `localhost` domain as needed).
 
-<figure>
+<figure align="center">
   <img alt="Aerie API Playground - Altair" src={apiPlayground} />
-  <figcaption align="center">Figure 2: Aerie API Playground - Altair</figcaption>
+  <figcaption>Figure 2: Aerie API Playground - Altair</figcaption>
+</figure>
+
+To use the API playground you need to set the proper authorization header (either `Authorization` or `x-hasura-admin-secret` - see the [Authentication section above](#authentication)). Here is an example on how to set either one in the playground:
+
+<figure align="center">
+  <img alt="Aerie API Playground - Altair Authorization Headers" src={apiPlaygroundHeaders} />
+  <figcaption>Figure 3: Aerie API Playground - Altair Authorization Headers</figcaption>
 </figure>
 
 :::info
@@ -134,23 +138,23 @@ Previously our recommendation was to use the Hasura Console to explore the Aerie
 
 :::
 
-To use the API playground you need to set the proper authorization header (either `Authorization` or `x-hasura-admin-secret` - see the [Authentication section above](#authentication)). Here is an example on how to set either one in the playground:
+Additionally, if you have the admin secret you can still use the Hasura Console by supplying the secret on the login page.
 
-<figure>
-  <img alt="Aerie API Playground - Altair Authorization Headers" src={apiPlaygroundHeaders} />
-  <figcaption align="center">Figure 3: Aerie API Playground - Altair Authorization Headers</figcaption>
+<figure align="center">
+  <img alt="Aerie Hasura Console - Admin Login" src={hasuraConsoleLogin} />
+  <figcaption>Figure 4: Aerie Hasura Console - Admin Login</figcaption>
 </figure>
 
 ### Python
 
-You can query the API using an HTTP request in Python. Here is a simple example querying for plan data:
+You can query the API in Python using the [requests](https://pypi.org/project/requests/) library. Here is a simple example querying for plan data:
 
 ```python
 import json
 import requests
 
 response = requests.post(
-  url='http://localhost:8080/v1/graphql',
+  url='http://localhost:8080/v1/graphql', # Change from 'localhost' as needed.
   headers={ 'Authorization': 'Bearer YOUR_TOKEN_HERE' }, # See 'Authorization' section above to get this.
   json={ 'query': 'query { plan { id } }' }
 )
@@ -163,6 +167,10 @@ If you have the admin password you can just use it to make your request. Set the
 ```python
 headers={ 'x-hasura-admin-secret': 'aerie' }
 ```
+
+### Command Line
+
+One may build and send a query or mutation via any means that enable an HTTP POST request to be made against the API. For example, this can be easily done using the command line tool [graphqurl](https://github.com/hasura/graphqurl). There is also a community maintained tool called [aerie-cli](https://github.com/NASA-AMMOS/aerie-cli) that exposes common Aerie queries (e.g. create plan, run simulation, etc.) on the command line. It is a good option if you need to automate common tasks without implementing queries yourself.
 
 ### Browser Developer Console
 
