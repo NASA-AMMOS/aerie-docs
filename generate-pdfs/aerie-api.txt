@@ -1,3 +1,4 @@
+https://nasa-ammos.github.io/aerie-docs/mgss-cover-page.html
 https://nasa-ammos.github.io/aerie-docs/api/introduction/
 https://nasa-ammos.github.io/aerie-docs/api/examples/introduction/
 https://nasa-ammos.github.io/aerie-docs/api/examples/planning/introduction/

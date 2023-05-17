@@ -1,3 +1,4 @@
+https://nasa-ammos.github.io/aerie-docs/mgss-cover-page.html
 https://nasa-ammos.github.io/aerie-docs/introduction
 https://nasa-ammos.github.io/aerie-docs/planning/upload-mission-model/
 https://nasa-ammos.github.io/aerie-docs/planning/create-plan-and-simulate/
