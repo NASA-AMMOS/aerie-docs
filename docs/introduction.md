@@ -27,7 +27,7 @@ Understand Aerie in **5 minutes** by trying it out!
 
    If you're running a different OS and do not have [curl](https://curl.se/) available you can [download the docker-compose.yml here](https://raw.githubusercontent.com/NASA-AMMOS/aerie-mission-model-template/main/docker-compose.yml).
 
-   Note that this compose file starts the current `develop` version of Aerie.
+   Note that this compose file starts the [latest](https://github.com/NASA-AMMOS/aerie/releases/latest) version of Aerie.
 
 1. To start the Aerie services you can use the following command in the same directory as the `docker-compose.yml` file from the previous step:
 
