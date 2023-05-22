@@ -1,5 +1,17 @@
 # Constraints
 
+## Check Constraints
+
+```graphql
+query CheckConstraints($planId: Int!) {
+  checkConstraintsResponse: constraintViolations(planId: $planId) {
+    violations 
+  }
+}
+```
+
+Returns a list of constraint violations for a given plan by `$planId`. The violations will include the corresponding constraint name, type, and id.
+
 ## Create Constraint
 
 ```graphql
