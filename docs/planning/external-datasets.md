@@ -13,20 +13,31 @@ Ultimately the purpose of external datasets is up to the user. You might be look
 To upload an external dataset you need to add it to a specific plan. The dataset will persist as long as the plan exists, or until it is explicitly deleted. An external dataset can be added via the GraphQL mutation `addExternalDataset`:
 
 ```graphql
-mutation AddExternalDataset($planId: Int!, $datasetStart: String!, $profileSet: ProfileSet!) {
-  addExternalDataset(planId: $planId, datasetStart: $datasetStart, profileSet: $profileSet) {
-    datasetId
-  }
+mutation AddExternalDataset(
+  $planId: Int!,
+  $associatedSimulationDatasetId: Int,
+  $datasetStart: String!,
+  $profileSet: ProfileSet!) {
+    addExternalDataset(
+      planId: $planId,
+      associatedSimulationDatasetId: $associatedSimulationDatasetId,
+      datasetStart: $datasetStart,
+      profileSet: $profileSet) {
+      datasetId
+    }
 }
 ```
 
-The `addExternalDataset` GraphQL mutation takes three query variables as specified below:
+The `addExternalDataset` GraphQL mutation takes four query variables as specified below:
 
-| Parameter       | Type    | Description                                                                       |
-| --------------- | ------- | --------------------------------------------------------------------------------- |
-| `$planId`       | Integer | The ID of the plan to associate the external dataset with                         |
-| `$datasetStart` | String  | The DOY UTC timestamp the dataset starts from<br/>UTC Format: `yyyy-dddThh:mm:ss` |
-| `$profileSet`   | Object  | The set of precomputed profiles that make up the external dataset                 |
+| Parameter                         | Type    | Description                                                                                           |
+| --------------------------------- | ------- | ----------------------------------------------------------------------------------------------------- |
+| `$planId`                         | Integer | The ID of the plan to associate the external dataset with                                             |
+| `$associatedSimulationDatasetId`  | Integer | The optional ID of a simulation dataset that the external dataset will be exclusively associated with |
+| `$datasetStart`                   | String  | The DOY UTC timestamp the dataset starts from<br/>UTC Format: `yyyy-dddThh:mm:ss`                     |
+| `$profileSet`                     | Object  | The set of precomputed profiles that make up the external dataset                                     |
+
+If `$associatedSimulationDatasetId` is provided, the uploaded external dataset will only be associated with a single simulation dataset, instead of implicitly being associated with every simulation dataset pertaining to the `$planId`. This can be useful if, for example, external simulation tools are used alongside Aerie that calculate additional profiles based on a Merlin simulation dataset, which are then upstreamed to Aerie to use in constraint checking or visualization in the UI. Associating these external profiles with a single simulation dataset will keep them from showing up in future simulation run visualizations or constraint violations.
 
 The profile set to be uploaded should have one entry for each profile, indexed by a unique name mapping to an object specifying the details of the profile.
 
