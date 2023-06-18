@@ -69,8 +69,8 @@ For the `RunHeater` example from above the effect model return type is `void`, w
 ```java
 @AutoValueMapper.Record
 record ComputedAttributes(
-  long durationInSeconds;
-  int energyConsumptionRate;
+  long durationInSeconds,
+  int energyConsumptionRate
 ) {}
 
 @EffectModel
