@@ -31,7 +31,6 @@ type Constraint = {
   model_id: number | null;
   name: string;
   plan_id: number | null;
-  summary: string;
 };
 ```
 
