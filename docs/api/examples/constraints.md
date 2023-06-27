@@ -3,14 +3,14 @@
 ## Check Constraints
 
 ```graphql
-query CheckConstraints($planId: Int!) {
-  checkConstraintsResponse: constraintViolations(planId: $planId) {
-    violations 
+query CheckConstraints($planId: Int!, $simulationDatasetId: Int) {
+  checkConstraintsResponse: constraintViolations(planId: $planId, $simulationDatasetId: simulationDatasetId) {
+    violations
   }
 }
 ```
 
-Returns a list of constraint violations for a given plan by `$planId`. The violations will include the corresponding constraint name, type, and id.
+Returns a list of constraint violations for a given plan by `$planId`. The violations will include the corresponding constraint name, type, and id. An optional `$simulationDatasetId` can be provided which limits the constraint violation checking to a single simulation dataset, which is useful when external datasets are added that only reference a single simulation dataset, as constraint violations would otherwise be reported for every uploaded external dataset.
 
 ## Create Constraint
 
