@@ -27,17 +27,3 @@ In order for Aerie to detect an activity type, its class must be annotated with 
 ```
 
 By doing so, the Aerie annotation processor can discover all activity types declared in the mission model, and validate that activity type names are unique.
-
-## Activity Type Metadata
-
-Metadata of activities are structured such that the Aerie annotation processor can extract this metadata given particular keywords. Currently, the annotation processor recognizes the following tags: `contact`, `subsystem`, `brief_description`, and `verbose_description`.
-These metadata tags are placed in a [Javadoc](https://en.wikipedia.org/wiki/Javadoc) style comment block above the activity type to which they refer. For example:
-
-```java
-/**
- * @subsystem Data
- * @contact camargo
- * @brief_description A data management activity that deletes old files
- */
- @ActivityType("DeleteOldFiles")
-```
