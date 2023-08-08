@@ -23,11 +23,11 @@ These metadata tags are placed in a [Javadoc](https://en.wikipedia.org/wiki/Java
 
 ## Units
 
-The Aerie annotation processer can leverage the `@unit` tag to parse and display units for Parameters, Computed Attributes, and Resource Types.
+The Aerie annotation processor can leverage the `@unit` tag to parse and display units for Parameters, Computed Attributes, and Resource Types.
 
 ### Parameters
 
-There are 2 valid locations to parse a parameters units, on the parameter itself if it is a proptery of a class, or on the record defining an activity type. When you define the units as part of a record type you need to include the `@param` you're defining the units for on the previous line.
+There are 2 valid locations to parse a parameters units, on the parameter itself if it is a property of a class, or on the record defining an activity type. When you define the units as part of a record type you need to include the `@param` you're defining the units for on the previous line.
 
 ```java
 /**
@@ -46,7 +46,7 @@ public class RunHeater {
   /**
    * @unit seconds
    */
-  @Paramter
+  @Parameter
   public long duration;
 
   /**

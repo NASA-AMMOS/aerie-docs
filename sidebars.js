@@ -77,7 +77,11 @@ const sidebars = {
             id: 'mission-modeling/activity-types/introduction',
             type: 'doc',
           },
-          items: ['mission-modeling/activity-types/parameters', 'mission-modeling/activity-types/effect-model'],
+          items: [
+            'mission-modeling/activity-types/parameters',
+            'mission-modeling/activity-types/effect-model',
+            'mission-modeling/activity-types/activity-type-metadata',
+          ],
         },
         'mission-modeling/resources-and-models',
         'mission-modeling/configuration',
