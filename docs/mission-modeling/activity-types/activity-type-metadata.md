@@ -100,3 +100,22 @@ public final class Mission {
   }
 }
 ```
+
+Resource types can also be matched using Regex, if invalid Regex is provided or it doesn't find any matches it'll be ignored.
+
+```java
+/**
+ * @aerie.resourceName \/f.*
+ * @aerie.unit F resources
+ */
+public final class Mission {
+  public final Register<Accumulator> fruit;
+
+  public final Register<Flag> flag;
+
+  public Mission(final Registrar registrar, final Configuration config) {
+    registrar.discrete("/flag", this.flag, new EnumValueMapper<>(Flag.class));
+    registrar.real("/fruit", this.fruit);
+  }
+}
+```
