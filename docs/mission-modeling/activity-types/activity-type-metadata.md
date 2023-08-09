@@ -3,11 +3,11 @@
 Metadata of activities are structured such that the Aerie annotation processor can extract this metadata given particular keywords. Currently, the annotation processor recognizes the following tags:
 
 - `brief_description`
-- `computedAttribute`
+- `@aerie.computedAttribute`
 - `contact`
-- `resourceName`
+- `@aerie.resourceName`
 - `subsystem`
-- `units`
+- `@aerie.units`
 - `verbose_description`
 
 These metadata tags are placed in a [Javadoc](https://en.wikipedia.org/wiki/Javadoc) style comment block above the activity type to which they refer. For example:
@@ -23,7 +23,7 @@ These metadata tags are placed in a [Javadoc](https://en.wikipedia.org/wiki/Java
 
 ## Units
 
-The Aerie annotation processor can leverage the `@unit` tag to parse and display units for Parameters, Computed Attributes, and Resource Types.
+The Aerie annotation processor can leverage the `@aerie.unit` tag to parse and display units for Parameters, Computed Attributes, and Resource Types.
 
 ### Parameters
 
@@ -32,9 +32,9 @@ There are 2 valid locations to parse a parameters units, on the parameter itself
 ```java
 /**
  * @param duration
- * @unit seconds
+ * @aerie.unit seconds
  * @param energyConsumptionRate
- * @unit kWh
+ * @aerie.unit kWh
  */
 @ActivityType("RunHeater")
 public record RunHeater(long duration, int energyConsumptionRate)
@@ -44,13 +44,13 @@ public record RunHeater(long duration, int energyConsumptionRate)
 @ActivityType("RunHeater")
 public class RunHeater {
   /**
-   * @unit seconds
+   * @aerie.unit seconds
    */
   @Parameter
   public long duration;
 
   /**
-   * @unit kWh
+   * @aerie.unit kWh
    */
   @Parameter
   public int energyConsumptionRate;
@@ -59,15 +59,15 @@ public class RunHeater {
 
 ### Computed Attributes
 
-Units can be specified for computed attributes as well, this happens on the record that defines the `ComputedAttributes`. The `@unit` tag here needs a `@computedAttribute` tag on the previous line the annotation processor knows which property to assign the units to.
+Units can be specified for computed attributes as well, this happens on the record that defines the `ComputedAttributes`. The `@aerie.unit` tag here needs a `@aerie.computedAttribute` tag on the previous line the annotation processor knows which property to assign the units to.
 
 ```java
   /**
    *
-   * @computedAttribute durationInSeconds
-   * @unit seconds
-   * @computedAttribute energyConsumptionRate
-   * @unit kWh
+   * @aerie.computedAttribute durationInSeconds
+   * @aerie.unit seconds
+   * @aerie.computedAttribute energyConsumptionRate
+   * @aerie.unit kWh
    */
   @AutoValueMapper.Record
   record ComputedAttributes(
@@ -78,17 +78,17 @@ Units can be specified for computed attributes as well, this happens on the reco
 
 ### Resource Types
 
-Units for resource types can be defined in two places similar to parameters. The first is on the `Mission` class where resources are registered, alternatively it can be defined on the resource itself. The units defined here need to have a `@resourceName` tag with the name of the resource on a previous line.
+Units for resource types can be defined in two places similar to parameters. The first is on the `Mission` class where resources are registered, alternatively it can be defined on the resource itself. The units defined here need to have a `@aerie.resourceName` tag with the name of the resource on a previous line.
 
 ```java
 /**
- * @resourceName /flag
- * @unit A, B
+ * @aerie.resourceName /flag
+ * @aerie.unit A, B
  */
 public final class Mission {
   /**
-   * @resourceName /fruit
-   * @unit number of fruit
+   * @aerie.resourceName /fruit
+   * @aerie.unit number of fruit
    */
   public final Register<Accumulator> fruit;
 
