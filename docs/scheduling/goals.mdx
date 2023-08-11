@@ -226,6 +226,15 @@ export default () =>
   });
 ```
 
+In this final example, the `forEach` condition a defines a `Window` that specifies the time instant at which the goal has to create an instance of the activity template.
+```ts
+export default () => Goal.CoexistenceGoal({
+  forEach: Windows.Value(true, Interval.At(Temporal.Instant.from("2021-01-01T05:00:00.000Z"))).assignGaps(false),
+  activityTemplate: (span) => ActivityTemplates.PeelBanana({peelDirection: "fromStem"}),
+  startsAt: TimingConstraint.singleton(WindowProperty.START)
+})
+```
+
 Behavior: The activity finder is being used to match against any existing PeelBanana activity in the plan, disregarding the value of its parameters.
 
 :::caution
