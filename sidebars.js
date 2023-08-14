@@ -55,6 +55,7 @@ const sidebars = {
         'deployment/advanced-kubernetes',
         'deployment/advanced-database-migrations',
         'deployment/advanced-authentication',
+        'deployment/advanced-permissions',
         {
           label: 'Environment Variables',
           type: 'link',
