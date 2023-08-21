@@ -278,6 +278,7 @@ const sidebars = {
     'glossary',
   ],
   upgradeGuides: [
+    'upgrade-guides/1-11-0-to-1-12-0',
     'upgrade-guides/1-10-0-to-1-11-0',
     'upgrade-guides/1-9-0-to-1-10-0',
     'upgrade-guides/1-8-0-to-1-9-0',
