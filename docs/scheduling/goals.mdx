@@ -112,7 +112,7 @@ The Coexistence Goal specifies that a certain activity should occur once **for e
 
 #### Inputs
 
-- `forEach` - A set of time `Windows`, or a set of activities (`ActivityExpression`)
+- `forEach` - A set of time `Windows`, `Intervals` or `Instants`, or a set of activities (`ActivityExpression`)
 - `activityTemplate` - The description of the activity to insert after each activity identified by `forEach`. This can be an `ActivityTemplate` object or an `ActivityTemplate` factory function with one argument of either `ActivityInstance` or `Interval`, depending on if `forEach` was an `ActivityExpression` or `Windows`, respectively. This allows to define the content of the `ActivityTemplate` with components of the anchor activity or window.
 - `activityFinder` - an optional activity expression. If present, it will be used as replacement of `activityTemplate` to match against existing activities in the plan.
 - `startsAt` - Optionally specify a specific time when the activity should start relative to the window
@@ -226,13 +226,29 @@ export default () =>
   });
 ```
 
-In this final example, the `forEach` condition a defines a `Window` that specifies the time instant at which the goal has to create an instance of the activity template.
+In these final two examples, the `forEach` condition defines a time `Instant` and `Interval` respectively at which the goal has to create an instance of the activity template.
+
 ```ts
-export default () => Goal.CoexistenceGoal({
-  forEach: Windows.Value(true, Interval.At(Temporal.Instant.from("2021-01-01T05:00:00.000Z"))).assignGaps(false),
-  activityTemplate: (span) => ActivityTemplates.PeelBanana({peelDirection: "fromStem"}),
-  startsAt: TimingConstraint.singleton(WindowProperty.START)
-})
+export default () =>
+  Goal.CoexistenceGoal({
+    forEach: Temporal.Instant.from('2021-01-01T05:00:00.000Z'),
+    activityTemplate: span => ActivityTemplates.PeelBanana({ peelDirection: 'fromStem' }),
+    startsAt: TimingConstraint.singleton(WindowProperty.START),
+  });
+```
+
+```ts
+export default () =>
+  Goal.CoexistenceGoal({
+    forEach: Interval.Between(
+      Temporal.Instant.from('2021-01-01T05:00:00.000Z'),
+      Temporal.Instant.from('2021-01-01T10:00:00.000Z'),
+      Inclusivity.Inclusive,
+      Inclusivity.Exclusive,
+    ),
+    activityTemplate: span => ActivityTemplates.PeelBanana({ peelDirection: 'fromStem' }),
+    startsAt: TimingConstraint.singleton(WindowProperty.START),
+  });
 ```
 
 Behavior: The activity finder is being used to match against any existing PeelBanana activity in the plan, disregarding the value of its parameters.
