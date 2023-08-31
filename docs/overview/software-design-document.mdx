@@ -2,24 +2,30 @@
 
 ## Purpose
 
-This document details the current state of the design of the Aerie
-system. The document defines the components which make up the Aerie
-system and how these relate to the higher level architecture
-description document. Additionally, design rationale and the trade
-studies are described to provide guidance and support for design
-decisions. Where available the many Aerie component interface
-definitions and relevant published Software Interface Specification
-documents will be provided inline or referenced.
+This document details the current state of the design of the Aerie system.
+The document defines the components which make up the Aerie system and how these relate to the higher level system architecture.
+Additionally, design rationale and trade studies are described to provide guidance and support for design
+decisions. Where available, the many Aerie component interface
+definitions and relevant published software interface specifications will be provided inline or referenced.
 
 ## Overview
 
-Aerie is a software system being developed by the MPSA element of
-Multi-mission Ground System and Services (MGSS), a subsystem of [AMMOS
-(Advanced Multi-mission Operations
-System)](https://ammos.nasa.gov/). Aerie will support activity
-planning, sequencing, and spacecraft analysis of mission
-operations. This document will be updated as further aspects of the
-design are completed.
+Aerie is an open-source extensible software system originally built for planning, scheduling, and commanding space missions.
+Initially developed by NASA's [Advanced Multi-Mission Operations System (AMMOS)](https://ammos.nasa.gov/), Aerie provides modeling and simulation capabilities that can be used for mission planning and analysis during project formulation all the way through operations, where it can be used to manage and validate spacecraft activity plans.
+
+Aerie provides low-code solutions for authoring scheduling rules to autogenerate plans, authoring and evaluating constraints to assist with plan validation, and authoring logic to expand activities into sequences of commands for execution. Sequences can also be authored and edited independently following an open source sequencing specification, seq-json, that includes a variety of commanding styles (e.g. absolute, relative, command completion).
+
+As a multi-tenant system, Aerie allows multiple distributed users to collaborate in real-time on a single plan or concurrently work on multiple plans for multiple missions. Additionally, Aerie's service-based architecture allows for efficient system deployment and scalability on the cloud.
+
+## References
+
+If you are interested in learning how to use Aerie, a great place to start is our [Fast Track](https://nasa-ammos.github.io/aerie-docs/introduction/#fast-track). More detailed information on [planning](https://nasa-ammos.github.io/aerie-docs/category/planning/), [scheduling](https://nasa-ammos.github.io/aerie-docs/scheduling/introduction/), [sequencing](https://nasa-ammos.github.io/aerie-docs/category/sequencing/), and [command expansion](https://nasa-ammos.github.io/aerie-docs/command-expansion/introduction/) is available throughout our online documentation.
+
+If you are interested in learning how to build and configure models to use with Aerie, please refer to our [Mission Modeling](https://nasa-ammos.github.io/aerie-docs/mission-modeling/introduction/) documentation.
+
+Aerie's design requirements are currently documented in the Aerie Software Requirements Document (SRD) delivered to AMMOS (DOC-002388 Rev. B). If you are interested in receiving a copy of this document, please contact aerie-support@googlegroups.com.
+
+Detailed code documentation is also available in our [Java Docs](https://nasa-ammos.github.io/aerie-docs/java-docs/introduction/) section.
 
 ## Terminology and Notation
 
@@ -55,29 +61,6 @@ design are completed.
   value that is provided to it, we use the word **parameter** to
   mean a name paired with a type, and we use the word **argument**
   to mean a value that is provided to a parameter.
-
-## References
-
-Table 1: Applicable JPL Rules Documents
-
-| Title                          | Doc ID |
-| ------------------------------ | ------ |
-| JPL Software Development Rules | 57653  |
-
-Table 2: Applicable MGSS Documents
-
-| Title                                                 | Doc ID     |
-| ----------------------------------------------------- | ---------- |
-| AMMOS Technical Standards Profile                     | DOC-001101 |
-| MGSS Implementation and Maintenance Task Requirements | DOC-001455 |
-| Aerie Software Requirements Document (Aerie SRD)      | DOC-002388 |
-| Aerie Product Guide                                   | DOC-002537 |
-| MGSS Implementation and Task Requirements             | DOC-001455 |
-
-## Allocated Requirements
-
-Please refer to the Aerie Software Requirements Document referenced in
-Table 2.
 
 ## Aerie System Design
 
