@@ -1,0 +1,370 @@
+# Advanced - User Role Permissions
+
+This document goes over what user roles are, how to create new roles, and how to configure the roles given to new Users.
+
+## What is a User Role?
+
+User Roles are sets of permissions that a user may use
+
+By default, Aerie provides three User Roles:
+
+- `viewer`, which can view all data
+- `user`, which can view all data and perform all actions based on ownership
+- `aerie_admin`, which can view all data and perform all actions
+
+## Creating New User Roles
+
+This section goes over how to add new User Roles, should the default three not be sufficient for your deployment.
+
+:::info
+The `viewer` role is the most restricted role Aerie supports. To ensure Aerie works as expected when using your new role,
+it is strongly recommended to give your role *at least* the same permissions as `viewer`.
+:::
+
+### Adding the Role to Hasura
+
+In order to interact with the Aerie system, a role must first be provided access via the [Hasura Metadata](https://github.com/NASA-AMMOS/aerie/tree/develop/deployment/hasura/metadata).
+
+There are three parts of the Hasura Metadata that a role needs to be added to:
+Functions, Actions, and individual tables. The Hasura Metadata can be found in `hasura/metadata`.
+
+#### Function Permissions
+
+Function Permissions can be found in `databases/<DATABASE_NAME>/functions/functions.yaml`.
+Currently, all functions are in the AerieMerlin Database.
+The inside of a `functions.yaml` will look like a sequence of entries in the following pattern:
+
+```yaml
+- function:
+    name: <function_name>
+    schema: hasura_functions
+  configuration:
+    custom_root_fields:
+      function: <GQL_function_name>
+    session_argument: hasura_session
+  permissions:
+    - role: aerie_admin
+```
+
+To give the new role permission to see a given Function,
+you must add them to the list of roles listed under the `permissions` key, like so:
+
+```yaml
+  permissions:
+    - role: aerie_admin
+    - role: <YOUR_ROLE>
+```
+
+#### Action Permissions
+
+Action permissions can be found in `actions.yaml`. Similar to Functions, the file will be a series of entries.
+The pattern for these entries is:
+
+```yaml
+  - name: <GQL_action_name>
+    definition:
+      kind: synchronous
+      handler: "<action_endpoint>"
+      timeout: 300
+    permissions:
+      - role: aerie_admin
+      - role: user
+```
+
+To give a role permission to see an Action, add them to the list of roles under the `permissions` key:
+
+```yaml
+    permissions:
+      - role: aerie_admin
+      - role: user
+      - role: <YOUR_ROLE>
+```
+
+#### Table Permissions
+
+Table permissions are specified per table and can be found under `databases/<DATABASE_NAME>/tables`.
+
+There are four permissions that may be specified for a role on a table: Select, Insert, Update, and Delete.
+The follow section goes over how to configure these permissions.
+More information on [configuring table permissions](https://hasura.io/docs/latest/auth/authorization/permissions/)
+and [the YAML syntax](https://hasura.io/docs/latest/api-reference/syntax-defs/#insertpermission) may be found in the Hasura Docs.
+
+##### Select Permissions:
+- `columns` determines which fields a role can see on all rows it can read. It is generally expected that all roles can read all columns in a table, abbreviated as `'*'`.
+- `filter` determines which rows a role can read. It is generally expected that all roles can read all rows in a table, represented as `{}`.
+- `allow_aggregations` determines whether a role can run aggregation functions, such as `count` or `max` on parts of the table it can read.
+
+Example Select Permission:
+```yaml
+select_permissions:
+  - role: <YOUR_ROLE>
+    permission:
+      columns: '*'
+      filter: {}
+      allow_aggregations: true
+```
+
+##### Insert Permissions:
+- `columns` determines which fields a role can provide values for while setting a row. It is expected that `columns` includes at least those specified in the `user` role.
+- `check` allows for validation of the row being inserted.
+For example, `{"name":{"_like":"aerie--%"}}` means that the row being inserted must have its `name` field begin with "aerie--".
+- `set` automatically sets the value of certain fields on the row to be inserted.
+For example, `owner: "x-hasura-user-id"` will set `owner` as the current user's username (`"x-hasura-user-id"`).
+These fields **must not** be included in `columns`.
+
+Example Insert Permission:
+```yaml
+insert_permissions:
+  - role: <YOUR_ROLE>
+    permission:
+      columns: [name, definition]
+      check: {"name":{"_like":"aerie--%"}}
+      set:
+        owner: "x-hasura-user-id"
+```
+
+##### Update Permissions:
+- `columns` determines which fields a role may update for a given row.
+It is expected that `columns` includes at least those specified in the `user` role.
+- `filter` determines which rows a role may update.
+For example, `{"owner":{"_eq":"x-hasura-user-id"}}` means that users using the role can only delete rows
+where the `owner` field is their username.
+- `check` allows for validation of the updated row.
+For example, `{"name":{"_like":"aerie--%"}}` means that the row must have its `name` field begin with "aerie--" after being updated.
+This is optional.
+- `set` automatically sets the value of certain fields on the row being updated.
+For example, `updated_by: "x-hasura-user-id"` will set `owner` as the current user's username.
+These fields **must not** be included in `columns`.
+
+Example Update Permission:
+```yaml
+update_permissions:
+  - role: <YOUR_ROLE>
+    permission:
+      columns: [name, owner]
+      filter: {"owner":{"_eq":"x-hasura-user-id"}}
+      check: {"name":{"_like":"aerie--%"}}
+      set:
+        updated_by: "x-hasura-user-id"
+```
+
+##### Delete Permissions:
+- `filter` determines which rows a role can delete.
+For example, `{"owner":{"_eq":"x-hasura-user-id"}}` means that users using the role can only delete rows
+where the `owner` field is their username.
+
+Example Delete Permission:
+```yaml
+delete_permissions:
+  - role: <YOUR_ROLE>
+    permission:
+      filter: {"owner":{"_eq":"x-hasura-user-id"}}
+```
+
+### Adding the Role to the Database
+
+Before a role can be applied to users, it must be added to the Database.
+
+This can be done using the following GraphQL mutation:
+
+```graphql
+mutation InsertUserRole {
+  insert_user_roles_one(object: {
+    role: "<YOUR_ROLE>",
+    description: "<OPTIONAL_DESCRIPTION>"})
+  {
+    role
+    description
+  }
+}
+```
+
+After adding a new role, [it is currently necessary to refresh the Hasura Metadata](https://hasura.io/docs/latest/schema/postgres/enums/#current-limitations).
+Instructions on how to do so can be found [in the Hasura Docs](https://hasura.io/docs/latest/migrations-metadata-seeds/manage-metadata/#reload-metadata).
+
+
+#### Action and Function Permissions
+
+In addition to the coarse-grained permissions granted by the Hasura Metadata,
+certain Functions and Actions have what are known as fine-grained permissions.
+For these Functions and Actions **it is not sufficient** to only allow the role
+to see the function via the Hasura metadata.
+This section will go over how to specify these fine-grained permissions
+for a custom role.
+
+Action and Function Permissions are represented as two JSONs, one for Actions and one for Functions.
+The structure of these JSONs are `{ KEY_1: PERMISSION, KEY_2: PERMISSION, ... , KEY_N: PERMISSION }`.
+The absence of a Key will be considered equivalent to a role **NOT** having permission to perform the Action or Function.
+
+<details closed>
+<summary>Keys Permitted for Action Permissions</summary>
+
+Any Actions not included here only have coarse-grained control.
+
+| Key | Hasura Action |
+| -: | :- |
+| `check_constraints` | constraintViolations
+| `create_expansion_rule` | addCommandExpansionTypeScript
+| `create_expansion_set` | createExpansionSet
+| `expand_all_activities` | expandAllActivities
+| `insert_ext_dataset` | addExternalDataset
+| `resource_samples` | resourceSamples
+| `schedule` | schedule
+| `sequence_seq_json_bulk` | getSequenceSeqJsonBulk
+| `simulate` | simulate
+
+
+</details>
+
+<details closed>
+<summary>Keys Permitted for Function Permissions</summary>
+
+Any Functions not included here only have coarse-grained control.
+
+| Key | Hasura Function |
+| -: | :- |
+| `apply_preset` | `apply_preset_to_activity`
+| `begin_merge` | `begin_merge`
+| `branch_plan` | `duplicate_plan`
+| `cancel_merge` | `cancel_merge`
+| `commit_merge` | `commit_merge`
+| `create_merge_rq` | `create_merge_request`
+| `create_snapshot` | `create_snapshot`
+| `deny_merge` | `deny_merge`
+| `delete_activity_reanchor` | `delete_activity_by_pk_reanchor_to_anchor`
+| `delete_activity_reanchor_bulk` | `delete_activity_by_pk_reanchor_to_anchor_bulk`
+| `delete_activity_reanchor_plan` | `delete_activity_by_pk_reanchor_plan_start`
+| `delete_activity_reanchor_plan_bulk` | `delete_activity_by_pk_reanchor_plan_start_bulk`
+| `delete_activity_subtree` | `delete_activity_by_pk_delete_subtree`
+| `delete_activity_subtree_bulk` | `delete_activity_by_pk_delete_subtree_bulk`
+| `get_conflicting_activities` | `get_conflicting_activities`
+| `get_non_conflicting_activities` | `get_non_conflicting_activities`
+| `get_plan_history` | `get_plan_history` |
+| `restore_activity_changelog` | `restore_activity_changelog`
+| `restore_snapshot` | `restore_from_snapshot`
+| `set_resolution` | `set_resolution`
+| `set_resolution_bulk` | `set_resolution_bulk`
+| `withdraw_merge_rq`| `withdraw_merge_request`
+
+</details>
+
+<details closed>
+<summary>Values Permitted for <code>PERMISSION</code></summary>
+
+| Permission | Meaning |
+| -: | :- |
+| `NO_CHECK` | The user may run the action/function with no restrictions. **The `aerie_admin` role will always be treated as having `NO_CHECK` permissions on all Actions and Functions.** |
+| `OWNER` | The user must be the `owner` of **all** relevant objects **directly** used by the KEY |
+| `MISSION_MODEL_OWNER` | The user must own the relevant Mission Model |
+| `PLAN_OWNER` | The user must be the Owner of the relevant Plan |
+| `PLAN_COLLABORATOR` | The user must be a Collaborator of the relevant Plan. **The Plan Owner is NOT considered a Collaborator of the Plan** |
+| `PLAN_OWNER_COLLABORATOR` | The user must be either the Owner or a Collaborator of the relevant Plan |
+
+In general, `OWNER` is equivalent to `PLAN_OWNER`. Exceptions are as follows:
+- `apply_preset`, where `OWNER` means a user must own both the plan and the preset
+
+#### On Plan Merge Keys
+
+The following Function Keys are in a group known as "Plan Merge Functions" and are involved in [Plan Merging](../../planning/collaboration/merging-plans/):
+`begin_merge`, `cancel_merge`, `create_merge_rq`, `commit_merge`, `deny_merge`, `get_conflicting_activities`,
+`get_non_conflicting_activities`, `set_resolution`, `set_resolution_bulk`, `withdraw_merge_rq`.
+
+Plan Merge Functions are special, as they involve multiple plans.
+As such, there are special Permissions that may be used on these Keys.
+Additionally, the other Permissions take on a slightly different meaning when applied to a Plan Merge Function.
+
+A complete list of what Permissions are allowed on Plan Merge Functions follows.
+Keep in mind that in a merge 'Source Plan' refers to the plan *providing* changes,
+and 'Target Plan' refers to the plan *receiving* changes.
+
+| Permission | Meaning   |
+|-:|:-|
+| `NO_CHECK` | The user may run the action/function with no restrictions. **The `aerie_admin` role will always be treated as having `NO_CHECK` permissions on all Plan Merge Functions.** |
+| `OWNER` | The user must be the Owner of **both** Plans
+| `MISSION_MODEL_OWNER` | The user must be the Owner of the relevant Mission Model
+| `PLAN_OWNER` | The user must be the Owner of **either** Plan
+| `PLAN_COLLABORATOR` | The user must be a Collaborator of **either** Plan. **The Plan Owner is NOT considered a Collaborator of the Plan**
+| `PLAN_OWNER_COLLABORATOR` | The user must be either the Owner or a Collaborator of **either** Plan
+| `PLAN_OWNER_SOURCE` | The user must be the Owner of the Source Plan.
+| `PLAN_COLLABORATOR_SOURCE` | The user must be a Collaborator of the Source Plan.
+| `PLAN_OWNER_COLLABORATOR_SOURCE` | The user must be either the Owner or a Collaborator of the Source Plan.
+| `PLAN_OWNER_TARGET` | The user must be the Owner of the Target Plan.
+| `PLAN_COLLABORATOR_TARGET` | The user must be a Collaborator of the Target Plan.
+| `PLAN_OWNER_COLLABORATOR_TARGET` | The user must be either the Owner or a Collaborator of the Target Plan.
+
+</details>
+
+Once you have devised your Action Permissions and Function Permissions JSONs,
+you can use this GraphQL Mutation to apply them to your custom role:
+
+```graphql
+mutation updateUserRolePermissions($function_permissions: jsonb!, $action_permissions: jsonb!) {
+  update_user_role_permission_by_pk(
+    pk_columns: {role: <YOUR_ROLE>},
+    _set: {
+      function_permissions: $function_permissions,
+      action_permissions: $action_permissions}
+  ) {
+    function_permissions
+    action_permissions
+  }
+}
+```
+
+Below are sample Query Variables. These are equivalent to the `user` role's Permissions.
+
+```json
+{
+  "action_permissions": {
+    "check_constraints": "PLAN_OWNER_COLLABORATOR",
+    "create_expansion_rule": "NO_CHECK",
+    "create_expansion_set": "NO_CHECK",
+    "expand_all_activities": "NO_CHECK",
+    "insert_ext_dataset": "PLAN_OWNER",
+    "resource_samples": "NO_CHECK",
+    "schedule":"PLAN_OWNER_COLLABORATOR",
+    "sequence_seq_json_bulk": "NO_CHECK",
+    "simulate":"PLAN_OWNER_COLLABORATOR"
+  },
+  "function_permissions": {
+    "apply_preset": "PLAN_OWNER_COLLABORATOR",
+    "begin_merge": "PLAN_OWNER_TARGET",
+    "branch_plan": "NO_CHECK",
+    "cancel_merge": "PLAN_OWNER_TARGET",
+    "commit_merge": "PLAN_OWNER_TARGET",
+    "create_merge_rq": "PLAN_OWNER_SOURCE",
+    "create_snapshot": "PLAN_OWNER_COLLABORATOR",
+    "delete_activity_reanchor": "PLAN_OWNER_COLLABORATOR",
+    "delete_activity_reanchor_bulk": "PLAN_OWNER_COLLABORATOR",
+    "delete_activity_reanchor_plan": "PLAN_OWNER_COLLABORATOR",
+    "delete_activity_reanchor_plan_bulk": "PLAN_OWNER_COLLABORATOR",
+    "delete_activity_subtree": "PLAN_OWNER_COLLABORATOR",
+    "delete_activity_subtree_bulk": "PLAN_OWNER_COLLABORATOR",
+    "deny_merge": "PLAN_OWNER_TARGET",
+    "get_conflicting_activities": "NO_CHECK",
+    "get_non_conflicting_activities": "NO_CHECK",
+    "get_plan_history": "NO_CHECK",
+    "restore_activity_changelog": "PLAN_OWNER_COLLABORATOR",
+    "restore_snapshot": "PLAN_OWNER_COLLABORATOR",
+    "set_resolution": "PLAN_OWNER_TARGET",
+    "set_resolution_bulk": "PLAN_OWNER_TARGET",
+    "withdraw_merge_rq": "PLAN_OWNER_SOURCE"
+  }
+}
+```
+
+## Configuring Roles for New Users
+
+The first time a user not in the system logs in, they will be added to the Aerie system with a set of User Roles they
+are allowed to use and one Role from this set that they use by default.
+By default, users will use the `user` role and have access to the `user` and `viewer` roles.
+To configure this, use the `ALLOWED_ROLES` and `DEFAULT_ROLE` environment variables.
+**Note: `DEFAULT_ROLE` _must_ be an entry in `ALLOWED_ROLES`.**
+
+For more information, see the [Environment Variables document](https://github.com/NASA-AMMOS/aerie-gateway/blob/develop/docs/ENVIRONMENT.md) in the Gateway.
+
+:::info When Authentication is Disabled
+[If authentication is disabled](../advanced-authentication/), then the following changes apply:
+1. By default, users will use the `aerie_admin` role and have access to the `aerie_admin`, `user`, and `viewer` roles
+2. To configure these roles for new users, use the `ALLOWED_ROLES_NO_AUTH` and `DEFAULT_ROLES_NO_AUTH` environment variables instead.
+:::
