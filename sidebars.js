@@ -87,6 +87,7 @@ const sidebars = {
         'mission-modeling/value-schemas',
         'mission-modeling/advanced-incons',
         'mission-modeling/advanced-the-merlin-interface',
+        'mission-modeling/activity-types/durations'
       ],
     },
     {
