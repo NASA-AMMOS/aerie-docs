@@ -81,7 +81,7 @@ const sidebars = {
           items: [
             'mission-modeling/activity-types/parameters',
             'mission-modeling/activity-types/effect-model',
-            'mission-modeling/activity-types/durations'
+            'mission-modeling/activity-types/durations',
           ],
         },
         'mission-modeling/resources-and-models',
@@ -117,6 +117,7 @@ const sidebars = {
         'planning/ui-views',
         'planning/timeline-editing',
         'planning/advanced-incons',
+        'planning/extensions',
       ],
     },
     {
