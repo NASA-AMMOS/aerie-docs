@@ -1,0 +1,58 @@
+# Advanced - Extensions
+
+## Creating an Extension
+
+```graphql
+mutation InsertExtensions($object: extensions_insert_input!) {
+  insert_extensions(
+    objects: { description: "", label: "My External Application", url: "https://externalapp/api/test" }
+  ) {
+    returning {
+      id
+    }
+  }
+}
+```
+
+## Creating an Extension Role
+
+This is an example query that would allow the `viewer` role the ability to execute the extension with id `1`. Only defined roles will be able to call the extension through the UI.
+
+```graphql
+mutation InsertExtensionRoles($object: extension_roles_insert_input!) {
+  insert_extension_roles(objects: { extension_id: 1, role: "viewer" }) {
+    returning {
+      id
+    }
+  }
+}
+```
+
+## Deleting an Extension
+
+The following query will delete an extension and cascade to delete any assigned roles for that extension as well.
+
+```graphql
+mutation DeleteExtension($extension_id: Int!) {
+  delete_extensions_by_pk(id: $extension_id) {
+    id
+  }
+}
+```
+
+## Get Extensions With Roles
+
+```graphql
+query GetExtensions {
+  extensions {
+    description
+    extension_roles {
+      id
+      role
+    }
+    id
+    label
+    url
+  }
+}
+```

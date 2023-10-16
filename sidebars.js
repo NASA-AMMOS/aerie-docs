@@ -19,7 +19,11 @@ const sidebars = {
             type: 'doc',
             id: 'api/examples/planning/introduction',
           },
-          items: ['api/examples/planning/collaboration', 'api/examples/planning/anchors'],
+          items: [
+            'api/examples/planning/collaboration',
+            'api/examples/planning/anchors',
+            'api/examples/advanced-extensions',
+          ],
         },
         'api/examples/simulation',
         'api/examples/constraints',
@@ -117,7 +121,7 @@ const sidebars = {
         'planning/ui-views',
         'planning/timeline-editing',
         'planning/advanced-incons',
-        'planning/extensions',
+        'planning/advanced-extensions',
       ],
     },
     {
