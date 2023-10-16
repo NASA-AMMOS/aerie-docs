@@ -1,0 +1,64 @@
+# Advanced - Extensions
+
+Extensions are external tools that can be invoked directly from inside of Aerie. If there are not any extensions defined the button to view them will be hidden. When an Extension is called, the following values are passed along in the request body:
+
+- `gateway` - The URL for the current instance's Gateway server.
+- `hasura` - The URL for the current instance's Hasura server.
+- `planId` - The id of the plan the user is looking at.
+- `selectedActivityDirectiveId` - The id of the selected activity directive (if applicable).
+- `simulationDatasetId` - The id of the last run simulation (if applicable).
+
+After the Extension is ran, it is expecting the following response:
+
+```json
+{
+  "message": "",
+  "success": true,
+  "url": ""
+}
+```
+
+The message will be displayed as a Toast inside of Aerie. `success` can be true or false to indicate if the Extension ran successfully or not. The `url` is optional and can be a link to a file or another webpage that will be opened in a new tab if provided.
+
+There isn't currently a way to insert an extension through the UI, but we can use Hasura to create them with an API call.
+
+```graphql
+mutation InsertExtension($extension: extensions_insert_input!) {
+  insert_extension_one(object: $extension) {
+    id
+  }
+}
+```
+
+The `$extentsion` query variable has the following type definition:
+
+```ts
+type Extension = {
+  description: string;
+  extension_roles: ExtensionRole[];
+  id: number;
+  label: string;
+  updated_at: string;
+  url: string;
+};
+```
+
+After creating an Extension, you need to define the roles that are allowed to access it through the following Hasura mutation:
+
+```graphql
+mutation InsertExtensionRole($extensionRole: extension_roles_insert_input!) {
+  insert_extension_roles_one(object: $extensionRole) {
+    id
+  }
+}
+```
+
+THe `$extensionRole` query variable has the following type definition:
+
+```ts
+type ExtensionRole = {
+  extension_id: number;
+  id: number;
+  role: string;
+};
+```

@@ -19,7 +19,11 @@ const sidebars = {
             type: 'doc',
             id: 'api/examples/planning/introduction',
           },
-          items: ['api/examples/planning/collaboration', 'api/examples/planning/anchors'],
+          items: [
+            'api/examples/planning/collaboration',
+            'api/examples/planning/anchors',
+            'api/examples/advanced-extensions',
+          ],
         },
         'api/examples/simulation',
         'api/examples/constraints',
@@ -81,7 +85,7 @@ const sidebars = {
           items: [
             'mission-modeling/activity-types/parameters',
             'mission-modeling/activity-types/effect-model',
-            'mission-modeling/activity-types/durations'
+            'mission-modeling/activity-types/durations',
           ],
         },
         'mission-modeling/resources-and-models',
@@ -117,6 +121,7 @@ const sidebars = {
         'planning/ui-views',
         'planning/timeline-editing',
         'planning/advanced-incons',
+        'planning/advanced-extensions',
       ],
     },
     {
