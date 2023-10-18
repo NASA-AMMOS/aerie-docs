@@ -1,36 +1,58 @@
-# Advanced - Extensions
+# Extensions
 
-## Creating an Extension
+## Adding an Extension
 
 ```graphql
-mutation InsertExtensions($object: extensions_insert_input!) {
-  insert_extensions(
-    objects: { description: "", label: "My External Application", url: "https://externalapp/api/test" }
-  ) {
+mutation InsertExtension($extension: extensions_insert_input!) {
+  insert_extensions_one(object: $extension) {
+    id
+    label
+    url
+    description
+  }
+}
+```
+
+Below is an example query variable that creates an extension called "My External Application".
+
+```json
+{
+  "extension": {
+    "label": "My External Application",
+    "url": "https://externalapp/api/test",
+    "description": "An application that exists outside of Aerie."
+  }
+}
+```
+
+## Permitting Roles to run Extensions
+
+```graphql
+mutation InsertExtensionRoles($roles: [extension_roles_insert_input!]! ) {
+  insert_extension_roles(objects: $roles) {
     returning {
-      id
+      extension {
+        id
+        label
+      }
+      role
     }
   }
 }
 ```
 
-## Creating an Extension Role
+Below is an example query variable that grants the `aerie_admin` and `user` roles to run the extension with an ID of 1.
 
-This is an example query that would allow the `viewer` role the ability to execute the extension with id `1`. Only defined roles will be able to call the extension through the UI.
-
-```graphql
-mutation InsertExtensionRoles($object: extension_roles_insert_input!) {
-  insert_extension_roles(objects: { extension_id: 1, role: "viewer" }) {
-    returning {
-      id
-    }
-  }
+```json
+{
+  "roles": [
+    { "extension_id": 1, "role": "aerie_admin" },
+    { "extension_id": 1, "role": "user" }
+  ]
 }
 ```
 
 ## Deleting an Extension
-
-The following query will delete an extension and cascade to delete any assigned roles for that extension as well.
 
 ```graphql
 mutation DeleteExtension($extension_id: Int!) {
