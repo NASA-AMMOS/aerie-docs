@@ -435,7 +435,7 @@ if you have a preset of the `BiteBanana` activity called "big bite", you can acc
 
 ```ts
 export default (): Goal => {
-  return Goal.RecurrenceGoal({
+  return Goal.ActivityRecurrenceGoal({
     activityTemplate: ActivityTemplates.BiteBanana(ActivityPresets.BiteBanana["big bite"]),
     interval: ...
   });
