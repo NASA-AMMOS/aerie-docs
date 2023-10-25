@@ -22,6 +22,7 @@ const sidebars = {
           items: [
             'api/examples/planning/collaboration',
             'api/examples/planning/anchors',
+            'api/examples/planning/snapshots'
           ],
         },
         'api/examples/simulation',
