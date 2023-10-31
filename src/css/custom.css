@@ -48,3 +48,13 @@ video {
   height: auto !important;
   width: 100% !important;
 }
+
+figure {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+figure img {
+  max-height: 40vh;
+}
