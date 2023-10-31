@@ -29,6 +29,7 @@ const sidebars = {
         'api/examples/scheduling',
         'api/examples/activity-presets',
         'api/examples/advanced-extensions',
+        'api/examples/tags',
       ],
     },
   ],
