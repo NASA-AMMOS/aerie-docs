@@ -22,6 +22,7 @@ const sidebars = {
           items: [
             'api/examples/planning/collaboration',
             'api/examples/planning/anchors',
+            'api/examples/planning/snapshots'
           ],
         },
         'api/examples/simulation',
@@ -29,6 +30,7 @@ const sidebars = {
         'api/examples/scheduling',
         'api/examples/activity-presets',
         'api/examples/advanced-extensions',
+        'api/examples/tags',
       ],
     },
   ],
@@ -117,6 +119,7 @@ const sidebars = {
           },
           items: ['planning/collaboration/merging-plans'],
         },
+        'planning/snapshots',
         'planning/anchors',
         'planning/ui-views',
         'planning/timeline-editing',

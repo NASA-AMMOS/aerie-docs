@@ -72,7 +72,7 @@ To interact with the API you need to be authenticated. For each request Hasura r
 
 To get a token from the gateway UI you can visit [http://localhost:9000/#/Auth/post_auth_login](http://localhost:9000/#/Auth/post_auth_login), and enter your JPL username and password (change `localhost` do your deployment URL if you are running Aerie on a different domain).
 
-<figure align="center">
+<figure>
   <img alt="Aerie Gateway UI - Auth Login" src={gatewayAuthLogin} />
   <figcaption>Figure 1: Aerie Gateway UI - Auth Login</figcaption>
 </figure>
@@ -123,7 +123,7 @@ Since a GraphQL API has more underlying structure than a REST API, there are a r
 Previously our recommendation was to use the Hasura Console to explore the Aerie API. As of Aerie `1.7.0` the Hasura Console requires the admin secret to access, which makes it unavailable to most for non-local use cases.
 If you have the admin secret you can still use the Hasura Console by supplying the secret on the login page.
 
-<figure align="center">
+<figure>
   <img alt="Aerie Hasura Console - Admin Login" src={hasuraConsoleLogin} />
   <figcaption>Figure 4: Aerie Hasura Console - Admin Login</figcaption>
 </figure>
@@ -133,7 +133,7 @@ If you have the admin secret you can still use the Hasura Console by supplying t
 
 Aerie provides an API playground via the [Altair](https://altairgraphql.dev/) GraphQL client. You can use the playground user interface to query the Aerie API directly. It is a great way to start exploring Aerie data and get familiar with GraphQL. If you are running Aerie locally you can view the playground (via the gateway server) at [http://localhost:9000/api-playground/](http://localhost:9000/api-playground/) (change the `localhost` domain as needed).
 
-<figure align="center">
+<figure>
   <img alt="Aerie API Playground - Altair" src={apiPlayground} />
   <figcaption>Figure 2: Aerie API Playground - Altair</figcaption>
 </figure>

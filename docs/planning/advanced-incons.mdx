@@ -24,12 +24,8 @@ They may need to be tweaked slightly depending on how your model implemented inc
 Navigate to your deployment's Hasura GraphQL console by selecting `GraphQL Console` in the dropdown under `Aerie`.
 By default, the GraphQL console is accessible on [port 8080](http://localhost:8080).
 
-<figure align="center">
-  <img
-    alt="Aerie UI - Dropdown Menu Highlighting GraphQL Console Option"
-    src={gqlDropdown}
-    style={{ maxHeight: '50vh' }}
-  />
+<figure>
+  <img alt="Aerie UI - Dropdown Menu Highlighting GraphQL Console Option" src={gqlDropdown} />
   <figcaption>Figure 1: Dropdown Menu Highlighting GraphQL Console Option</figcaption>
 </figure>
 
@@ -68,7 +64,7 @@ If the first time a resource's value is set is after `start_offset`, it will not
 
 :::
 
-<video controls align="center">
+<video controls>
   <source src={simulationInconsQuery} type="video/webm" />
 </video>
 
@@ -79,8 +75,8 @@ Take the value of `"getResourcesAtStartOffset"` from the output of the query and
 Next, navigate to your deployment's Gateway by selecting `Gateway` in the dropdown under `Aerie`.
 By default, the Gateway is accessible on [port 9000](http://localhost:9000).
 
-<figure align="center">
-  <img alt="Aerie UI - Dropdown Menu Highlighting Gateway Option" src={gatewayDropdown} style={{ maxHeight: '50vh' }} />
+<figure>
+  <img alt="Aerie UI - Dropdown Menu Highlighting Gateway Option" src={gatewayDropdown}/>
   <figcaption>Figure 2: Dropdown Menu Highlighting Gateway Option</figcaption>
 </figure>
 
@@ -110,7 +106,7 @@ Click the `Execute` button. In `ServerResponse`, you should see a response body 
 
 The most important element of this JSON is `filename`. It contains the name of the file within Aerie.
 
-<video controls align="center">
+<video controls>
   <source src={uploadIncons} type="video/webm" />
 </video>
 
@@ -122,6 +118,6 @@ and `<filename>` is the value of `"filename"` from the earlier JSON from the Gat
 
 By default, `<path-to-aerie-file-store>` is `merlin_file_store`.
 
-<video controls align="center">
+<video controls>
   <source src={simulateIncons} type="video/webm" />
 </video>

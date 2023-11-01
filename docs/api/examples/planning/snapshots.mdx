@@ -1,0 +1,74 @@
+# Snapshots
+
+A snapshot of a plan is a named record of the state of all activities in a plan at a certain time.
+Snapshots are useful for recording and returning to known "good" states of a plan.
+
+## Taking a Snapshot
+
+```graphql
+mutation createSnapshot($planId: Int!, $snapshotName: String!, $description: String) {
+  create_snapshot(args: {
+      _plan_id: $planId,
+      _snapshot_name: $snapshotName,
+      _description: $description
+  }) {
+    snapshot_id
+  }
+}
+```
+
+Below is an example set of query variables for this function. Note that `description` is optional and may be excluded.
+
+```json
+{
+  "planId": 1,
+  "snapshotName": "Snapshot of My Plan",
+  "description": "Optional description for this snapshot"
+}
+```
+
+## Tagging a Snapshot
+
+[Tags](../../tags) can be applied to snapshots.
+
+### Adding a Tag
+
+```graphql
+mutation AddPlanSnapshotTag($snapshotId:Int!, $tagId: Int!){
+  insert_plan_snapshot_tags_one(object: {snapshot_id: $snapshotId, tag_id: $tagId}) {
+    plan_snapshot {
+      snapshot_name
+      description
+    }
+    tag {
+      name
+      color
+      owner
+    }
+  }
+}
+```
+
+### Removing a Tag
+
+```graphql
+mutation RemovePlanSnapshotTag($snapshotId: Int!, $tagId: Int!) {
+  delete_plan_snapshot_tags_by_pk(snapshot_id: $snapshotId, tag_id: $tagId) {
+    plan_snapshot {
+      snapshot_name
+      description
+    }
+    tag { name }
+  }
+}
+```
+
+## Restoring a Snapshot
+
+```graphql
+mutation restoreSnapshot($planId: Int!, $snapshotId: Int!) {
+  restore_from_snapshot(args: {_plan_id: $planId, _snapshot_id: $snapshotId}) {
+    snapshot_id
+  }
+}
+```
