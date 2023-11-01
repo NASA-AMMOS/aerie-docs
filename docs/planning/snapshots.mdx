@@ -1,0 +1,81 @@
+import takeSnapshotNavbar from './assets/snapshots/takeSnapshotNavbar.png';
+import takeSnapshotModal from './assets/snapshots/takeSnapshotModal.png';
+
+import viewSnapshotNavbar from './assets/snapshots/viewSnapshotNavbar.png';
+import planMetadataPane from './assets/snapshots/planMetadataPane.png';
+import viewSnapshot from './assets/snapshots/viewSnapshot.png';
+
+import restoreSnapshotModal from './assets/snapshots/restoreSnapshotModal.png';
+import restoreAndTakeSnapshot from './assets/snapshots/restoreSnapshotTakeSnapshot.png';
+
+# Snapshots
+
+A snapshot of a plan is a named record of the state of all activities in a plan at a certain time.
+Snapshots are useful for recording and returning to known "good" states of a plan.
+
+<!--
+:::info
+
+If you are looking to create a record of a simulation configuration, see Simulation Presets.
+
+If you are looking to create a reusable set of arguments on a single activity, see Activity Presets.
+
+:::
+-->
+
+## Taking a Snapshot
+
+Snapshots can via one of two methods:
+1. Clicking on the Plan's name in the navbar, then clicking "Take Snapshot"
+2. Clicking on the "Take Snapshot" button in the Plan Metadata Pane
+
+Either option will then present you with a modal where you can name the snapshot and optionally provide a description and tags.
+Note that snapshot names must be unique per plan.
+
+<figure>
+  <div>
+    <img alt="Aerie UI - Expanded drop down under Plan in the Navbar, the option 'Take Snapshot' is highlighted" src={takeSnapshotNavbar}/>
+  </div>
+  <img alt="Aerie UI - Take Snapshot Modal" src={takeSnapshotModal}/>
+  <figcaption>Figure 1: Aerie UI - How to Take a Plan Snapshot</figcaption>
+</figure>
+
+
+## Viewing a Snapshot
+
+You can view the snapshots taken for a specific plan by clicking on the Plan's name in the navbar, then clicking "View Snapshot History".
+Doing so will open the Plan Metadata Pane, where a list of all snapshots taken will be displayed.
+If a snapshot has been simulated, an icon will be present indicating the results of the most recent simulation for that snapshot.
+
+You can filter this list to only display snapshots for the currently selected simulation dataset by selecting the "Snapshot" badge to the left of the "Take Snapshot" button.
+
+<figure>
+  <div>
+    <img alt="Aerie UI - Expanded drop down under Plan in the Navbar, the option 'View Snapshot' is highlighted" src={viewSnapshotNavbar}/>
+  </div>
+  <img alt="Aerie UI - Plan Metadata Pane" src={planMetadataPane}/>
+  <figcaption>Figure 2: Aerie UI - How to View a Plan Snapshot</figcaption>
+</figure>
+
+Clicking on a snapshot will open a preview of its contents. From here, you can examine activities and related simulation datasets.
+
+<figure>
+  <img alt="Aerie UI - Take Snapshot Modal" src={viewSnapshot}/>
+  <figcaption>Figure 3: Aerie UI - Viewing a Plan Snapshot</figcaption>
+</figure>
+
+## Restoring a Snapshot
+
+If you would like to update a plan to match the state of a snapshot, you can do so by clicking on the "Restore Snapshot" button seen while previewing a snapshot.
+
+When restoring a snapshot, you can optionally choose to take a snapshot of the current state of the plan prior to restoring.
+
+<figure>
+  <div>
+    <img alt="Aerie UI - Restore Snapshot Modal" src={restoreSnapshotModal}/>
+  </div>
+  <img alt="Aerie UI - Restore and Take Snapshot Modal - Simple" src={restoreAndTakeSnapshot}/>
+  <figcaption>Figure 4: Aerie UI - How to Restore a Plan Snapshot</figcaption>
+</figure>
+
+The snapshot you restored will remain in the list in case you need to restore to it again in the future.
