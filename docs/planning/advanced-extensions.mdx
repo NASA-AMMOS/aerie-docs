@@ -10,28 +10,6 @@ Extensions are external tools that can be invoked directly from inside of Aerie.
 - `selectedActivityDirectiveId` - The id of the selected activity directive (if applicable).
 - `simulationDatasetId` - The id of the last run simulation (if applicable).
 
-```ts
-{
-  planId: number;
-  selectedActivityDirectiveId: number | null;
-  simulationDatasetId: number | null;
-  gateway: string;
-  hasura: string;
-}
-```
-
-Here is an example when the user has no directives selected:
-
-```json
-{
-  "planId": 47,
-  "selectedActivityDirectiveId": null,
-  "simulationDatasetId": 124,
-  "gateway": "http://aerie_gateway:9000",
-  "hasura": "http://hasura:8080/v1/graphql"
-}
-```
-
 Additionally, the user's current session information will be passed to the Extension via the `Authorization` and `x-hasura-role` headers.
 
 Extensions **must** return a response of the following form:
