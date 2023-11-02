@@ -28,7 +28,7 @@ Below is an example query variable that creates an extension called "My External
 ## Permitting Roles to run Extensions
 
 ```graphql
-mutation InsertExtensionRoles($roles: [extension_roles_insert_input!]! ) {
+mutation InsertExtensionRoles($roles: [extension_roles_insert_input!]!) {
   insert_extension_roles(objects: $roles) {
     returning {
       extension {
@@ -78,3 +78,5 @@ query GetExtensions {
   }
 }
 ```
+
+Invocation payloads are discussed on [Planning / Advanced - Extensions](/planning/advanced-extensions).
