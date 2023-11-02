@@ -52,32 +52,6 @@ Below is an example query variable that grants the `aerie_admin` and `user` role
 }
 ```
 
-## Extension payload
-
-When an extension is invoked via the API the registered URL will receive a payload with the following type:
-
-```ts
-{
-  planId: number;
-  selectedActivityDirectiveId: number | null;
-  simulationDatasetId: number | null;
-  gateway: string;
-  hasura: string;
-}
-```
-
-Here is an example when the user has no directives selected:
-
-```json
-{
-  "planId": 47,
-  "selectedActivityDirectiveId": null,
-  "simulationDatasetId": 124,
-  "gateway": "http://aerie_gateway:9000",
-  "hasura": "http://hasura:8080/v1/graphql"
-}
-```
-
 ## Deleting an Extension
 
 ```graphql
@@ -104,3 +78,5 @@ query GetExtensions {
   }
 }
 ```
+
+Invocation payloads are discussed on [Planning / Advanced - Extensions](/planning/examples/advanced-extensions).
