@@ -4,41 +4,63 @@ import styles from './styles.module.css';
 
 const FeatureList = [
   {
-    title: 'Easy to Use',
-    Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
+    title: 'Extensible mission modeling and simulation',
+    Svg: require('@site/static/img/aerie-feature-mission-modeling-light.svg').default,
+    size: 'col--4',
     description: (
       <>
-        Aerie was designed from the ground up to be easily installed and used to get your mission up and running
-        quickly.
+        Model your system with access to the entire Java ecosystem. Validate plans against your models using Aerie's
+        discrete event simulator using the user interface or Aerie API.
       </>
     ),
   },
   {
-    title: 'Focus on What Matters',
+    title: 'Seamless workflow from planning to commanding',
     Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
-    description: <>Aerie lets you focus on your mission, and we&apos;ll do the chores.</>,
-  },
-  {
-    title: 'Powered by Java',
-    Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
+    size: 'col--8',
     description: (
       <>
-        Extend or customize your mission model by reusing Java. Aerie can be extended while reusing the same underlying
-        model code.
+        Build sequences and commands that execute on-board a spacecraft directly from activities in your plans. Author
+        and refine sequences derived from your command dictionary.
+      </>
+    ),
+  },
+  {
+    title: 'Real-time collaboration and versioning',
+    Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
+    size: 'col--8',
+    description: (
+      <>
+        Create, modify, and test out plans together in real time from across the world. Or make branches, edit them
+        asynchronously, and merge them together when you're ready.
+      </>
+    ),
+  },
+  {
+    title: 'Low-code scheduling and rule checking',
+    Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
+    size: 'col--4',
+    description: (
+      <>
+        Automate plan creation with prioritized scheduling goals. Author constraints, evaluate them against a simulation
+        of your plan, and visualize violations on the plan timeline.
       </>
     ),
   },
 ];
 
-function Feature({ Svg, title, description }) {
+function Feature({ Svg, title, description, size }) {
   return (
-    <div className={clsx('col col--4')}>
-      <div className="text--center">
-        <Svg className={styles.featureSvg} role="img" />
-      </div>
-      <div className="text--center padding-horiz--md">
-        <h3>{title}</h3>
-        <p>{description}</p>
+    <div className={clsx(`col ${styles.featureSection}`, size)}>
+      <div className={styles.featureCard}>
+        <div className="card__header">
+          <h3>{title}</h3>
+        </div>
+        <div className="card__body">
+          <p>{description}</p>
+
+          <Svg className={styles.featureSvg} role="img" />
+        </div>
       </div>
     </div>
   );

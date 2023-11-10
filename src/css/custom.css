@@ -9,6 +9,7 @@
   --ifm-code-font-size: 95%;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
   --doc-sidebar-width: 350px !important;
+  /* --ifm-hero-background-color: #f5f5f5; */
 }
 
 [data-theme='dark'] {
@@ -20,6 +21,7 @@
   --ifm-color-primary-lighter: #32d8b4;
   --ifm-color-primary-lightest: #4fddbf;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+  --ifm-hero-background-color: #131315;
 }
 
 .header-github-link:hover {

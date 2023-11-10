@@ -1,11 +1,19 @@
 .features {
   display: flex;
   align-items: center;
-  padding: 2rem 0;
+  padding: 2rem;
   width: 100%;
+  background-color: var(--ifm-hero-background-color);
 }
 
 .featureSvg {
   height: 200px;
   width: 200px;
+}
+
+.featureCard {
+  height: 100%;
+  background-color: var(--ifm-color-secondary-lighter);
+  border: 1px solid var(--ifm-color-secondary-light);
+  border-radius: 0.25rem;
 }

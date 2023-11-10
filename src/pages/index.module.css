@@ -1,6 +1,10 @@
+.hero {
+  align-items: left;
+}
+
 .heroBanner {
-  padding: 4rem 0;
-  text-align: center;
+  padding: 10rem 0;
+  text-align: left;
   position: relative;
   overflow: hidden;
 }
@@ -13,6 +17,12 @@
 
 .buttons {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: left;
+  justify-content: left;
+  vertical-align: auto;
+}
+
+.imgFullscreen {
+  padding-top: 6rem;
+  width: 100%;
 }
