@@ -1,19 +1,52 @@
 .features {
   display: flex;
   align-items: center;
-  padding: 2rem;
+  padding: 1rem;
   width: 100%;
   background-color: var(--ifm-hero-background-color);
 }
 
-.featureSvg {
-  height: 200px;
-  width: 200px;
+.featureSection {
+  margin-bottom: 2rem;
+}
+
+.featureImg {
+  height: auto;
+  width: calc(100% + 2rem);
+  margin: -8rem -1rem 0rem -1rem;
+  object-fit: contain;
+  /* overflow: visible; */
+  /* background-color: lightpink; */
+  max-width: none;
+  min-height: 320px;
 }
 
 .featureCard {
   height: 100%;
-  background-color: var(--ifm-color-secondary-lighter);
+  background-color: var(--ifm-color-secondary-lightest);
   border: 1px solid var(--ifm-color-secondary-light);
   border-radius: 0.25rem;
+  margin-bottom: 1rem;
+  overflow: hidden;
+  box-shadow: var(--card-shadow);
+}
+
+.col {
+  margin-bottom: 1rem;
+}
+
+.cardBody {
+  /* background-color: red; */
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: space-between;
+  align-items: stretch;
+  padding-bottom: 0;
+  /* background-color: lightcyan; */
+  color: var(--ifm-color-secondary-dark);
+}
+
+.cardBody > :last-child {
+  align-self: flex-end;
 }
