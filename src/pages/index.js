@@ -14,8 +14,11 @@ function HomepageHeader() {
         <h1 className="hero__title">A modern approach to planning, sequencing, and scheduling your space mission.</h1>
         {/* <p className="hero__subtitle">{siteConfig.tagline}</p> */}
         <div className={styles.buttons}>
-          <Link className="button button--secondary button--lg" to="/aerie-docs/introduction/#fast-track">
-            Get started with Aerie
+          <Link
+            className={clsx('button button--secondary button--lg', styles.heroButton)}
+            to="/aerie-docs/introduction/#fast-track"
+          >
+            Get started
           </Link>
           <div>
             Want to chat or schedule a demo? <Link className="button--secondary">Get in touch →</Link>

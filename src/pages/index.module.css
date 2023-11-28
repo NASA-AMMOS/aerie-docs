@@ -1,3 +1,7 @@
+/* body {
+  background: var(--ifm-color-secondary-light);
+} */
+
 .hero {
   align-items: left;
 }
@@ -17,12 +21,22 @@
 
 .buttons {
   display: flex;
-  align-items: left;
+  align-items: center;
   justify-content: left;
-  vertical-align: auto;
+  vertical-align: middle;
+  gap: 2rem;
 }
 
 .imgFullscreen {
   padding-top: 6rem;
   width: 100%;
+}
+
+.heroButton {
+  background-color: var(--ifm-color-primary-light);
+  color: white !important;
+}
+
+.heroButton:hover {
+  background-color: var(--ifm-color-primary-lightest);
 }
