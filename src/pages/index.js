@@ -3,7 +3,8 @@ import clsx from 'clsx';
 import Link from '@docusaurus/Link';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
-import HomepageFeatures from '@site/src/components/HomepageFeatures';
+import HomepageFeatures from '@site/src/components/HomepageCards';
+import HomepageTestimonials from '@site/src/components/HomepageTestimonials';
 import styles from './index.module.css';
 
 function HomepageHeader() {
@@ -40,7 +41,9 @@ export default function Home() {
     <Layout title={`Hello from ${siteConfig.title}`} description="Description will go into a meta tag in <head />">
       <HomepageHeader />
       <main>
+        <h2 className={styles.sectionHeader}>Features</h2>
         <HomepageFeatures />
+        <HomepageTestimonials />
       </main>
     </Layout>
   );

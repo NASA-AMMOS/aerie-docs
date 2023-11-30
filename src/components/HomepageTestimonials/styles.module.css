@@ -1,0 +1,48 @@
+.testimonials {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 50vh;
+  /* background-color: red; */
+}
+
+.featureSection {
+  margin-bottom: 2rem;
+}
+
+.name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ifm-color-secondary-darker);
+  margin-block-start: 0rem;
+  margin-block-end: 0rem;
+}
+
+.position {
+  font-size: 0.75rem;
+  color: var(--ifm-color-secondary-dark);
+  font-weight: 500;
+  margin-block-start: 0rem;
+  margin-block-end: 0rem;
+}
+
+.testimonialsImg {
+  width: 48px;
+  height: 48px;
+  background-color: red;
+  border-radius: 100%;
+  object-fit: cover;
+}
+
+.testimonialsFooter {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  align-items: center;
+}
+
+.testimonialsFooterText {
+  display: flex;
+  flex-direction: column;
+  gap: 0rem;
+}

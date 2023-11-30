@@ -24,7 +24,7 @@
   align-items: center;
   justify-content: left;
   vertical-align: middle;
-  gap: 2rem;
+  gap: 1rem;
 }
 
 .imgFullscreen {
@@ -33,10 +33,17 @@
 }
 
 .heroButton {
-  background-color: var(--ifm-color-primary-light);
+  background-color: var(--ifm-color-primary-darker);
   color: white !important;
 }
 
 .heroButton:hover {
-  background-color: var(--ifm-color-primary-lightest);
+  background-color: var(--ifm-color-primary-dark);
+}
+
+.sectionHeader {
+  font-size: 3rem;
+  text-align: center;
+  margin-bottom: 2rem;
+  /* background-color: transparent; */
 }
