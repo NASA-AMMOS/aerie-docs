@@ -1,6 +1,7 @@
 @import url('https://rsms.me/inter/inter.css');
 
 :root {
+  --ifm-container-width-xl: 1170px;
   --ifm-color-primary: #2e8555;
   --ifm-color-primary-dark: #29784c;
   --ifm-color-primary-darker: #277148;
