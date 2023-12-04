@@ -21,10 +21,11 @@ ActivityExpression.ofType(ActivityTypes.ParamActivity);
 In this case, all the activities of type `ParamActivity` will be matched (disregarding its parameters) and potentially used for satisfying the goal.
 
 ```ts
-ActivityExpression.ofType(ActivityTypes.ParamActivity, { param: 1 });
+ActivityExpression.build(ActivityTypes.ParamActivity, { param: 1 });
 ```
 
-In this case, all the activities of type `ParamActivity` with parameter `param` equal to 1 will be matched and used for satisfying the goal.
+In this case, all the activities of type `ParamActivity` with parameter `param` equal to 1 will be matched and used for satisfying the goal. To do this, you must use the `.build`
+function instead of `.ofType`.
 
 An optional `ActivityExpression` can be passed with the `activityFinder` parameter of goals. See below for examples of its use in goals.
 
