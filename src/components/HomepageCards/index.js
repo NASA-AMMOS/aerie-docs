@@ -6,7 +6,7 @@ const FeatureList = [
   {
     title: 'Seamless workflow from planning to commanding',
     // Svg: require('@site/static/img/aerie-feature-planning-commanding-light.svg').default,
-    Img: require('@site/static/img/aerie-feature-planning-commanding-light.png').default,
+    Img: require('@site/static/img/cards/aerie-feature-planning-commanding-light.png').default,
     size: 'col--8',
     description: (
       <>
@@ -17,8 +17,8 @@ const FeatureList = [
   },
   {
     title: 'Extensible mission modeling and simulation',
-    // Svg: require('@site/static/img/aerie-feature-mission-modeling-light.svg').default,
-    Img: require('@site/static/img/aerie-feature-mission-modeling-light.png').default,
+    // Svg: require('@site/static/img/cards/aerie-feature-mission-modeling-light.svg').default,
+    Img: require('@site/static/img/cards/aerie-feature-mission-modeling-light.png').default,
     size: 'col--4',
     description: (
       <>
@@ -29,8 +29,8 @@ const FeatureList = [
   },
   {
     title: 'Real-time collaboration and versioning',
-    // Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
-    Img: require('@site/static/img/aerie-feature-collaboration-light.png').default,
+    // Svg: require('@site/static/img/cards/undraw_docusaurus_react.svg').default,
+    Img: require('@site/static/img/cards/aerie-feature-collaboration-light.png').default,
     size: 'col--4',
     description: (
       <>
@@ -41,8 +41,8 @@ const FeatureList = [
   },
   {
     title: 'Low-code scheduling and rule checking',
-    // Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
-    Img: require('@site/static/img/aerie-feature-rule-checking-light.png').default,
+    // Svg: require('@site/static/img/cards/undraw_docusaurus_react.svg').default,
+    Img: require('@site/static/img/cards/aerie-feature-rule-checking-light.png').default,
     size: 'col--8',
     description: (
       <>
@@ -56,7 +56,7 @@ const FeatureList = [
 const GetStartedList = [
   {
     title: 'For Mission Planners',
-    Img: require('@site/static/img/aerie-getstarted-mission-planners-light.png').default,
+    Img: require('@site/static/img/cards/aerie-getstarted-mission-planners-light.png').default,
     size: 'col--4',
     link: '/aerie-docs/category/planning/',
     linkTitle: 'Planning docs',
@@ -69,7 +69,7 @@ const GetStartedList = [
   },
   {
     title: 'For Systems Engineers',
-    Img: require('@site/static/img/aerie-getstarted-systems-engineers-light.png').default,
+    Img: require('@site/static/img/cards/aerie-getstarted-systems-engineers-light.png').default,
     size: 'col--4',
     link: '/aerie-docs/category/planning/',
     linkTitle: 'Planning docs',
@@ -77,8 +77,8 @@ const GetStartedList = [
   },
   {
     title: 'For Spacecraft Operators',
-    // Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
-    Img: require('@site/static/img/aerie-getstarted-spacecraftops-light.png').default,
+    // Svg: require('@site/static/img/cards/undraw_docusaurus_react.svg').default,
+    Img: require('@site/static/img/cards/aerie-getstarted-spacecraftops-light.png').default,
     size: 'col--4',
     link: '/aerie-docs/category/planning/',
     linkTitle: 'Planning docs',
@@ -91,8 +91,8 @@ const GetStartedList = [
   },
   {
     title: 'Open source and zero cost',
-    // Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
-    Img: require('@site/static/img/aerie-getstarted-opensource-light.png').default,
+    // Svg: require('@site/static/img/cards/undraw_docusaurus_react.svg').default,
+    Img: require('@site/static/img/cards/aerie-getstarted-opensource-light.png').default,
     size: 'col--4',
     link: 'https://opensource.org/license/mit/',
     linkTitle: 'MIT License',
@@ -102,8 +102,8 @@ const GetStartedList = [
   },
   {
     title: 'Quick set up and customization',
-    // Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
-    Img: require('@site/static/img/aerie-getstarted-customize-light.png').default,
+    // Svg: require('@site/static/img/cards/undraw_docusaurus_react.svg').default,
+    Img: require('@site/static/img/cards/aerie-getstarted-customize-light.png').default,
     size: 'col--8',
     link: '/aerie-docs/introduction/#fast-track',
     linkTitle: 'Aerie quick start',

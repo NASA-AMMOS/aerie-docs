@@ -7,7 +7,7 @@ const TestimonialList = [
     name: 'First Last',
     title: 'Job Title, Mission Name',
 
-    Img: require('@site/static/img/aerie-feature-planning-commanding-light.png').default,
+    Img: require('@site/static/img/cards/aerie-feature-planning-commanding-light.png').default,
     size: 'col--6',
     description: (
       <>
@@ -20,7 +20,7 @@ const TestimonialList = [
     name: 'First Last',
     title: 'Job Title, Mission Name',
 
-    Img: require('@site/static/img/aerie-feature-planning-commanding-light.png').default,
+    Img: require('@site/static/img/cards/aerie-feature-planning-commanding-light.png').default,
     size: 'col--6',
     description: (
       <>
