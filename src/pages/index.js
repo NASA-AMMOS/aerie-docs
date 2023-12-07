@@ -3,9 +3,12 @@ import clsx from 'clsx';
 import Link from '@docusaurus/Link';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
+import styles from './index.module.css';
+
 import { HomepageFeatures, HomepageGetStarted } from '@site/src/components/HomepageCards';
 import HomepageTestimonials from '@site/src/components/HomepageTestimonials';
-import styles from './index.module.css';
+import { HomepageMissionPartners } from '@site/src/components/HomepageLogos';
+import { HomepageVideo } from '@site/src/components/HomepageVideo';
 
 function HomepageHeader() {
   const { siteConfig } = useDocusaurusContext();
@@ -41,6 +44,8 @@ export default function Home() {
     <Layout title={`Hello from ${siteConfig.title}`} description="Description will go into a meta tag in <head />">
       <HomepageHeader />
       <main>
+        <HomepageMissionPartners />
+        <HomepageVideo />
         <h2 className={styles.sectionHeader}>Features</h2>
         <HomepageFeatures />
         <HomepageTestimonials />
