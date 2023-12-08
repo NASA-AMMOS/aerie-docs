@@ -164,6 +164,9 @@ Set it to the following:
 
 If you do not know the admin secret for your venue, you can instead run a pre-request script to authorize yourself against the Gateway.
 
+<details closed>
+  <summary><b>For Aerie versions before v2.2.0</b></summary>
+
 1. Access the Global Environment by clicking on "No Environment" -> "Environments..." in the top-right of the page.
 Set it to the following:
 ```json
@@ -184,7 +187,7 @@ Set it to the following:
 // Fetch a new token from the Gateway
 const res = await altair.helpers.request(
   'POST',
-  '<GATEWAY_URL>/auth/login', // AUTH ENDPOINT OF THE DEPLOYMENT
+  '/auth/login', // AUTH ENDPOINT OF THE DEPLOYMENT
   {
     body: { "username": "<YOUR_AERIE_USERNAME>", "password": "<YOUR_AERIE_PASSWORD>"}, // CREDENTIALS TO LOG IN AS
     headers: {"Content-Type": "application/json"}
@@ -204,6 +207,46 @@ To learn more about pre-request scripts, visit [the Altair GQL docs](https://alt
   <source src={preRequestScript} />
 </video>
 
+</details>
+
+:::info Note
+If you find yourself asked to install the extension `altair-graphql-plugin-graphql-explorer`, allow this.
+This extension allows you to view and explore the GQL schema by opening the `GraphiQL Explorer` using the button midway down the left-side sidebar.
+The Explorer is useful for discovering and constructing available queries, mutations, and subscriptions.
+:::
+
+In the Query Window, click on "Pre-Request". Find this part of the script:
+
+```typescript
+const res = await altair.helpers.request(
+  'POST',
+  '/auth/login', // AUTH ENDPOINT OF THE DEPLOYMENT
+  {
+    body: { "username": "<YOUR_AERIE_USERNAME>", "password": "<YOUR_AERIE_PASSWORD>"}, // CREDENTIALS TO LOG IN AS
+    headers: {"Content-Type": "application/json"}
+  });
+```
+
+Replace `<YOUR_AERIE_USERNAME>` and `<YOUR_AERIE_PASSWORD>` with the username and password you use to sign in to Aerie.
+
+:::info Setting Your Role
+By default, you will make queries using the `viewer` role. If you want to use a different role,
+select `Set Headers` from the top of the left-side sidebar and update the header `x-hasura-role` to a different role you are permitted to use.
+
+To see the list of your permitted roles, use the following query:
+```gql
+{
+  users_and_roles {
+    username
+    hasura_allowed_roles
+  }
+}
+```
+
+After changing your role, you will need to press the `Reload Docs` button to the left of the `Send Request` button
+to update the list of available queries and mutations in the GraphiQL Explorer.
+:::
+
 ### Python
 
 You can query the API in Python using the [requests](https://pypi.org/project/requests/) library. Here is a simple example querying for plan data:
@@ -221,7 +264,7 @@ response = requests.post(
 print(json.dumps(response.json(), indent=2))
 ```
 
-If you have the admin secret you can just use it to make your request. Set the `x-hasura-admin-secret` header (default admin secret shown below):
+If you have the admin secret you can alternatively use it to make your request. Set the `x-hasura-admin-secret` header (default admin secret shown below):
 
 ```python
 headers={ 'x-hasura-admin-secret': 'aerie' }
