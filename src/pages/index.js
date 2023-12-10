@@ -5,7 +5,7 @@ import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
 import styles from './index.module.css';
 
-import { HomepageFeatures, HomepageGetStarted } from '@site/src/components/HomepageCards';
+import { HomepageFeatures, HomepageGetStarted, HomepageLearnMore } from '@site/src/components/HomepageCards';
 import HomepageTestimonials from '@site/src/components/HomepageTestimonials';
 import { HomepageMissionPartners } from '@site/src/components/HomepageLogos';
 import { HomepageVideo } from '@site/src/components/HomepageVideo';
@@ -43,7 +43,7 @@ export default function Home() {
   return (
     <Layout title={`Hello from ${siteConfig.title}`} description="Description will go into a meta tag in <head />">
       <HomepageHeader />
-      <main>
+      <main className={styles.siteBackground}>
         <HomepageMissionPartners />
         <HomepageVideo />
         <h2 className={styles.sectionHeader}>Features</h2>
@@ -51,6 +51,8 @@ export default function Home() {
         <HomepageTestimonials />
         <h2 className={styles.sectionHeader}>Get Started</h2>
         <HomepageGetStarted />
+        <h2 className={styles.sectionHeader}>Learn More</h2>
+        <HomepageLearnMore />
       </main>
     </Layout>
   );

@@ -1,6 +1,11 @@
 import React from 'react';
 import clsx from 'clsx';
 import styles from './styles.module.css';
+import { useColorMode } from '@docusaurus/theme-common';
+
+function getImage(theme, imageName) {
+  return require(`@site/static/img/cards/${imageName}-${theme}.png`).default;
+}
 
 const FeatureList = [
   {
@@ -116,7 +121,75 @@ const GetStartedList = [
   },
 ];
 
+const LearnMoreList = [
+  {
+    title: 'Ask a question on Slack',
+    Img: require('@site/static/img/cards/aerie-learn-slack.png').default,
+    size: 'col--4',
+    link: '/aerie-docs/category/planning/',
+    linkTitle: 'Planning docs',
+    description: (
+      <>Say hi or get help by joining our Slack conversations or posting a question in our GitHub discussions.</>
+    ),
+  },
+  {
+    title: 'Discuss or contribute on Github',
+    Img: require('@site/static/img/cards/aerie-learn-github.png').default,
+    size: 'col--4',
+    link: '/aerie-docs/category/planning/',
+    linkTitle: 'Planning docs',
+    description: (
+      <>Post a question in GitHub discussions, or contribute back and help make Aerie even better than it is today.</>
+    ),
+  },
+  {
+    title: 'Sign up for news and updates',
+    // Svg: require('@site/static/img/cards/undraw_docusaurus_react.svg').default,
+    Img: require('@site/static/img/cards/aerie-learn-googlegroup.png').default,
+    size: 'col--4',
+    link: '/aerie-docs/category/planning/',
+    linkTitle: 'Planning docs',
+    description: <>Stay up-to-date on the latest news and releases by joining the Aerie Users Google Group.</>,
+  },
+  {
+    title: 'Dive into the docs',
+    // Svg: require('@site/static/img/cards/undraw_docusaurus_react.svg').default,
+    Img: require('@site/static/img/cards/aerie-getstarted-opensource-light.png').default,
+    size: 'col--4',
+    link: 'https://opensource.org/license/mit/',
+    linkTitle: 'MIT License',
+    description: <>See the details of how different components work in Aerie.</>,
+  },
+  {
+    title: 'Explore a universe of extensions',
+    // Svg: require('@site/static/img/cards/undraw_docusaurus_react.svg').default,
+    Img: require('@site/static/img/cards/aerie-learn-extensions.png').default,
+    size: 'col--4',
+    link: '/aerie-docs/introduction/#fast-track',
+    linkTitle: 'Coming soon',
+    description: (
+      <>
+        Project and community members have begun to build a marketplace of extensions you can use to jump start your
+        modeling and ground system integration efforts.
+      </>
+    ),
+  },
+  {
+    title: 'Something else?',
+    // Svg: require('@site/static/img/cards/undraw_docusaurus_react.svg').default,
+    Img: require('@site/static/img/cards/aerie-getstarted-customize-light.png').default,
+    size: 'col--4',
+    link: 'support@aerie.ammos.nasa.gov',
+    linkTitle: 'support@aerie.ammos.nasa.gov',
+    description: <>...</>,
+  },
+];
+
 function Feature({ Img, title, description, size, link, linkTitle }) {
+  const { colorMode, setColorMode } = useColorMode();
+
+  console.log(colorMode);
+
   return (
     <div className={clsx(`col ${styles.featureSection}`, size)}>
       <div className={styles.card}>
@@ -124,7 +197,9 @@ function Feature({ Img, title, description, size, link, linkTitle }) {
           <h3>{title}</h3>
         </div>
         <div className={clsx(`card__body ${styles.cardBody}`)}>
-          <p classname={styles.description}>{description}</p>
+          <div className={styles.cardDescription}>
+            <p>{description}</p>
+          </div>
           <img src={Img} className={styles.cardImg} alt={title} />
           {link && (
             <div className={styles.cardFooter}>
@@ -160,6 +235,20 @@ export function HomepageGetStarted() {
       <div className="container">
         <div className="row">
           {GetStartedList.map((props, idx) => (
+            <Feature key={idx} {...props} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export function HomepageLearnMore() {
+  return (
+    <section className={styles.cardSection}>
+      <div className="container">
+        <div className="row">
+          {LearnMoreList.map((props, idx) => (
             <Feature key={idx} {...props} />
           ))}
         </div>

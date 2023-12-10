@@ -46,7 +46,7 @@
   /* overflow: visible; */
   /* background-color: lightpink; */
   max-width: none;
-  min-height: 320px;
+  min-height: 300px;
 }
 
 .cardFooter {
@@ -62,4 +62,8 @@
   right: 0;
   z-index: 10;
   /* background-color: lightblue; */
+}
+
+.cardDescription {
+  max-width: 32rem;
 }

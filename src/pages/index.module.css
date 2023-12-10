@@ -2,6 +2,10 @@
   background: var(--ifm-color-secondary-light);
 } */
 
+.siteBackground {
+  background: var(--ifm-color-secondary-lighter);
+}
+
 .hero {
   align-items: left;
 }
