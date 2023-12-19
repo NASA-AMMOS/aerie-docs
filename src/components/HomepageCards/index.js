@@ -3,15 +3,11 @@ import clsx from 'clsx';
 import styles from './styles.module.css';
 import { useColorMode } from '@docusaurus/theme-common';
 
-function getImage(theme, imageName) {
-  return require(`@site/static/img/cards/${imageName}-${theme}.png`).default;
-}
-
 const FeatureList = [
   {
     title: 'Seamless workflow from planning to commanding',
-    // Svg: require('@site/static/img/aerie-feature-planning-commanding-light.svg').default,
     Img: require('@site/static/img/cards/aerie-feature-planning-commanding-light.png').default,
+    ImgDark: require('@site/static/img/cards/aerie-feature-planning-commanding-dark.png').default,
     size: 'col--8',
     description: (
       <>
@@ -22,8 +18,8 @@ const FeatureList = [
   },
   {
     title: 'Extensible mission modeling and simulation',
-    // Svg: require('@site/static/img/cards/aerie-feature-mission-modeling-light.svg').default,
     Img: require('@site/static/img/cards/aerie-feature-mission-modeling-light.png').default,
+    ImgDark: require('@site/static/img/cards/aerie-feature-mission-modeling-dark.png').default,
     size: 'col--4',
     description: (
       <>
@@ -34,8 +30,8 @@ const FeatureList = [
   },
   {
     title: 'Real-time collaboration and versioning',
-    // Svg: require('@site/static/img/cards/undraw_docusaurus_react.svg').default,
     Img: require('@site/static/img/cards/aerie-feature-collaboration-light.png').default,
+    ImgDark: require('@site/static/img/cards/aerie-feature-collaboration-dark.png').default,
     size: 'col--4',
     description: (
       <>
@@ -46,8 +42,8 @@ const FeatureList = [
   },
   {
     title: 'Low-code scheduling and rule checking',
-    // Svg: require('@site/static/img/cards/undraw_docusaurus_react.svg').default,
     Img: require('@site/static/img/cards/aerie-feature-rule-checking-light.png').default,
+    ImgDark: require('@site/static/img/cards/aerie-feature-rule-checking-dark.png').default,
     size: 'col--8',
     description: (
       <>
@@ -62,6 +58,7 @@ const GetStartedList = [
   {
     title: 'For Mission Planners',
     Img: require('@site/static/img/cards/aerie-getstarted-mission-planners-light.png').default,
+    ImgDark: require('@site/static/img/cards/aerie-getstarted-mission-planners-dark.png').default,
     size: 'col--4',
     link: '/aerie-docs/category/planning/',
     linkTitle: 'Planning docs',
@@ -75,6 +72,7 @@ const GetStartedList = [
   {
     title: 'For Systems Engineers',
     Img: require('@site/static/img/cards/aerie-getstarted-systems-engineers-light.png').default,
+    ImgDark: require('@site/static/img/cards/aerie-getstarted-systems-engineers-dark.png').default,
     size: 'col--4',
     link: '/aerie-docs/category/planning/',
     linkTitle: 'Planning docs',
@@ -82,8 +80,8 @@ const GetStartedList = [
   },
   {
     title: 'For Spacecraft Operators',
-    // Svg: require('@site/static/img/cards/undraw_docusaurus_react.svg').default,
     Img: require('@site/static/img/cards/aerie-getstarted-spacecraftops-light.png').default,
+    ImgDark: require('@site/static/img/cards/aerie-getstarted-spacecraftops-dark.png').default,
     size: 'col--4',
     link: '/aerie-docs/category/planning/',
     linkTitle: 'Planning docs',
@@ -96,8 +94,8 @@ const GetStartedList = [
   },
   {
     title: 'Open source and zero cost',
-    // Svg: require('@site/static/img/cards/undraw_docusaurus_react.svg').default,
     Img: require('@site/static/img/cards/aerie-getstarted-opensource-light.png').default,
+    ImgDark: require('@site/static/img/cards/aerie-getstarted-opensource-dark.png').default,
     size: 'col--4',
     link: 'https://opensource.org/license/mit/',
     linkTitle: 'MIT License',
@@ -107,8 +105,8 @@ const GetStartedList = [
   },
   {
     title: 'Quick set up and customization',
-    // Svg: require('@site/static/img/cards/undraw_docusaurus_react.svg').default,
     Img: require('@site/static/img/cards/aerie-getstarted-customize-light.png').default,
+    ImgDark: require('@site/static/img/cards/aerie-getstarted-customize-dark.png').default,
     size: 'col--8',
     link: '/aerie-docs/introduction/#fast-track',
     linkTitle: 'Aerie quick start',
@@ -125,9 +123,10 @@ const LearnMoreList = [
   {
     title: 'Ask a question on Slack',
     Img: require('@site/static/img/cards/aerie-learn-slack.png').default,
+    ImgDark: require('@site/static/img/cards/aerie-learn-slack-dark.png').default,
     size: 'col--4',
     link: '/aerie-docs/category/planning/',
-    linkTitle: 'Planning docs',
+    linkTitle: 'Join Slack',
     description: (
       <>Say hi or get help by joining our Slack conversations or posting a question in our GitHub discussions.</>
     ),
@@ -135,6 +134,7 @@ const LearnMoreList = [
   {
     title: 'Discuss or contribute on Github',
     Img: require('@site/static/img/cards/aerie-learn-github.png').default,
+    ImgDark: require('@site/static/img/cards/aerie-learn-github-dark.png').default,
     size: 'col--4',
     link: '/aerie-docs/category/planning/',
     linkTitle: 'Planning docs',
@@ -144,8 +144,8 @@ const LearnMoreList = [
   },
   {
     title: 'Sign up for news and updates',
-    // Svg: require('@site/static/img/cards/undraw_docusaurus_react.svg').default,
     Img: require('@site/static/img/cards/aerie-learn-googlegroup.png').default,
+    ImgDark: require('@site/static/img/cards/aerie-learn-googlegroup-dark.png').default,
     size: 'col--4',
     link: '/aerie-docs/category/planning/',
     linkTitle: 'Planning docs',
@@ -153,17 +153,22 @@ const LearnMoreList = [
   },
   {
     title: 'Dive into the docs',
-    // Svg: require('@site/static/img/cards/undraw_docusaurus_react.svg').default,
-    Img: require('@site/static/img/cards/aerie-getstarted-opensource-light.png').default,
     size: 'col--4',
-    link: 'https://opensource.org/license/mit/',
-    linkTitle: 'MIT License',
+    links: [
+      { url: 'https://example.com/1', text: 'Concept of Operations' },
+      { url: 'https://example.com/2', text: 'Software Design Document' },
+      { url: 'https://example.com/2', text: 'Mission Modeling' },
+      { url: 'https://example.com/2', text: 'Planning' },
+      { url: 'https://example.com/2', text: 'Constraints' },
+      { url: 'https://example.com/2', text: 'Java Docs' },
+      // add more links as needed
+    ],
     description: <>See the details of how different components work in Aerie.</>,
   },
   {
     title: 'Explore a universe of extensions',
-    // Svg: require('@site/static/img/cards/undraw_docusaurus_react.svg').default,
     Img: require('@site/static/img/cards/aerie-learn-extensions.png').default,
+    ImgDark: require('@site/static/img/cards/aerie-learn-extensions-dark.png').default,
     size: 'col--4',
     link: '/aerie-docs/introduction/#fast-track',
     linkTitle: 'Coming soon',
@@ -176,19 +181,20 @@ const LearnMoreList = [
   },
   {
     title: 'Something else?',
-    // Svg: require('@site/static/img/cards/undraw_docusaurus_react.svg').default,
-    Img: require('@site/static/img/cards/aerie-getstarted-customize-light.png').default,
     size: 'col--4',
     link: 'support@aerie.ammos.nasa.gov',
     linkTitle: 'support@aerie.ammos.nasa.gov',
-    description: <>...</>,
+    description: (
+      <>
+        Have a specific quesion that you'd like help with? Curious to speak with someone directly? Send us an email and
+        we can find to chat or demo Aerie.
+      </>
+    ),
   },
 ];
 
-function Feature({ Img, title, description, size, link, linkTitle }) {
-  const { colorMode, setColorMode } = useColorMode();
-
-  console.log(colorMode);
+function Feature({ Img, ImgDark, title, description, size, link, linkTitle, links }) {
+  const { colorMode } = useColorMode();
 
   return (
     <div className={clsx(`col ${styles.featureSection}`, size)}>
@@ -199,10 +205,24 @@ function Feature({ Img, title, description, size, link, linkTitle }) {
         <div className={clsx(`card__body ${styles.cardBody}`)}>
           <div className={styles.cardDescription}>
             <p>{description}</p>
+            {links && (
+              <ul className={styles.linksList}>
+                {links.map((linkItem, index) => (
+                  <li key={index}>
+                    <a href={linkItem.url} target={linkItem.newTab ? '_blank' : '_self'} rel="noopener noreferrer">
+                      {linkItem.text}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
-          <img src={Img} className={styles.cardImg} alt={title} />
+
+          {Img && <img src={colorMode === 'light' ? Img : ImgDark} className={styles.cardImg} alt={title} />}
+
           {link && (
             <div className={styles.cardFooter}>
+              {linkTitle === 'Coming soon'}
               <a href={link}>
                 {linkTitle}
                 <span className={styles.linkArrow}>→</span>
