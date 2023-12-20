@@ -34,3 +34,26 @@ public boolean validateInstrumentPowers() {
 ```
 
 The annotation processor identifies these methods and arranges for them to be invoked whenever a planner instantiates an instance of the class. A message will be provided to the planner for each failing validation, so the order of validation methods does not matter.
+
+Validations can also be more dynamic if failure reasons are needed for specific cases, rather than using the annotation above the following is supported. The first parameter is the validation result, the second is the subject of the validation, and the third is the message.
+
+If returning a `true` result the subject and message can be `null`.
+
+```java
+@Validation
+public ValidationResult validateInstrumentPowers() {
+  if (instrumentPower_W < 0) {
+    return new ValidationResult(false, "instrumentPower_W", "Instrument W's power is below " + 0);
+  } else if (instrumentPower_W > 1000.0) {
+    return new ValidationResult(false, "instrumentPower_W", "Instrument W's power is above " + 1000.0);
+  }
+
+  if (instrumentPower_Y < 0) {
+    return new ValidationResult(false, "instrumentPower_Y", "Instrument Y's power is below " + 0);
+  } else if (instrumentPower_Y > 1000.0) {
+    return new ValidationResult(false, "instrumentPower_Y", "Instrument Y's power is above " + 1000.0);
+  }
+
+  return new ValidationResult(true, null, null);
+}
+```
