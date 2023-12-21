@@ -7,15 +7,16 @@ import styles from './index.module.css';
 
 import { HomepageFeatures, HomepageGetStarted, HomepageLearnMore } from '@site/src/components/HomepageCards';
 import HomepageTestimonials from '@site/src/components/HomepageTestimonials';
-import { HomepageMissionPartners } from '@site/src/components/HomepageLogos';
+import { HomepageMissionPartners, HomepageSponsors } from '@site/src/components/HomepageLogos';
 import { HomepageVideo } from '@site/src/components/HomepageVideo';
+import { HomepageFooter } from '../components/HomepageFooter';
 
 function HomepageHeader() {
   const { siteConfig } = useDocusaurusContext();
   return (
     <header className={clsx('hero', styles.heroBanner)}>
       <div className="container">
-        <h1 className="hero__title">A modern approach to planning, sequencing, and scheduling your space mission.</h1>
+        <h1 className="hero__title">A modern approach to planning, sequencing, and scheduling space missions.</h1>
         {/* <p className="hero__subtitle">{siteConfig.tagline}</p> */}
         <div className={styles.buttons}>
           <Link
@@ -33,6 +34,7 @@ function HomepageHeader() {
           src={require('@site/static/img/aerie-ui-light.png').default}
           alt="Aerie UI"
         />
+        <HomepageMissionPartners />
       </div>
     </header>
   );
@@ -44,7 +46,6 @@ export default function Home() {
     <Layout title={`Hello from ${siteConfig.title}`} description="Description will go into a meta tag in <head />">
       <HomepageHeader />
       <main className={styles.siteBackground}>
-        <HomepageMissionPartners />
         <HomepageVideo />
         <h2 className={styles.sectionHeader}>Features</h2>
         <HomepageFeatures />
@@ -53,6 +54,8 @@ export default function Home() {
         <HomepageGetStarted />
         <h2 className={styles.sectionHeader}>Learn More</h2>
         <HomepageLearnMore />
+        <HomepageSponsors />
+        <HomepageFooter />
       </main>
     </Layout>
   );

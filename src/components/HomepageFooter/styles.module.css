@@ -1,7 +1,6 @@
 .sectionHeader {
   color: var(--ifm-color-secondary-dark);
   text-align: center;
-  /* font-family: Inter; */
   font-size: 1rem;
   font-style: normal;
   font-weight: 700;
@@ -10,10 +9,9 @@
   justify-content: center;
   text-transform: uppercase;
   flex-grow: 1;
-  margin: 0;
 }
 
-.logoSection {
+.videoSection {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -22,19 +20,19 @@
   border-top: 1px solid var(--ifm-color-secondary-light);
   border-bottom: 1px solid var(--ifm-color-secondary-light);
   /* background-color: red; */
-  margin-bottom: 10rem;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.logo {
+  width: 10rem;
 }
 
 .section {
   /* margin-bottom: 2rem; */
-  padding-top: 2rem;
-  padding-bottom: 2rem;
-  padding-right: 0;
-  background-color: var(--ifm-hero-background-color);
-}
-
-.featureImg {
-  flex-shrink: 1;
-  width: 15rem;
-  padding-right: 4rem;
+  /* padding-top: 2rem; */
+  background-color: var(--ifm-color-secondary-lightest);
+  margin-bottom: 0;
+  padding-top: 5rem;
+  padding-bottom: 5rem;
 }
