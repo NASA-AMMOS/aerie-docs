@@ -18,7 +18,7 @@ function HomepageHeader() {
       <div className="container">
         <div className={styles.tagline}>Open source from NASA's Jet Propulsion Laboratory</div>
         <h1 className={clsx('hero__title', styles.heroTitle)}>
-          A modern approach to planning, sequencing, and scheduling space missions.
+          Planning, sequencing, and scheduling tools for modern space missions.
         </h1>
         {/* <p className="hero__subtitle">{siteConfig.tagline}</p> */}
         <div className={styles.buttons}>
@@ -29,7 +29,10 @@ function HomepageHeader() {
             Get started
           </Link>
           <div>
-            Want to chat or schedule a demo? <Link className="button--secondary">Get in touch →</Link>
+            Want to chat or schedule a demo?{' '}
+            <Link href="mailto:aerie-support@googlegroups.com" className="button--secondary">
+              Get in touch →
+            </Link>
           </div>
         </div>
         <img
