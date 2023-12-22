@@ -17,12 +17,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-wrap: wrap;
   width: 100%;
   height: auto;
   border-top: 1px solid var(--ifm-color-secondary-light);
   border-bottom: 1px solid var(--ifm-color-secondary-light);
   /* background-color: red; */
-  margin-bottom: 10rem;
+  /* margin-bottom: 10rem; */
+  padding-top: 1rem;
+  padding-bottom: 1rem;
 }
 
 .section {
@@ -33,8 +36,17 @@
   background-color: var(--ifm-hero-background-color);
 }
 
+.logoWrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 4rem;
+  flex-grow: 1;
+}
+
 .featureImg {
-  flex-shrink: 1;
-  width: 15rem;
-  padding-right: 4rem;
+  /* flex-grow: 1; */
+  max-height: 6rem;
+  /* padding-right: 4rem; */
 }
