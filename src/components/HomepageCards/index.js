@@ -125,7 +125,7 @@ const LearnMoreList = [
     Img: require('@site/static/img/cards/aerie-learn-slack.png').default,
     ImgDark: require('@site/static/img/cards/aerie-learn-slack-dark.png').default,
     size: 'col--4',
-    link: '/aerie-docs/category/planning/',
+    link: 'https://join.slack.com/t/nasa-ammos/shared_invite/zt-1mlgmk5c2-MgqVSyKzVRUWrXy87FNqPw',
     linkTitle: 'Join Slack',
     description: (
       <>Say hi or get help by joining our Slack conversations or posting a question in our GitHub discussions.</>
@@ -136,8 +136,8 @@ const LearnMoreList = [
     Img: require('@site/static/img/cards/aerie-learn-github.png').default,
     ImgDark: require('@site/static/img/cards/aerie-learn-github-dark.png').default,
     size: 'col--4',
-    link: '/aerie-docs/category/planning/',
-    linkTitle: 'Planning docs',
+    link: 'https://github.com/NASA-AMMOS/aerie',
+    linkTitle: 'Aerie on Github',
     description: (
       <>Post a question in GitHub discussions, or contribute back and help make Aerie even better than it is today.</>
     ),
@@ -147,21 +147,20 @@ const LearnMoreList = [
     Img: require('@site/static/img/cards/aerie-learn-googlegroup.png').default,
     ImgDark: require('@site/static/img/cards/aerie-learn-googlegroup-dark.png').default,
     size: 'col--4',
-    link: '/aerie-docs/category/planning/',
-    linkTitle: 'Planning docs',
+    link: 'https://groups.google.com/u/3/g/aerie-users',
+    linkTitle: 'Aerie Users Group',
     description: <>Stay up-to-date on the latest news and releases by joining the Aerie Users Google Group.</>,
   },
   {
     title: 'Dive into the docs',
     size: 'col--4',
     links: [
-      { url: 'https://example.com/1', text: 'Concept of Operations' },
-      { url: 'https://example.com/2', text: 'Software Design Document' },
-      { url: 'https://example.com/2', text: 'Mission Modeling' },
-      { url: 'https://example.com/2', text: 'Planning' },
-      { url: 'https://example.com/2', text: 'Constraints' },
-      { url: 'https://example.com/2', text: 'Java Docs' },
-      // add more links as needed
+      { url: '/aerie-docs/overview/concept-of-operations/', text: 'Concept of Operations' },
+      { url: '/aerie-docs/overview/software-design-document/', text: 'Software Design Document' },
+      { url: '/aerie-docs/mission-modeling/introduction/', text: 'Mission Modeling' },
+      { url: '/aerie-docs/category/planning/', text: 'Planning' },
+      { url: '/aerie-docs/constraints/introduction/', text: 'Constraints' },
+      { url: '/aerie-docs/java-docs/introduction/', text: 'Java Docs' },
     ],
     description: <>See the details of how different components work in Aerie.</>,
   },
@@ -222,11 +221,14 @@ function Feature({ Img, ImgDark, title, description, size, link, linkTitle, link
 
           {link && (
             <div className={styles.cardFooter}>
-              {linkTitle === 'Coming soon'}
-              <a href={link}>
-                {linkTitle}
-                <span className={styles.linkArrow}>→</span>
-              </a>
+              {linkTitle === 'Coming soon' ? (
+                <p style={{ marginBottom: 0 }}>Coming soon</p>
+              ) : (
+                <a href={link}>
+                  {linkTitle}
+                  <span className={styles.linkArrow}>→</span>
+                </a>
+              )}
             </div>
           )}
         </div>
