@@ -26,6 +26,30 @@
 
 .logo {
   width: 10rem;
+  flex-grow: 1;
+}
+
+.grid {
+  display: flex;
+}
+
+.gridItem {
+  flex-grow: 1;
+}
+
+.footerList {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.footerHeader {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.footerLink {
+  color: var(--ifm-color-secondary-dark);
 }
 
 .section {
