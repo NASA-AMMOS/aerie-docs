@@ -53,7 +53,15 @@ export function HomepageFooter() {
       <div className="container">
         <div className={styles.grid}>
           <div className={styles.gridItem}>
-            <img className="logo" src={`./img/aerie-wordmark-${colorMode}.svg`} />
+            <img className={styles.logo} src={`./img/aerie-wordmark-${colorMode}.svg`} />
+            <ul className={styles.footerList}>
+              <li>
+                <span className={styles.footerLink}>AMMOS | Advanced Multi-Mission Operations System</span>
+              </li>
+              <li>
+                <span className={styles.footerLink}>Multimission Ground System Services (MGSS)</span>
+              </li>
+            </ul>
           </div>
 
           <div className={styles.gridItem}>

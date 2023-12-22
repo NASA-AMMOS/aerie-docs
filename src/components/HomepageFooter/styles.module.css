@@ -25,8 +25,9 @@
 }
 
 .logo {
-  width: 10rem;
+  width: 7rem;
   flex-grow: 1;
+  padding-bottom: 0.75rem;
 }
 
 .grid {
@@ -35,6 +36,13 @@
 
 .gridItem {
   flex-grow: 1;
+}
+@media screen and (max-width: 996px) {
+  .grid {
+    flex-direction: column;
+    gap: 2rem;
+    padding: 2rem;
+  }
 }
 
 .footerList {
