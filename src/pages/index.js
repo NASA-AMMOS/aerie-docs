@@ -16,7 +16,10 @@ function HomepageHeader() {
   return (
     <header className={clsx('hero', styles.heroBanner)}>
       <div className="container">
-        <h1 className="hero__title">A modern approach to planning, sequencing, and scheduling space missions.</h1>
+        <div className={styles.tagline}>Open source from NASA's Jet Propulsion Laboratory</div>
+        <h1 className={clsx('hero__title', styles.heroTitle)}>
+          A modern approach to planning, sequencing, and scheduling space missions.
+        </h1>
         {/* <p className="hero__subtitle">{siteConfig.tagline}</p> */}
         <div className={styles.buttons}>
           <Link
@@ -46,7 +49,7 @@ export default function Home() {
     <Layout title={`Hello from ${siteConfig.title}`} description="Description will go into a meta tag in <head />">
       <HomepageHeader />
       <main className={styles.siteBackground}>
-        <HomepageVideo />
+        {/* <HomepageVideo /> */}
         <h2 className={styles.sectionHeader}>Features</h2>
         <HomepageFeatures />
         <HomepageTestimonials />

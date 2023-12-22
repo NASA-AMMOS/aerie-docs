@@ -10,6 +10,18 @@
   align-items: left;
 }
 
+.heroTitle {
+  /* color: red; */
+  letter-spacing: -1.5px;
+  line-height: 110%;
+  font-weight: 700;
+  font-size: 3.25rem;
+  orphans: 2;
+  padding-bottom: 2rem;
+  color: var(--ifm-color-secondary-darker);
+  margin-top: 1rem;
+}
+
 .heroBanner {
   padding-top: 10rem;
   text-align: left;
@@ -20,6 +32,11 @@
 @media screen and (max-width: 996px) {
   .heroBanner {
     padding: 2rem;
+  }
+  .heroTitle {
+    /* color: red; */
+    letter-spacing: -1px;
+    font-size: 2.75rem;
   }
 }
 
@@ -43,6 +60,16 @@
 
 .heroButton:hover {
   background-color: var(--ifm-color-primary-dark);
+}
+
+.tagline {
+  background-color: var(--ifm-color-secondary-lightest);
+  color: var(--ifm-color-secondary-dark);
+  border: 1px var(--ifm-color-secondary-light) solid;
+  display: inline-block;
+  padding: 0.25rem 1rem;
+  border-radius: 2rem;
+  margin-bottom: 1rem;
 }
 
 .sectionHeader {
