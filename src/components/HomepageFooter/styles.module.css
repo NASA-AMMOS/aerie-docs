@@ -19,7 +19,6 @@
   height: auto;
   border-top: 1px solid var(--ifm-color-secondary-light);
   border-bottom: 1px solid var(--ifm-color-secondary-light);
-  /* background-color: red; */
   border-radius: 0.5rem;
   overflow: hidden;
 }
@@ -61,8 +60,6 @@
 }
 
 .section {
-  /* margin-bottom: 2rem; */
-  /* padding-top: 2rem; */
   background-color: var(--ifm-color-secondary-lightest);
   margin-bottom: 0;
   padding-top: 5rem;

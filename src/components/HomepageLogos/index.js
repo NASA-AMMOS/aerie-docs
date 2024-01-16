@@ -82,18 +82,3 @@ export function HomepageSponsors() {
     </section>
   );
 }
-
-// export function HomepageSponsors() {
-//   return (
-//     <section className={styles.section}>
-//       <div className="container">
-//         <div className={clsx(`${styles.logoSection}`)}>
-//           <h3 className={styles.sectionHeader}>Thank you to our sponsors</h3>
-//           {MissionPartners.map((props, idx) => (
-//             <Logo key={idx} {...props} />
-//           ))}
-//         </div>
-//       </div>
-//     </section>
-//   );
-// }

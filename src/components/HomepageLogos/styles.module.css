@@ -1,7 +1,6 @@
 .sectionHeader {
   color: var(--ifm-color-secondary-dark);
   text-align: center;
-  /* font-family: Inter; */
   font-size: 1rem;
   font-style: normal;
   font-weight: 700;
@@ -22,14 +21,11 @@
   height: auto;
   border-top: 1px solid var(--ifm-color-secondary-light);
   border-bottom: 1px solid var(--ifm-color-secondary-light);
-  /* background-color: red; */
-  /* margin-bottom: 10rem; */
   padding-top: 1rem;
   padding-bottom: 1rem;
 }
 
 .section {
-  /* margin-bottom: 2rem; */
   padding-top: 2rem;
   padding-bottom: 2rem;
   padding-right: 0;
@@ -46,7 +42,5 @@
 }
 
 .featureImg {
-  /* flex-grow: 1; */
   max-height: 6rem;
-  /* padding-right: 4rem; */
 }

@@ -63,9 +63,7 @@
   left: 0;
   right: 0;
   z-index: 10;
-  backdrop-filter: blur(10px); /* 10px is the blur radius */
-
-  /* background-color: lightblue; */
+  backdrop-filter: blur(10px);
 }
 
 .cardDescription {

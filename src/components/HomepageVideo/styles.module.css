@@ -1,7 +1,6 @@
 .sectionHeader {
   color: var(--ifm-color-secondary-darker);
   text-align: center;
-  /* font-family: Inter; */
   font-size: 1rem;
   font-style: normal;
   font-weight: 700;
@@ -26,7 +25,5 @@
 }
 
 .section {
-  /* margin-bottom: 2rem; */
-  /* padding-top: 2rem; */
   background-color: var(--ifm-hero-background-color);
 }
