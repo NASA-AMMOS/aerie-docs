@@ -55,7 +55,7 @@ export default function Home() {
         {/* <HomepageVideo /> */}
         <h2 className={styles.sectionHeader}>Features</h2>
         <HomepageFeatures />
-        <HomepageTestimonials />
+        {/* <HomepageTestimonials /> */}
         <h2 className={styles.sectionHeader}>Get Started</h2>
         <HomepageGetStarted />
         <h2 className={styles.sectionHeader}>Learn More</h2>

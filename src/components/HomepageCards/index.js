@@ -74,8 +74,8 @@ const GetStartedList = [
     Img: require('@site/static/img/cards/aerie-getstarted-systems-engineers-light.png').default,
     ImgDark: require('@site/static/img/cards/aerie-getstarted-systems-engineers-dark.png').default,
     size: 'col--4',
-    link: '/aerie-docs/category/planning/',
-    linkTitle: 'Planning docs',
+    // link: '/aerie-docs/category/planning/',
+    // linkTitle: 'Planning docs',
     description: <>Analyze and inform spacecraft design and architecture during development.</>,
   },
   {
@@ -83,8 +83,8 @@ const GetStartedList = [
     Img: require('@site/static/img/cards/aerie-getstarted-spacecraftops-light.png').default,
     ImgDark: require('@site/static/img/cards/aerie-getstarted-spacecraftops-dark.png').default,
     size: 'col--4',
-    link: '/aerie-docs/category/planning/',
-    linkTitle: 'Planning docs',
+    // link: '/aerie-docs/category/planning/',
+    // linkTitle: 'Planning docs',
     description: (
       <>
         Build and collaboratively iterate on an integrated plan and set of commands that meets plan goals and
