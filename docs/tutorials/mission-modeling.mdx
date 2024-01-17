@@ -1,0 +1,218 @@
+# Mission Modeling Tutorial
+
+Welcome Aerie modeling padawans! For your training today, you will be learning the basics of mission modeling in Aerie by building your own simple model of an on-board spacecraft solid state recorder (SSR). This model will track the recording rate into the recorder from a couple instruments along with the integrated data volume over time. Through the process of building this model, you'll learn about the fundamental objects of a model, activities and resources, and their structure. You'll be introduced to the different categories of resources and learn how you define and implement each along with restrictions on when you can/can't modify them. As a bonus, we will also cover how you can make your resources "unit aware" to prevent those pesky issues that come along with performing unit conversions and how you can test your model without having to pull your model into an Aerie deployment.
+
+Let the training begin!
+
+## Prerequisites
+
+### Deploy Aerie
+
+Before we begin writing modeling code, make sure that you have access to an Aerie deployment as we'll be loading our model into Aerie to build plans and view simulation results. You can deploy Aerie locally on your machine by following the simple steps outlined in our [Fast Track](https://nasa-ammos.github.io/aerie-docs/introduction/#fast-track) instructions. Once you have checked that the Aerie UI is available on [http://localhost/]([http://localhost/), you should be ready proceed with this tutorial.
+
+### Install an IDE
+
+Aerie mission models are built using a Java modeling framework (which we will discuss in detail later) and take the form of a `.jar` file, which you can then load into Aerie via the UI (or GraphQL API). In order to have an enjoyable experience building your mission model, you'll want to download and install a Java integrated development environment (IDE) with support for the [Gradle Build Tool](https://docs.gradle.org/current/userguide/userguide.html) (our models use Gradle to build our `.jar` files). Our team's preferred IDE is currently [IntelliJ](https://www.jetbrains.com/idea/), but any Java IDE should work just fine.
+
+## Download and Build the Mission Model Template
+
+Mission models require a couple of standard items for Aerie to process the model once it has been built:
+
+1. A [`package-info.java`](https://nasa-ammos.github.io/aerie-docs/mission-modeling/introduction/#the-package-infojava-file) file containing a reference to the top-level mission model class, annotations referencing any activities defined in the model, an annotation referencing a configuration class that can expose configuration parameters that can be varied prior to simulation, and import statements to the Aerie modeling framework to bridge the framework to the model.
+2. The top-level [mission model class](https://ammos.nasa.gov/aerie-docs/mission-modeling/introduction/#the-mission-model-class) that defines or delegates the behavior of the system being described in the model. Any quantity or state that you would like to track over the course of the simulation - which we define as a [**Resource**](https://ammos.nasa.gov/aerie-docs/mission-modeling/resources-and-models/) - should be declared and defined in this class or its delegates. The name of the top-level mission class can be anything as long as it matches the reference in `package-info.java`.
+
+Fortunately, to save you some trouble, we've created a [mission model template repository](https://github.com/NASA-AMMOS/aerie-mission-model-template) that already has these items included for you along with a gradle build setup that takes care of including the right Aerie dependencies to get your mission model `.jar` file built hassle-free. In this repository, if you take a look in [`src/main/java/missionmodel`](https://github.com/NASA-AMMOS/aerie-mission-model-template/tree/main/src/main/java/firesat), you'll see the `package-info.java` file along with the top-level `Mission` and `Configuration` classes already defined for you.
+
+On the main page for the [mission model template repository](https://github.com/NASA-AMMOS/aerie-mission-model-template), click the "Use this template" button on the top right of the page and select "Create a new repository" to create a new repository for your SSR model. Clone your new repository and follow the instructions in the [`README.md`](https://github.com/NASA-AMMOS/aerie-mission-model-template/blob/main/README.md) to setup your environment and test out building a mission model `.jar` from the model. You'll find the `.jar` you built within a `build/libs` directory generated as part of the gradle build.
+
+At this point, we could pull up the Aerie UI and load the `.jar` file into Aerie as a model, but there is nothing really interesting in the model yet. So before we bring our model into Aerie, let's give it some content.
+
+TODO:
+
+- Update mission model template to align with David's new framework
+  - Account for his register in the Mission class
+  - Update dependencies in build.gradle
+  - Change name from firesat to missionmodel
+  - Remove activities/resources from the template (If they want content they could use the tutorial repo or other examples we provide)
+
+## Your First Resource and Activity
+
+We will begin building our SSR model by creating a single resource, `RecordingRate`, to track the rate at which data is being written to the SSR over time. As a reminder, a **\*Resource** is any measurable quantity whose behavior we want to track over the course of a plan. Then, we will create a simple activity, `CollectData`, that updates the `RecordingRate` by a user-specified rate for a user-specified duration. This activity is intended to represent an on-board camera taking images and writing data to the spacecraft SSR.
+
+Although we could define the `RecordingRate` resource directly in the pre-provided top-level `Mission` class, we'd like to keep that class as simple as possible and delegate most of model's behavior definition to other, more focused classes. With this in mind, let's create a new class within the `missionmodel` package called `DataModel`, which we will eventually instantiate within the `Mission` class.
+
+In the `DataModel` class, declare the `RecordingRate` resource with the following line of code:
+
+```java
+    public MutableResource<Discrete<Double>> RecordingRate; // Megabits/s
+```
+
+:::tip
+
+As you are coding, take advantage of your IDE to auto import the modeling framework classes you need like `MutableResource`.
+
+:::
+
+Let's tease apart this line of code and use it as an opportunity to provide a brief overview of the various types of resources available to you as a modeler. The mission modeling framework provides two primary classes from which to define resources:
+
+1. `MutableResource` - resource whose value can be explicitly updated by activities or other modeling code after it has been defined. Updates to the resource take the form of "Effects" such as `increase`, `decrease`, or `set`. The values of this category of resource are explicitly tracked in objects called "Cells" within Aerie, which you can read about in detail in the [Aerie Software Design Document](https://ammos.nasa.gov/aerie-docs/overview/software-design-document/#cells) if you are interested.
+2. `Resource` - resource whose value cannot be explicitly updated after it has been defined. In other words, these resources cannot be updated via "Effects". The most common use of these resources are to create "Derived" resources that are fully defined by the values of other resources (we will have some examples of these later). Since these resources get their value from other resources, they actually don't need to store their own value within a "Cell". Interestingly, the `MutableResource` class extends the `Resource` class and includes additional logic to ensure values are correctly stored in "Cells".
+
+From these classes, there are a few different types of resources provided, which are primarily distinguished by how the value of the resource progresses between computed points:
+
+- `Discrete` - resource that maintains a constant value between computed points (i.e. a step function or piecewise constant function). Discrete resources can be defined as many different types such as `Boolean`, `Integer`, `Double`, or an enumeration.
+- `Linear` - resource that has a linear profile between computed points. When computing the value of such resources you have to specify both the value of the resource at a given time along with a rate so that the resource knows how it should change until the next point is computed. The resource does not have to be strictly continuous. In other words, the linear segments that are computed for the resource do not have to match up. Unlike discrete resources, a linear resource is implicitly defined as a `Double`.
+- `Polynomial` - generalized version of the linear resource that allows you to define resources that evolve over time based on polynomial functions.
+- `Clock` - provides "stopwatch" like functionality that allows you to track the time since an event occured.
+
+TODO: Add more content on `Clock`
+
+:::note
+
+Polynomial resources currently cannot be rendered in the Aerie UI and must be transformed to a linear resource (wan example of this is shown later in the tutorial)
+
+:::
+
+- Create RecordingRate resource in a DataModel class
+  - This will be a discrete resource
+    - Briefly provide overview of a discrete resource
+    - Note we will be talking about polynomial resources later
+  - Register resource to UI
+
+```java
+package missionmodel;
+
+import gov.nasa.jpl.aerie.contrib.streamline.core.MutableResource;
+import gov.nasa.jpl.aerie.contrib.streamline.modeling.Registrar;
+import gov.nasa.jpl.aerie.contrib.streamline.modeling.discrete.Discrete;
+import gov.nasa.jpl.aerie.contrib.serialization.mappers.DoubleValueMapper;
+
+import static gov.nasa.jpl.aerie.contrib.streamline.core.MutableResource.resource;
+import static gov.nasa.jpl.aerie.contrib.streamline.modeling.discrete.Discrete.discrete;
+
+public class DataModel {
+
+    public MutableResource<Discrete<Double>> RecordingRate; // Megabits/s
+
+    public DataModel(Registrar registrar) {
+        RecordingRate = resource(discrete(0.0));
+        registrar.discrete("RecordingRate", RecordingRate, new DoubleValueMapper());
+    }
+}
+```
+
+- Create simple CollectData activity for a camera
+  - 2 parameters (duration, rate)
+  - Show simple approach to changing rate (increase/delay/decrease)
+    - Briefly talk about effects, non-consumable vs. consumable, why using "set" is not the best option
+    - Note the non-consumable approach that could hae been used to produce the same result (using clause)
+  - Make sure to note how the package-info has to be updated
+
+```java
+package missionmodel;
+
+import gov.nasa.jpl.aerie.merlin.framework.annotations.ActivityType;
+import gov.nasa.jpl.aerie.merlin.framework.annotations.Export;
+import gov.nasa.jpl.aerie.merlin.protocol.types.Duration;
+import gov.nasa.jpl.aerie.contrib.streamline.modeling.discrete.DiscreteEffects;
+
+import static gov.nasa.jpl.aerie.merlin.framework.ModelActions.delay;
+
+@ActivityType("CollectData")
+public class CollectData {
+
+    @Export.Parameter
+    public double rate = 10.0; // Mbps
+
+    @Export.Parameter
+    public Duration duration = Duration.duration(1, Duration.HOURS);
+
+    @ActivityType.EffectModel
+    public void run(Mission model) {
+
+        /*
+         Collect data at fixed rate over duration of activity
+        */
+        // Approach 1 - Modify rate at start/end of activity
+        DiscreteEffects.increase(model.dataModel.RecordingRate, this.rate);
+        delay(duration);
+        DiscreteEffects.decrease(model.dataModel.RecordingRate, this.rate);
+
+    }
+}
+```
+
+```java
+// Approach 2 - Non-consumable "using" approach
+DiscreteEffects.using(model.dataModel.RecordingRate, -this.rate, () -> delay(duration) );
+```
+
+- Compile and load model into Aerie for a first look
+  - Create a couple collect data activities (maybe overlapping) to see more interesting effect
+  - Simulate
+  - ![Tutorial Plan 1](assets/Tutorial_Plan_1.png)
+- Create a second resource to tracks different data collection modes for a magnetometer that continuously collects data
+
+  - Create enumeration class that maps mode to data rate
+
+```java
+package missionmodel;
+
+public enum MagDataCollectionMode {
+    OFF(0.0), // kbps
+    LOW_RATE(500.0), // kbps
+    HIGH_RATE(5000.0); // kbps
+
+    private final double magDataRate;
+
+    MagDataCollectionMode(double magDataRate) {
+        this.magDataRate = magDataRate;
+    }
+
+    public double getDataRate() {
+        return magDataRate;
+    }
+}
+```
+
+- Create discrete state resource
+
+```java
+public MutableResource<Discrete<MagDataCollectionMode>> MagDataMode;
+```
+
+```java
+MagDataMode = resource(discrete(MagDataCollectionMode.OFF));
+registrar.discrete("MagDataMode",MagDataMode, new EnumValueMapper<>(MagDataCollectionMode.class));
+```
+
+- Create simple activity, ChangeMagMode, to change instrumentB mode, which in turn will change its data rate
+  - This shows how you can get the current value of resource and use it for computation
+- Introduce a derived resource for showing just the mag data collection rate instead of the total recording rate
+- Compile and load the model into Aerie again for a second look
+  - Put both types of activities in plan and see how it changes the two rate resources and how mode is tracked
+  - ![Tutorial Plan 2](assets/Tutorial_Plan_2.png)
+- Create SSR volume resource
+
+  - Talk about the various methods for integrating
+  - Method 1 - Increase volume at end of activity
+
+  - Method 2 - Increase volume across fixed number of steps within the activity
+
+  - Note why these methods get more challenging with a mode based approach (integral is being tracking in the activity class and therefore activity needs to get track of the time since the mode changed, which isn't really something an activity should know/care about)
+
+  - Method 3 - Reaction based approach
+
+  - Method 4 - Daemon approach
+
+  - Method 5 - Polynomial resource
+
+- Create downlink activity that decreases recording rate at some point for more interesting looking plots
+
+- How to show decomposition?? Maybe a calibration that decomposes into CollectData?
+
+- Update Rate/SSR_Volume to Unit Aware Resources
+
+- Show setting up tests (unit/simulation)
+
+- Simple validation check (max collection rate?)

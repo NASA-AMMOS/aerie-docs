@@ -46,6 +46,14 @@ const sidebars = {
     },
     {
       type: 'category',
+      label: 'Tutorials',
+      link: {
+        type: 'generated-index',
+      },
+      items: ['tutorials/mission-modeling'],
+    },
+    {
+      type: 'category',
       label: 'Deployment',
       link: {
         id: 'deployment/introduction',
