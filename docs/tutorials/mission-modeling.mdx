@@ -35,7 +35,7 @@ TODO:
   - Change name from firesat to missionmodel
   - Remove activities/resources from the template (If they want content they could use the tutorial repo or other examples we provide)
 
-## Your First Resource and Activity
+## Your First Resource
 
 We will begin building our SSR model by creating a single resource, `RecordingRate`, to track the rate at which data is being written to the SSR over time. As a reminder, a **\*Resource** is any measurable quantity whose behavior we want to track over the course of a plan. Then, we will create a simple activity, `CollectData`, that updates the `RecordingRate` by a user-specified rate for a user-specified duration. This activity is intended to represent an on-board camera taking images and writing data to the spacecraft SSR.
 
@@ -56,28 +56,42 @@ As you are coding, take advantage of your IDE to auto import the modeling framew
 Let's tease apart this line of code and use it as an opportunity to provide a brief overview of the various types of resources available to you as a modeler. The mission modeling framework provides two primary classes from which to define resources:
 
 1. `MutableResource` - resource whose value can be explicitly updated by activities or other modeling code after it has been defined. Updates to the resource take the form of "Effects" such as `increase`, `decrease`, or `set`. The values of this category of resource are explicitly tracked in objects called "Cells" within Aerie, which you can read about in detail in the [Aerie Software Design Document](https://ammos.nasa.gov/aerie-docs/overview/software-design-document/#cells) if you are interested.
-2. `Resource` - resource whose value cannot be explicitly updated after it has been defined. In other words, these resources cannot be updated via "Effects". The most common use of these resources are to create "Derived" resources that are fully defined by the values of other resources (we will have some examples of these later). Since these resources get their value from other resources, they actually don't need to store their own value within a "Cell". Interestingly, the `MutableResource` class extends the `Resource` class and includes additional logic to ensure values are correctly stored in "Cells".
+2. `Resource` - resource whose value cannot be explicitly updated after it has been defined. In other words, these resources cannot be updated via "Effects". The most common use of these resources are to create "derived" resources that are fully defined by the values of other resources (we will have some examples of these later). Since these resources get their value from other resources, they actually don't need to store their own value within a "Cell". Interestingly, the `MutableResource` class extends the `Resource` class and includes additional logic to ensure values are correctly stored in these "Cells".
 
 From these classes, there are a few different types of resources provided, which are primarily distinguished by how the value of the resource progresses between computed points:
 
-- `Discrete` - resource that maintains a constant value between computed points (i.e. a step function or piecewise constant function). Discrete resources can be defined as many different types such as `Boolean`, `Integer`, `Double`, or an enumeration.
+- `Discrete` - resource that maintains a constant value between computed points (i.e. a step function or piecewise constant function). Discrete resources can be defined as many different types such as `Boolean`, `Integer`, `Double`, or an enumeration. These types of resources are what you traditionally find in discrete event simulators and are the easiest to define and "effect".
 - `Linear` - resource that has a linear profile between computed points. When computing the value of such resources you have to specify both the value of the resource at a given time along with a rate so that the resource knows how it should change until the next point is computed. The resource does not have to be strictly continuous. In other words, the linear segments that are computed for the resource do not have to match up. Unlike discrete resources, a linear resource is implicitly defined as a `Double`.
 - `Polynomial` - generalized version of the linear resource that allows you to define resources that evolve over time based on polynomial functions.
-- `Clock` - provides "stopwatch" like functionality that allows you to track the time since an event occured.
+- `Clock` - special resource type to provide "stopwatch" like functionality that allows you to track the time since an event occurred.
 
 TODO: Add more content on `Clock`
 
 :::note
 
-Polynomial resources currently cannot be rendered in the Aerie UI and must be transformed to a linear resource (wan example of this is shown later in the tutorial)
+Polynomial resources currently cannot be rendered in the Aerie UI and must be transformed to a linear resource (an example of this is shown later in the tutorial)
 
 :::
 
-- Create RecordingRate resource in a DataModel class
-  - This will be a discrete resource
-    - Briefly provide overview of a discrete resource
-    - Note we will be talking about polynomial resources later
-  - Register resource to UI
+Looking back at our resource declaration, you can see that `RecordingRate` is a `MutableResource` (we will emit effects on this resource in our first activity) of the type `Discrete<Double>`, so the value of the resource will stay constant until the next time we compute effects on it.
+
+Next, we must define and initialize our `RecordingRate` resource, which we can do in a class constructor that takes one parameter we'll called `registrar` of type `Registrar`. You can think of the `Registrar` class as your link to what will ultimately get exposed in the UI and in a second we will use this class to register `RecordingRate`. But first, let's add the following line to the constructor we just made to fully define our resource.
+
+```java
+RecordingRate = resource(discrete(0.0));
+```
+
+Both the `MutableResource` and `Discrete` classes have static helper functions for initializing resources of their type. If you included those functions via `import static` statements, you get the simple line above. The `discrete()` function expects an initial value for the resource, which we have specified as `0.0`.
+
+The last thing to do is to register `RecordingRate` to the UI so we can view the resource as a timeline along with our activity plan. This is accomplished with the following line of code:
+
+```java
+registrar.discrete("RecordingRate", RecordingRate, new DoubleValueMapper());
+```
+
+The first argument to this `discrete` function is the string name of the resource you want to appear in the UI, the second argument is the resource itself, and then the third argument is a [Value Mapper](https://nasa-ammos.github.io/aerie-docs/mission-modeling/activity-mappers/#value-mappers) object that matches the resource primitive type, which in this case is a `Double`. For now, you don't need to know much about Value Mappers other than they are needed for performing data serialization to the UI and there are mappers already currently available as part of the framework for all basic types. You can create custom ones if you have complex resource types, but for almost all cases, you should be able to get away with one of the pre-built mappers.
+
+You have now declared, defined, and registered your first resource and your `DataModel` class should look something like this:
 
 ```java
 package missionmodel;
@@ -101,31 +115,131 @@ public class DataModel {
 }
 ```
 
-- Create simple CollectData activity for a camera
-  - 2 parameters (duration, rate)
-  - Show simple approach to changing rate (increase/delay/decrease)
-    - Briefly talk about effects, non-consumable vs. consumable, why using "set" is not the best option
-    - Note the non-consumable approach that could hae been used to produce the same result (using clause)
-  - Make sure to note how the package-info has to be updated
+With our `DataModel` class built, we can now instantiate it within the top-level `Model` class as a member variable of that class. The `Registrar` that we are passing to `DataModel` is unique in that it can log simulation errors as a resource, so we also need to instantiate one of these special error registrars as well. After these additions, the `Mission` class should look like this:
 
 ```java
 package missionmodel;
 
-import gov.nasa.jpl.aerie.merlin.framework.annotations.ActivityType;
-import gov.nasa.jpl.aerie.merlin.framework.annotations.Export;
-import gov.nasa.jpl.aerie.merlin.protocol.types.Duration;
+import gov.nasa.jpl.aerie.contrib.streamline.modeling.Registrar;
+
+public final class Mission {
+
+  public final Registrar errorRegistrar;
+  public final DataModel dataModel;
+
+  public Mission(final gov.nasa.jpl.aerie.merlin.framework.Registrar registrar, final Configuration config) {
+    this.errorRegistrar = new Registrar(registrar, Registrar.ErrorBehavior.Log);
+    // Tutorial code
+    this.dataModel = new DataModel(this.errorRegistrar);
+
+  }
+}
+```
+
+## Your First Activity
+
+Now that we have a resource, let's build an activity called `CollectData` that emits effects on that resource. We can imagine this activity representing a camera on-board a spacecraft that collects data over a short period of time. Activities in Aerie follow the general definition given in the [CCSDS Mission Planning and Scheduling Green Book](https://public.ccsds.org/Pubs/529x0g1.pdf)
+
+> "An activity is a meaningful unit of what can be planned… The granularity of a Planning Activity depends on the use case; It can be hierarchical"
+
+Essentially, activities are the building blocks for generating your plan. Activities in Aerie follow a class/object relationship where [activity types](https://nasa-ammos.github.io/aerie-docs/mission-modeling/activity-types/introduction/) - defined as a class in Java - describe the structure, properties, and behavior of an object and activity instances are the actual objects that exist within a plan.
+
+Since activity types are classes in Java, create a new class called `CreateData` and add the following Java annotation above that class, which allows Aerie to recognize this class as an activity type.
+
+```java
+@ActivityType("CollectData")
+```
+
+Within this activity type, let's define two [parameters](https://nasa-ammos.github.io/aerie-docs/mission-modeling/activity-types/parameters/), `rate` and `duration`, and give them default arguments. When an activity instance is placed into a plan, operators can modify these default arguments prior to simulation if desired. Activity parameters are simply member variables of the activity type class with an annotation above the member variable:
+
+```java
+@Export.Parameter
+```
+
+:::note
+
+In reality, there are a variety of [parameter annotations](https://nasa-ammos.github.io/aerie-docs/mission-modeling/parameters/) you can use to tell Aerie about activity parameters and their defaults. In fact, if all member variables are intended to be parameters, you don't even need to include an annotation. For this tutorial, however, we want to be explicit with our parameter definition and will be using annotations even if they aren't technically required.
+
+:::
+
+For our activity, we will make `rate` a `double` with a default value of `10.0` megabits per second and `duration` a `Duration` type built into Aerie with a default value of `1` hour. That translates to the following code:
+
+```java
+@Parameter
+public double rate = 10.0; // Mbps
+
+@Parameter
+public Duration duration = Duration.duration(1, Duration.HOURS);
+```
+
+Right now, if an activity of this type was added to a plan, an operator could alter the parameter defaults to any value allowed by the parameter's type. Let's say that due to buffer limitations of our camera, it can only collect data at a rate of `100.0` megabits per second, and we want to notify the operator that any rate above this range is invalid. We can do this with [parameter validations](https://nasa-ammos.github.io/aerie-docs/mission-modeling/activity-types/parameters/#validations) by adding a method to our class with a couple of annotations:
+
+```java
+@Validation("Collection rate is beyond buffer limit of 100.0 Mbps")
+@Validation.Subject("rate")
+public boolean validateCollectionRate() {
+  return rate <= 100.0;
+}
+```
+
+The `@Validation` annotation specifies the message to present to the operator when the validation fails. The `@Validation.Subject` annotation specifies the parameter(s) with which the validation is associated. Now, as you will see soon, when an operator specifies a data rate above `100.0`, Aerie will show a validation error and message in the UI.
+
+Next, we need to tell our activity how and when to effect change on the `RecordingRate` resource, which is done in an [Activity Effect Model](https://nasa-ammos.github.io/aerie-docs/mission-modeling/activity-types/effect-model/). Just like with validations, an effect model is built by adding a method to our class, but with a different annotation, `@ActivityType.EffectModel`. Unlike validations, there can only be one of these methods per activity and the method should accept the top-level mission model class as a parameter (which in our case is just `Mission`). Conventionally, the method name given to the effect model is `run()`.
+
+For our activity, we simply want to model data collection at a fixed rate specified by the `rate` parameter over the full duration of the activity. Within the `run()` method, we can add the follow code to get that behavior:
+
+```java
+DiscreteEffects.increase(model.dataModel.RecordingRate, this.rate);
+delay(duration);
+DiscreteEffects.decrease(model.dataModel.RecordingRate, this.rate);
+```
+
+Effects on resources are accomplished by using one of the many static methods available in the class associated with your resource type. In this case, `RecordingRate` is a discrete resource, and therefore we are using methods from the `DiscreteEffects` class. If you peruse the static methods in `DiscreteEffects`, you'll see methods like `set()`, `increase()`, `decrease()`, `consume()`, `restore()`,`using()`, etc. Since discrete resources can be of many primitive types (e.g. `Double`,`Boolean`), there are specific methods for each type. Most of these effects change the value of the resource at one time point instantaneously, but some, like `using()`, allow you to specify an [action](https://nasa-ammos.github.io/aerie-docs/mission-modeling/activity-types/effect-model/#actions) to run like `delay()`. Prior to executing the action, the resource changes just like other effects, but once the action is complete, the effect on the resource is reversed. These resource effects are sometimes called "renewable" in contrast to the other style of effects, which are often called "consumable".
+
+In our effect model for this activity, we are using the "consumable" effects `increase()` and `decrease()`, which as you would predict, increase and decrease the value of the `RecordingRate` by the `rate` parameter. The `run()` method is executed at the start of the activity, so the increase occurs right at the activity start time. We then perform the `delay()` action for the user-specified activity `duration`, which moves time forward within this activity before finally reversing the rate increase. Since there are no other actions after the rate decrease, we know we have reached the end of the activity.
+
+If we wanted to save a line of code, we could have the "renewable" effect `using()` to achieve the same result:
+
+```java
+DiscreteEffects.using(model.dataModel.RecordingRate, -this.rate, () -> delay(duration) );
+delay(duration);
+```
+
+:::note
+
+For the case where we use `using()`, you'll notice we have to use the `delay()` action twice. This is because the first action within `using()` is spawned, which allows the execution of the effect model to continue as the `using()` effect waits for the end of its `delay()` action. This allows you to have many `using()` effects, perhaps on different resources, running concurrently within an activity. The second `delay()` actually moves time forward for the activity.
+
+:::
+
+With our effect model in place, we are done coding up the `CollectData` activity and the final result should look something like this:
+
+```java
+package missionmodel;
+
 import gov.nasa.jpl.aerie.contrib.streamline.modeling.discrete.DiscreteEffects;
+import gov.nasa.jpl.aerie.merlin.framework.annotations.ActivityType;
+import gov.nasa.jpl.aerie.merlin.framework.annotations.Export.Parameter;
+import gov.nasa.jpl.aerie.merlin.framework.annotations.Export.Validation;
+
+import gov.nasa.jpl.aerie.merlin.protocol.types.Duration;
 
 import static gov.nasa.jpl.aerie.merlin.framework.ModelActions.delay;
+import static gov.nasa.jpl.aerie.merlin.protocol.types.Duration.SECONDS;
 
 @ActivityType("CollectData")
 public class CollectData {
 
-    @Export.Parameter
+    @Parameter
     public double rate = 10.0; // Mbps
 
-    @Export.Parameter
+    @Parameter
     public Duration duration = Duration.duration(1, Duration.HOURS);
+
+    @Validation("Collection rate is beyond buffer limit of 100.0 Mbps")
+    @Validation.Subject("rate")
+    public boolean validateCollectionRate() {
+      return rate <= 100.0;
+    }
 
     @ActivityType.EffectModel
     public void run(Mission model) {
@@ -142,15 +256,23 @@ public class CollectData {
 }
 ```
 
+The last thing we need to do before giving our model a test drive is add a line to the `package-info.java` file to help Aerie find our newly built activity type
+
 ```java
-// Approach 2 - Non-consumable "using" approach
-DiscreteEffects.using(model.dataModel.RecordingRate, -this.rate, () -> delay(duration) );
+@WithActivityType(CollectData.class)
 ```
+
+Ok! Now we are all set to give this a spin.
+
+### Model Test Drive
 
 - Compile and load model into Aerie for a first look
   - Create a couple collect data activities (maybe overlapping) to see more interesting effect
   - Simulate
   - ![Tutorial Plan 1](assets/Tutorial_Plan_1.png)
+
+### Enumerated and Derived Resources
+
 - Create a second resource to tracks different data collection modes for a magnetometer that continuously collects data
 
   - Create enumeration class that maps mode to data rate
@@ -186,9 +308,14 @@ MagDataMode = resource(discrete(MagDataCollectionMode.OFF));
 registrar.discrete("MagDataMode",MagDataMode, new EnumValueMapper<>(MagDataCollectionMode.class));
 ```
 
+### Using Current Value in an Effect Model
+
 - Create simple activity, ChangeMagMode, to change instrumentB mode, which in turn will change its data rate
   - This shows how you can get the current value of resource and use it for computation
 - Introduce a derived resource for showing just the mag data collection rate instead of the total recording rate
+
+### Second Look
+
 - Compile and load the model into Aerie again for a second look
   - Put both types of activities in plan and see how it changes the two rate resources and how mode is tracked
   - ![Tutorial Plan 2](assets/Tutorial_Plan_2.png)
