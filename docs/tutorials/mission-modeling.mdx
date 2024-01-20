@@ -266,16 +266,29 @@ Ok! Now we are all set to give this a spin.
 
 ### Model Test Drive
 
-- Compile and load model into Aerie for a first look
-  - Create a couple collect data activities (maybe overlapping) to see more interesting effect
-  - Simulate
-  - ![Tutorial Plan 1](assets/Tutorial_Plan_1.png)
+Within your IDE, compile the model (`./gradlew assemble` should do the trick) and make sure it built successfully by checking `build/lib` for a new `missionmodel.jar` file.
+
+Follow [these instructions](https://ammos.nasa.gov/aerie-docs/planning/upload-mission-model/) to upload your `.jar` file, and give your model a name and version number (e.g. SSR Model version 1.0). Next, you can follow [these instructions](https://ammos.nasa.gov/aerie-docs/planning/create-plan-and-simulate/#instructions) to create a new plan. Pick the model you just compiled to build your plan off of and name your plan `Mission Plan 1` and give it a duration of `1 day`. Click "Create" and click on the newly created plan to open it, which should take you to a view with the plan timeline in the center view panel.
+
+On the left panel, you should see your `CollectData` activity type, which you can drag and drop onto the "Activities" row in the timeline. Your `RecordingRate` resource should also appear as a row in the timeline, but with no values applied yet since we haven't simulated. Put two activities in your plan and click on the second one (the first one we will leave alone and let it use default values). On the right panel, you should now see detailed information about your activity. Look for the "Parameters" section and you will see your rate and duration parameters, which you can modify. Try modifying the rate above `100.0` and you will see a warning icon appear, which you can hover over and see the message we wrote into a Validation earlier. Modify the rate back to `20` and change the default duration to `2 hours`.
+
+:::note
+
+When activity types are initially added to the plan, they are shown with a play button icon and don't have a duration. We call these "activity directives", and it is these activities that you are allowed to modify by changing parameters, timing, etc. Once a simulation has been performed, one or more activities will appear below the directive, which are the activity instances. These actually have a duration (based on their effect model) and are the result of the simulation run.
+
+:::
+
+On the top menu bar, click "Simulation" and then "Simulate". After you see a green checkmark, `RecordingRate` should be populated with a value profile. The value should begin at 0.0 (since we initialized it that way in the model) and pop up to `10` for the first activity and `20` for the second. You'll also see that the activity instances below the activity directives (see note above) have durations that match the arguments we provided. At this point, your view will look similar to the screenshot below.
+
+![Tutorial Plan 1](assets/Tutorial_Plan_1.png)
+
+At this point, we could go into more detail about how you can [edit the timeline](https://nasa-ammos.github.io/aerie-docs/planning/timeline-editing/), edit your UI view, or view simulation history, but instead we will move back to our IDE and add some more complexity to our model.
 
 ### Enumerated and Derived Resources
 
-- Create a second resource to tracks different data collection modes for a magnetometer that continuously collects data
+In addition to our on-board camera, let's imagine that we also have an instrument on-board that is continuously collecting data, say a magnetometer, based on a data collection mode. Perhaps at especially interesting times in the mission, the magnetometer is placed in a high rate collection mode and at other times remains in a low rate collection mode. For our model, we want to be able to track the collection mode over time along with the associated data collection rate of that mode.
 
-  - Create enumeration class that maps mode to data rate
+The first thing we'll do to accomplish this is create a Java enumeration called `MagDataCollectionMode` that gives us the list of available collection modes along with a mapping of those modes to data collection rates using [enum fields](https://issac88.medium.com/java-enum-fields-methods-constructors-3a19256f58b). We will also add a getter method to get the data rate based on the mode. Let's say that we have three modes, `OFF`, `LOW_RATE`, and `HIGH_RATE` with values `0.0`, `500.0`, and `5000.0`, respectively. After coding this up, our enum should look like this:
 
 ```java
 package missionmodel;
@@ -297,28 +310,53 @@ public enum MagDataCollectionMode {
 }
 ```
 
-- Create discrete state resource
+With our enumeration built, we can now add a couple of new resources to our `DataModel` class. The first resource, which we'll call `MagDataMode`, will track the current data collection mode for the magnetometer. Declare this resource as a discrete `MutableResource` of type `MagDataCollectionMode`
 
 ```java
 public MutableResource<Discrete<MagDataCollectionMode>> MagDataMode;
 ```
+
+and then add the following lines of code to the constructor to initialize the resource to `OFF` and register it with the UI.
 
 ```java
 MagDataMode = resource(discrete(MagDataCollectionMode.OFF));
 registrar.discrete("MagDataMode",MagDataMode, new EnumValueMapper<>(MagDataCollectionMode.class));
 ```
 
+As you can see, declaring and defining this resource was not much different than when we built `RecordingRate` except instead of referencing the `Double` type, we are referencing our enumerated type `MagDataCollectionMode`.
+
+Another resource we can add is one to track the numerical value of the data collection rate of the magnetometer, which is based on the collection mode. In other words, we can derive the value of the rate from the mode. Since we are deriving this value and don't intend to emit effects directly onto this resource, we can declare it as a discrete `Resource` of type `Double` instead of a `MutableResource`.
+
+```java
+public Resource<Discrete<Double>> MagDataRate; // bps
+```
+
+When we go to define this resource in the constructor, we need to tell the resource to get its value by mapping the `MagDataMode` to its corresponding rate. A special static method in the `DiscreteResourceMonad` class called `map()` allows us to define a function that operates on the value of a resource to get a derived resource value. In this case, that function is simply the getter function we added to the `MagDataCollectionMode`. The resulting definition and registration code for `MagDataRate` then becomes
+
+```java
+MagDataRate = map(MagDataMode, MagDataCollectionMode::getDataRate);
+registrar.discrete("MagDataRate", MagDataRate, new DoubleValueMapper());
+```
+
+:::note
+
+Instead of deriving a resource value from a function using `map()`, there are a number of static methods in the `DiscreteResources` class, which you can use to `add()`, `multiply()`, `divide()`, etc. resources. For example, you could have a `Total` resource that simple used `add()` to sum some resources together.
+
+:::
+
 ### Using Current Value in an Effect Model
 
 - Create simple activity, ChangeMagMode, to change instrumentB mode, which in turn will change its data rate
   - This shows how you can get the current value of resource and use it for computation
-- Introduce a derived resource for showing just the mag data collection rate instead of the total recording rate
 
 ### Second Look
 
 - Compile and load the model into Aerie again for a second look
   - Put both types of activities in plan and see how it changes the two rate resources and how mode is tracked
   - ![Tutorial Plan 2](assets/Tutorial_Plan_2.png)
+
+### Integrating Data Rate
+
 - Create SSR volume resource
 
   - Talk about the various methods for integrating
@@ -341,5 +379,3 @@ registrar.discrete("MagDataMode",MagDataMode, new EnumValueMapper<>(MagDataColle
 - Update Rate/SSR_Volume to Unit Aware Resources
 
 - Show setting up tests (unit/simulation)
-
-- Simple validation check (max collection rate?)
