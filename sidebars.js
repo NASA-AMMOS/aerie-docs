@@ -22,7 +22,7 @@ const sidebars = {
           items: [
             'api/examples/planning/collaboration',
             'api/examples/planning/anchors',
-            'api/examples/planning/snapshots'
+            'api/examples/planning/snapshots',
           ],
         },
         'api/examples/simulation',
@@ -50,7 +50,23 @@ const sidebars = {
       link: {
         type: 'generated-index',
       },
-      items: ['tutorials/mission-modeling'],
+      items: [
+        {
+          type: 'category',
+          label: 'Mission Modeling',
+          link: {
+            id: 'tutorials/modeling-intro-prereqs',
+            type: 'doc',
+          },
+          items: [
+            'tutorials/first-build',
+            'tutorials/first-resource',
+            'tutorials/first-activity',
+            'tutorials/first-model-test',
+            'tutorials/enum-derived-resource',
+          ],
+        },
+      ],
     },
     {
       type: 'category',
@@ -105,7 +121,7 @@ const sidebars = {
         'mission-modeling/value-schemas',
         'mission-modeling/advanced-incons',
         'mission-modeling/advanced-the-merlin-interface',
-        'mission-modeling/activity-types/durations'
+        'mission-modeling/activity-types/durations',
       ],
     },
     {

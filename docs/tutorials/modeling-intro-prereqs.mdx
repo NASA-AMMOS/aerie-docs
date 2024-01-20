@@ -1,0 +1,15 @@
+# Mission Modeling Tutorial
+
+Welcome Aerie modeling padawans! For your training today, you will be learning the basics of mission modeling in Aerie by building your own simple model of an on-board spacecraft solid state recorder (SSR). This model will track the recording rate into the recorder from a couple instruments along with the integrated data volume over time. Through the process of building this model, you'll learn about the fundamental objects of a model, activities and resources, and their structure. You'll be introduced to the different categories of resources and learn how you define and implement each along with restrictions on when you can/can't modify them. As a bonus, we will also cover how you can make your resources "unit aware" to prevent those pesky issues that come along with performing unit conversions and how you can test your model without having to pull your model into an Aerie deployment.
+
+Let the training begin!
+
+## Prerequisites
+
+### Deploy Aerie
+
+Before we begin writing modeling code, make sure that you have access to an Aerie deployment as we'll be loading our model into Aerie to build plans and view simulation results. You can deploy Aerie locally on your machine by following the simple steps outlined in our [Fast Track](https://nasa-ammos.github.io/aerie-docs/introduction/#fast-track) instructions. Once you have checked that the Aerie UI is available on [http://localhost/]([http://localhost/), you should be ready proceed with this tutorial.
+
+### Install an IDE
+
+Aerie mission models are built using a Java modeling framework (which we will discuss in detail later) and take the form of a `.jar` file, which you can then load into Aerie via the UI (or GraphQL API). In order to have an enjoyable experience building your mission model, you'll want to download and install a Java integrated development environment (IDE) with support for the [Gradle Build Tool](https://docs.gradle.org/current/userguide/userguide.html) (our models use Gradle to build our `.jar` files). Our team's preferred IDE is currently [IntelliJ](https://www.jetbrains.com/idea/), but any Java IDE should work just fine.
