@@ -1,13 +1,13 @@
-## Your First Resource
+# Your First Resource
 
-We will begin building our SSR model by creating a single resource, `RecordingRate`, to track the rate at which data is being written to the SSR over time. As a reminder, a **\*Resource** is any measurable quantity whose behavior we want to track over the course of a plan. Then, we will create a simple activity, `CollectData`, that updates the `RecordingRate` by a user-specified rate for a user-specified duration. This activity is intended to represent an on-board camera taking images and writing data to the spacecraft SSR.
+We will begin building our SSR model by creating a single resource, `RecordingRate`, to track the rate at which data is being written to the SSR over time. As a reminder, a **Resource** is any measurable quantity whose behavior we want to track over the course of a plan. Then, we will create a simple activity, `CollectData`, that updates the `RecordingRate` by a user-specified rate for a user-specified duration. This activity is intended to represent an on-board camera taking images and writing data to the spacecraft SSR.
 
 Although we could define the `RecordingRate` resource directly in the pre-provided top-level `Mission` class, we'd like to keep that class as simple as possible and delegate most of model's behavior definition to other, more focused classes. With this in mind, let's create a new class within the `missionmodel` package called `DataModel`, which we will eventually instantiate within the `Mission` class.
 
 In the `DataModel` class, declare the `RecordingRate` resource with the following line of code:
 
 ```java
-    public MutableResource<Discrete<Double>> RecordingRate; // Megabits/s
+public MutableResource<Discrete<Double>> RecordingRate; // Megabits/s
 ```
 
 :::tip
@@ -30,7 +30,7 @@ From these classes, there are a few different types of resources provided, which
 
 TODO: Add more content on `Clock`
 
-:::note
+:::info
 
 Polynomial resources currently cannot be rendered in the Aerie UI and must be transformed to a linear resource (an example of this is shown later in the tutorial)
 

@@ -1,4 +1,4 @@
-## Your First Activity
+# Your First Activity
 
 Now that we have a resource, let's build an activity called `CollectData` that emits effects on that resource. We can imagine this activity representing a camera on-board a spacecraft that collects data over a short period of time. Activities in Aerie follow the general definition given in the [CCSDS Mission Planning and Scheduling Green Book](https://public.ccsds.org/Pubs/529x0g1.pdf)
 
@@ -18,7 +18,7 @@ Within this activity type, let's define two [parameters](https://nasa-ammos.gith
 @Export.Parameter
 ```
 
-:::note
+:::info
 
 In reality, there are a variety of [parameter annotations](https://nasa-ammos.github.io/aerie-docs/mission-modeling/parameters/) you can use to tell Aerie about activity parameters and their defaults. In fact, if all member variables are intended to be parameters, you don't even need to include an annotation. For this tutorial, however, we want to be explicit with our parameter definition and will be using annotations even if they aren't technically required.
 
@@ -67,7 +67,7 @@ DiscreteEffects.using(model.dataModel.RecordingRate, -this.rate, () -> delay(dur
 delay(duration);
 ```
 
-:::note
+:::info
 
 For the case where we use `using()`, you'll notice we have to use the `delay()` action twice. This is because the first action within `using()` is spawned, which allows the execution of the effect model to continue as the `using()` effect waits for the end of its `delay()` action. This allows you to have many `using()` effects, perhaps on different resources, running concurrently within an activity. The second `delay()` actually moves time forward for the activity.
 

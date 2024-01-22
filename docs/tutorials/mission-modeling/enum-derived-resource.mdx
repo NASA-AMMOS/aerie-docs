@@ -1,4 +1,4 @@
-### Enumerated and Derived Resources
+# Enumerated and Derived Resources
 
 In addition to our on-board camera, let's imagine that we also have an instrument on-board that is continuously collecting data, say a magnetometer, based on a data collection mode. Perhaps at especially interesting times in the mission, the magnetometer is placed in a high rate collection mode and at other times remains in a low rate collection mode. For our model, we want to be able to track the collection mode over time along with the associated data collection rate of that mode.
 
@@ -52,7 +52,7 @@ MagDataRate = map(MagDataMode, MagDataCollectionMode::getDataRate);
 registrar.discrete("MagDataRate", MagDataRate, new DoubleValueMapper());
 ```
 
-:::note
+:::info
 
 Instead of deriving a resource value from a function using `map()`, there are a number of static methods in the `DiscreteResources` class, which you can use to `add()`, `multiply()`, `divide()`, etc. resources. For example, you could have a `Total` resource that simple used `add()` to sum some resources together.
 
