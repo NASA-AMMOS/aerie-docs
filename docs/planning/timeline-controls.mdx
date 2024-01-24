@@ -1,0 +1,34 @@
+import timelineIconTray from './assets/timeline-icon-tray.png';
+
+# Timeline Controls
+
+Here we describe the timeline rendering and interaction options that are not part of the Aerie UI View Above the timeline is a tray of icon buttons that can be used to control how data is rendered and interacted with on the timeline.
+
+<figure>
+  <img alt="Aerie UI - Timeline Icon Tray" src={timelineIconTray} />
+</figure>
+
+The following controls are available:
+
+- `Auto Scroll to Offscreen Selections` - Automatically scrolls the timline to the selected activity directive or span. This can be helpful when selecting directives or spans from their associated tables.
+- `Decimation` - Perform on the fly min-max decimation of line layer points for improved timeline rendering performance. Learn more about decimation below.
+- `Cursor Value Interpolation` - Show interpolated value when hovering over resources. Learn more about interpolation below.
+- `Limit Tooltip to Line` - When enabled, the timeline tooltip will only appear when hovering near a resource line segment. When disabled, the tooltip will appear when hovering over any part of a resource layer.
+- `Timeline Tooltip Visibility` - Toggle timeline tooltip visibility.
+- `Timeline Modes` - Toggle between `Pan & Zoom` and `Interaction` modes. Learn more about timeline modes below.
+- `Time Step` - Slide the time view window to forwards and backwards.
+- `Zoom` - Zoom in and out of the plan time window.
+- `Copy URL` - Copy URL including plan, visible time window, selection, and simulation dataset to clipboard.
+- `Drag Activities` - Enables dragging of activity directives in the timeline.
+
+## Line Layer Decimation
+
+Decimation can be enabled on the Aerie timeline in order to more peformantly render line plots. This option can be useful when loading large quantities of profile segments (tens of thousands) and when visualizing a large number of moderately dense resource plots. Decimation of resources is performed on the fly using the min-max decimation algorithm. Min-max decimation reduces the number of points drawn on screen while accurately maintaining the shape of the data. This is achieved by binning the points by the number of available pixels and for each bin plotting the first point, the min, the max, and the last point. If decimation is enabled, line segments will always be rendered and individual points will only be rendered if the data no longer requires decimation (i.e. the number of pixels available is greater than the number of original points).
+
+## Cursor Value Interpolation
+
+Aerie will display a tooltip with resource values when you hover over a line plot. By default, Aerie will select the nearest point to your cursor position. If Cursor Value Interpolation is enabled, Aerie will display a linearly interpolated value in the tooltip based on the two points neigboring your cursor's time position.
+
+## Timeline Modes
+
+The default mode of the Aerie timeline is `Interaction` mode which enables you to click on activities and spans. Switching to `Pan and Zoom` mode will disable clicking on activities and spans and instead let you click and drag anywhere on the timeline to pan and scroll using the trackpad or mousewheel to zoom. `Pan and Zoom` mode can also be temporarily entered by holding down the `Command` key on Mac and `Control` key on Windows and then clicking, dragging, and zooming. Finally, while in `Interaction` mode, you can hold down the middle mouse button and drag (if you have one available) to pan.
