@@ -49,10 +49,10 @@ function HomepageHeader() {
 export default function Home() {
   const { siteConfig } = useDocusaurusContext();
   return (
-    <Layout title={`Hello from ${siteConfig.title}`} description="Description will go into a meta tag in <head />">
+    <Layout title={`Home`} description="Planning, sequencing, and scheduling tools for modern space missions.">
       <HomepageHeader />
       <main className={styles.siteBackground}>
-        {/* <HomepageVideo /> */}
+        <HomepageVideo />
         <h2 className={styles.sectionHeader}>Features</h2>
         <HomepageFeatures />
         {/* <HomepageTestimonials /> */}
