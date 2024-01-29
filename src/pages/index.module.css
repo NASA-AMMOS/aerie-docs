@@ -15,7 +15,7 @@
   letter-spacing: -1.5px;
   line-height: 110%;
   font-weight: 700;
-  font-size: 4rem;
+  font-size: 3.5rem;
   orphans: 2;
   padding-bottom: 2rem;
   color: var(--ifm-color-secondary-darker);
@@ -35,8 +35,14 @@
   }
   .heroTitle {
     /* color: red; */
-    letter-spacing: -1px;
     font-size: 2.75rem;
+  }
+}
+
+@media screen and (max-width: 640px) {
+  .heroTitle {
+    letter-spacing: 0px;
+    font-size: 1.75rem;
   }
 }
 
@@ -48,9 +54,18 @@
   gap: 1rem;
 }
 
+@media screen and (max-width: 640px) {
+  .buttons {
+    flex-direction: column;
+    align-items: normal;
+  }
+}
+
 .imgFullscreen {
-  padding-top: 6rem;
+  margin-top: 6rem;
   width: 100%;
+  border-radius: 4px;
+  box-shadow: var(--card-shadow);;
 }
 
 .heroButton {
@@ -70,6 +85,12 @@
   padding: 0.25rem 1rem;
   border-radius: 2rem;
   margin-bottom: 1rem;
+}
+
+@media screen and (max-width: 640px) {
+  .tagline {
+    display: none;
+  }
 }
 
 .sectionHeader {

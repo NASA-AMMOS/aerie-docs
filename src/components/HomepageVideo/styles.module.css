@@ -15,10 +15,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  height: auto;
-  border-top: 1px solid var(--ifm-color-secondary-light);
-  border-bottom: 1px solid var(--ifm-color-secondary-light);
+  width: auto;
+  margin-left: 1rem;
+  margin-right: 1rem;
+  /* border-top: 1px solid var(--ifm-color-secondary-light);
+  border-bottom: 1px solid var(--ifm-color-secondary-light); */
   /* background-color: red; */
   border-radius: 0.5rem;
   overflow: hidden;
