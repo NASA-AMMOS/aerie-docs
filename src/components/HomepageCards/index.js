@@ -24,7 +24,7 @@ const FeatureList = [
     description: (
       <>
         Model your system with access to the entire Java ecosystem. Validate plans against your models using Aerie's
-        discrete event simulator using the user interface or Aerie API.
+        discrete event simulator through the user interface or Aerie API.
       </>
     ),
   },
