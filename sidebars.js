@@ -22,7 +22,7 @@ const sidebars = {
           items: [
             'api/examples/planning/collaboration',
             'api/examples/planning/anchors',
-            'api/examples/planning/snapshots'
+            'api/examples/planning/snapshots',
           ],
         },
         'api/examples/simulation',
@@ -97,7 +97,7 @@ const sidebars = {
         'mission-modeling/value-schemas',
         'mission-modeling/advanced-incons',
         'mission-modeling/advanced-the-merlin-interface',
-        'mission-modeling/activity-types/durations'
+        'mission-modeling/activity-types/durations',
       ],
     },
     {
@@ -124,6 +124,7 @@ const sidebars = {
         'planning/anchors',
         'planning/ui-views',
         'planning/timeline-editing',
+        'planning/timeline-controls',
         'planning/advanced-incons',
         'planning/advanced-extensions',
       ],
