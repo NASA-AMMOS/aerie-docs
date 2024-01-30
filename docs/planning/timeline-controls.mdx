@@ -1,25 +1,31 @@
+import Link from '@docusaurus/Link';
 import timelineIconTray from './assets/timeline-icon-tray.png';
+import timelineInterpolationOff from './assets/timeline-cursor-interpolation-off.png';
+import timelineInterpolationOn from './assets/timeline-cursor-interpolation-on.png';
 
 # Timeline Controls
 
-Here we describe the timeline rendering and interaction options that are not part of the Aerie UI View Above the timeline is a tray of icon buttons that can be used to control how data is rendered and interacted with on the timeline.
+Here we describe the timeline rendering and interaction options that are not part of the Aerie UI View. Above the timeline is a tray of icon buttons that can be used to control how data is rendered and interacted with on the timeline.
 
 <figure>
   <img alt="Aerie UI - Timeline Icon Tray" src={timelineIconTray} />
+  <figcaption>Figure 1: Aerie UI - Timeline Icon Tray</figcaption>
 </figure>
 
 The following controls are available:
 
-- `Auto Scroll to Offscreen Selections` - Automatically scrolls the timline to the selected activity directive or span. This can be helpful when selecting directives or spans from their associated tables.
-- `Decimation` - Perform on the fly min-max decimation of line layer points for improved timeline rendering performance. Learn more about decimation below.
-- `Cursor Value Interpolation` - Show interpolated value when hovering over resources. Learn more about interpolation below.
-- `Limit Tooltip to Line` - When enabled, the timeline tooltip will only appear when hovering near a resource line segment. When disabled, the tooltip will appear when hovering over any part of a resource layer.
-- `Timeline Tooltip Visibility` - Toggle timeline tooltip visibility.
-- `Timeline Modes` - Toggle between `Pan & Zoom` and `Interaction` modes. Learn more about timeline modes below.
-- `Time Step` - Slide the time view window to forwards and backwards.
-- `Zoom` - Zoom in and out of the plan time window.
-- `Copy URL` - Copy URL including plan, visible time window, selection, and simulation dataset to clipboard.
-- `Drag Activities` - Enables dragging of activity directives in the timeline.
+1. `Auto Scroll to Offscreen Selections` - Automatically scrolls the timline to the selected activity directive or span. This can be helpful when selecting directives or spans from their associated tables.
+2. `Decimation` - Perform on the fly min-max decimation of line layer points for improved timeline rendering performance. Learn more about decimation below.
+3. `Cursor Value Interpolation` - Show interpolated value when hovering over resources. Learn more about interpolation below.
+4. `Toggle Activity Directive Visibility` - Toggles activity directive visibility on all timeline rows.
+5. `Limit Tooltip to Line` - When enabled, the timeline tooltip will only appear when hovering near a resource line segment. When disabled, the tooltip will appear when hovering over any part of a resource layer.
+6. `Timeline Tooltip Visibility` - Toggle timeline tooltip visibility.
+7. `Timeline Modes` - Toggle between `Pan & Zoom` and `Interaction` modes. Learn more about timeline modes below.
+8. `Time Step` - Slide the time view window to forwards and backwards.
+9. `Zoom` - Zoom in and out of the plan time window.
+10. `Copy URL` - Copy URL including plan, visible time window, selection, and simulation dataset to clipboard.
+11. `Drag Activities` - Enables dragging of activity directives in the timeline.
+12. `Timeline Options Menu` - Displays timeline controls with additional information.
 
 ## Line Layer Decimation
 
@@ -27,7 +33,17 @@ Decimation can be enabled on the Aerie timeline in order to more peformantly ren
 
 ## Cursor Value Interpolation
 
-Aerie will display a tooltip with resource values when you hover over a line plot. By default, Aerie will select the nearest point to your cursor position. If Cursor Value Interpolation is enabled, Aerie will display a linearly interpolated value in the tooltip based on the two points neigboring your cursor's time position.
+Aerie will display a tooltip with resource values when you hover over a line plot. By default, Aerie will select the nearest point to your cursor position as shown in Figure 2. If Cursor Value Interpolation is enabled, Aerie will display a linearly interpolated value in the tooltip based on the two points neigboring your cursor's time position, as shown in Figure 3. The neighboring points used for the interpolation will be indicated by ghosted red triangles.
+
+<figure>
+  <img alt="Aerie UI - Timeline Cursor Value Interpolation Off" src={timelineInterpolationOff} />
+  <figcaption>Figure 2: Aerie UI - Timeline Cursor Value Interpolation Off</figcaption>
+</figure>
+
+<figure>
+  <img alt="Aerie UI - Timeline Cursor Value Interpolation On" src={timelineInterpolationOn} />
+  <figcaption>Figure 3: Aerie UI - Timeline Cursor Value Interpolation On</figcaption>
+</figure>
 
 ## Timeline Modes
 
