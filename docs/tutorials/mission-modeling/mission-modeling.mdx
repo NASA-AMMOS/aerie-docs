@@ -380,6 +380,12 @@ public class ChangeMagMode {
 
 Looking at our new activity definition, you can see how we use the `increase()` effect on `RecordingRate` to "increase" the data rate based on the net data change from the old rate. You may also notice a magic number where we do a unit conversion from `kbps` to `Mbps`, which isn't ideal. Later on in this tutorial, we will introduce a "Unit Aware" resource framework that will help a bit with conversions like these if desired.
 
+As a final step, make sure you add this new activity to our `package-info.java` file
+
+```java
+@ActivityType("ChangeMagMode")
+```
+
 ### Second Look
 
 With our second activity and corresponding resources built, let's compile the model again and upload it into Aerie (if you forget how to do this, refer to the [Model Test Drive Page](first-model-test.mdx) for simple instructions and references). Build a new plan off of the model you just uploaded, name your plan `Mission Plan 2`, and give it a duration of `1 day`. When you open this plan, you will see your two activity types appear in the left panel, which you can drag and drop onto the plan. Add two `ChangeMagMode` activities and change the parameter of the first one to `HIGH_RATE`. Add a `CollectData` activity in between the two `ChangeMagMode` activities and then simulate.
@@ -551,7 +557,7 @@ while the definition and registration in the constructor of our `DataModel` clas
 
 ```java
 SSR_Volume_Polynomial = scale(
-    PolynomialResources.integrate(asPolynomial(this.RecordingRate), 0.0), 10e-4); // Gbit
+    PolynomialResources.integrate(asPolynomial(this.RecordingRate), 0.0), 1e-3); // Gbit
 registrar.real( "SSR_Volume_Polynomial", PolynomialResources.assumeLinear(SSR_Volume_Polynomial));
 ```
 
@@ -565,7 +571,7 @@ If we wanted to build a "clamped" version of `SSR_Volume_Polynomial`, it would l
 
 ```java
 var clampedIntegrate = PolynomialResources.clampedIntegrate( scale(
-    asPolynomial(this.RecordingRate), 10e-4),
+    asPolynomial(this.RecordingRate), 1e-3),
     PolynomialResources.constant(0.0),
     PolynomialResources.constant(250.0),
     0.0);
@@ -582,18 +588,126 @@ As expected, the `integral()` resource is mapped to `SSR_Volume_Polynomial` to c
 
 ### Integral Method Comparison
 
+Now that we have explored multiple methods to implement integration in Aerie, let's compare all of the methods in the Aerie UI. To make things more interesting, use the 2nd approach to the `Polynomial` method so we can see how that approach enforces a data volume capacity. Compile the current version of the model (`./gradlew assemble`) and upload it into Aerie. Build a new `1 day` plan off of that model and call it "Mission Plan 3".
+
+For this plan, throw a couple of `CollectData` activities near the beginning of the plan, create a `ChangeMagMode` activity after those activities in the first half of the plan and set that activity's parameter to `HIGH_RATE`. Throw one more `CollectData` and `ChangeMagMode` activity near the end of the plan to make sure we get a plan that goes over our data capacity threshold. With our simple plan built, go ahead and simulate the plan to see the resulting resource profiles.
+
+The easiest way to compare our four integration methods is to use Aerie's [Timeline Editing](https://ammos.nasa.gov/aerie-docs/planning/timeline-editing/) capability to build a row that includes all four of our data volume resources:
+
+- `SSR_Volume_Simple`
+- `SSR_Volume_Sampled`
+- `SSR_Volume_UponRateChange`
+- `SSR_Volume_Polynomial`
+
+If you do that, you'll get a timeline view that looks something like the screenshot below
+
 ![Tutorial Plan 3](assets/Tutorial_Plan_3.png)
+
+Looking at `SSR_Volume_Simple`, you'll see that data volume increases at the end of each `CollectData` activity, and for the first two activities, the result at the end of the activity is consistent with the other volumes. You may recall that we did not implement a data volume integration for the `ChangeMagMode` activity for `SSR_Volume_Simple` (although we could have with some work), so as soon as one of those activities is introduced into our plan, our volume is no longer valid.
+
+`SSR_Volume_Sampled` has a nice looking profile when zoomed out at the expense of computing many points, which you can see if you zoom into a shorter time span. If you zoom far enough, you can see the stair-step associated with computation of each sampled point. If we were to change our sampling interval to something larger, we would lose some accuracy in our volume calculation if the activity start/end times aren't aligned with are sample points.
+
+`SSR_Volume_UponRateChange` has much less points, but you can see that it produces the same volume as our `SSR_Volume_Polynomial` resource at the time points it computes until we go above our maximum capacity. `SSR_Volume_Polynomial` has same computed points as `SSR_Volume_UponRateChange`, but has linear profile segments in between points. It also has an additional point once it reaches the capacity threshold, and then it remains at that threshold for the remainder of the plan (we don't have any downlinks or we would see the volume decrease).
+
+Hopefully looking at the various methods of integrating in Aerie has given you some insight into the modeling constructs available to you. You can do a ton with what you have learned thus far, but next we'll go over some additional capabilities you will likely find useful as you build models with Aerie.
 
 ### Sim Configuration
 
+There is often a need for certain aspects of a model to be exposed to the planner to provide flexibility to tweak and configure the model prior to a simulation run. The Aerie modeling framework provides a [simulation configuration](https://ammos.nasa.gov/aerie-docs/mission-modeling/configuration/) interface to satisfy this need. In our SSR model, we will expose a couple variables that already exist in our code: the sample interval for our `SSR_Volume_Sampled` resource and the SSR max capacity defined as part of the `SSR_Volume_Polynomial` resource definition. We will also create a new model configuration for setting the initial state of the `MagDataMode`.
+
+Back when we initially grabbed the mission model template to give us a jumping off point for our model, you may recall that the template provided a `Configuration` class, and that class is already passed into the top-level `Mission` class as a parameter. Taking a look at the `Configuration` class (which is actually a [java record](https://www.baeldung.com/java-record-vs-final-class)), you'll see there is already a static method there called `defaultConfiguration()` that uses the [`@Template` annotation](https://ammos.nasa.gov/aerie-docs/mission-modeling/parameters/#export-template). This type of annotation assumes every variable within the parent class should be exposed as simulation configuration (or a parameter if you use this within activities) with a default value. So, in our case, we will declare three member variables and give them all default values that match the values we have for them in the `DataModel` class, which we will soon replace with references to this configuration.
+
+```java
+public static final Double SSR_MAX_CAPACITY = 250.0;
+
+public static final long INTEGRATION_SAMPLE_INTERVAL = 60;
+
+public static final MagDataCollectionMode STARTING_MAG_MODE = MagDataCollectionMode.OFF;
+```
+
+In order to hook up these member variables to our record, we need to add three constructor parameters and then update the `defaultConfiguration()` method to pass in these default values to construct a record with default values. Once we do this, we get a `Configuration` record that looks like this:
+
+```java
+package missionmodel;
+
+import static gov.nasa.jpl.aerie.merlin.framework.annotations.Export.Template;
+
+public record Configuration(Double ssrMaxCapacity,
+                            long integrationSampleInterval,
+                            MagDataCollectionMode startingMagMode) {
+
+  public static final Double SSR_MAX_CAPACITY = 250.0;
+
+  public static final long INTEGRATION_SAMPLE_INTERVAL = 60;
+
+  public static final MagDataCollectionMode STARTING_MAG_MODE = MagDataCollectionMode.OFF;
+
+  public static @Template Configuration defaultConfiguration() {
+    return new Configuration(SSR_MAX_CAPACITY,
+                             INTEGRATION_SAMPLE_INTERVAL,
+                             STARTING_MAG_MODE);
+  }
+}
+```
+
+Now, when Aerie loads in our model, the member variables above will be exposed as simulation configuration with defaults set to the defaults defined in this record. However, at the moment, changing the values from their defaults won't actually change the behavior of the simulation because our `DataModel` doesn't yet know about this configuration. Within our top-level `Mission` class, we need to pass our configuration into `DataModel` via its constructor
+
+```java
+this.dataModel = new DataModel(this.errorRegistrar, config);
+```
+
+and then update the `DataModel` class constructor to include `Configuration` as an argument:
+
+```java
+public DataModel(Registrar registrar, Configuration config) { ... }
+```
+
+Now we must find references to our original, hard-coded values for our configuration and replace them with references to our `config` object.
+
+Here is what this looks like for `ssrMaxCapacity`
+
+```java
+var clampedIntegrate = PolynomialResources.clampedIntegrate( scale(
+    asPolynomial(this.RecordingRate), 1e-3),
+    PolynomialResources.constant(0.0),
+    PolynomialResources.constant(config.ssrMaxCapacity()),
+    0.0);
+```
+
+and `integrationSampleInterval`
+
+```java
+INTEGRATION_SAMPLE_INTERVAL = Duration.duration(config.integrationSampleInterval(), Duration.SECONDS);
+```
+
+Note that for the sample interval, we had to move from a hardcoded definition as part of the variable declaration and move the definition to the constructor, which you could put on the line following the registration of the `SSR_Volume_Sampled` resource.
+
+Our final configuration parameter, `startingMagMode`, is not quite as straightforward as the other two because in addition to ensuring that the initial value of `MagDataMode` is set correctly, we need to make sure that the initial `RecordingRate` also takes into account the `MagDataRate` associated with the initial `MagDataMode`. We can achieve this by switching around the order of construction so that the `RecordingRate` is defined after the mag mode and rate. We also need to make sure the `previousRecordingRate` used to compute our `SSR_Volume_UponRateChange` resource is set to the initial value of `RecordingRate`. The resulting code will look like this
+
+```java
+MagDataMode = resource(discrete(config.startingMagMode()));
+registrar.discrete("MagDataMode",MagDataMode, new EnumValueMapper<>(MagDataCollectionMode.class));
+
+MagDataRate = map(MagDataMode, MagDataCollectionMode::getDataRate);
+registrar.discrete("MagDataRate", MagDataRate, new DoubleValueMapper());
+
+RecordingRate = resource(discrete(currentValue(MagDataRate)/1e3));
+registrar.discrete("RecordingRate", RecordingRate, new DoubleValueMapper());
+previousRecordingRate = currentValue(RecordingRate);
+```
+
+Now you should be ready to try this out in the Aerie UI. Go ahead and compile your model with simulation configuration and upload it to Aerie. Build whatever plan you'd like and then before you simulate, in the left panel view, select "Simulation" in the dropdown menu. You should now see your three configuration variables appear under "Arguments"
+
+![Simulation Config](assets/Simulation_Config.png)
+
+Aerie is smart enough to look at the types of the configuration variables and generate a input field in the UI that best matches that type. So, for example, the `startingMagMode` is a simple drop down menu with the only options available being members of the `MagDataCollectionMode` enumeration.
+
 ### Unit Annotations
+
+### Activity Decomposition
+
+Coming Soon!
 
 ### Unit Aware Resources
 
-- Create downlink activity that decreases recording rate at some point for more interesting looking plots
-
-- How to show decomposition?? Maybe a calibration that decomposes into CollectData?
-
-- Update Rate/SSR_Volume to Unit Aware Resources
-
-- Show setting up tests (unit/simulation)
+Coming Soon!
