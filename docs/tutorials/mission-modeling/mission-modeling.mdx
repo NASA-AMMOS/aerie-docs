@@ -1,0 +1,713 @@
+# Mission Modeling Tutorial
+
+Welcome Aerie modeling padawans! For your training today, you will be learning the basics of mission modeling in Aerie by building your own simple model of an on-board spacecraft solid state recorder (SSR). This model will track the recording rate into the recorder from a couple instruments along with the integrated data volume over time. Through the process of building this model, you'll learn about the fundamental objects of a model, activities and resources, and their structure. You'll be introduced to the different categories of resources and learn how you define and implement each along with restrictions on when you can/can't modify them. As a bonus, we will also cover how you can make your resources "unit aware" to prevent those pesky issues that come along with performing unit conversions and how you can test your model without having to pull your model into an Aerie deployment.
+
+Let the training begin!
+
+## Prerequisites
+
+### Deploy Aerie
+
+Before we begin writing modeling code, make sure that you have access to an Aerie deployment as we'll be loading our model into Aerie to build plans and view simulation results. You can deploy Aerie locally on your machine by following the simple steps outlined in our [Fast Track](https://nasa-ammos.github.io/aerie-docs/introduction/#fast-track) instructions. Once you have checked that the Aerie UI is available on [http://localhost/](http://localhost/), you should be ready proceed with this tutorial.
+
+### Install an IDE
+
+Aerie mission models are built using a Java modeling framework (which we will discuss in detail later) and take the form of a `.jar` file, which you can then load into Aerie via the UI (or GraphQL API). In order to have an enjoyable experience building your mission model, you'll want to download and install a Java integrated development environment (IDE) with support for the [Gradle Build Tool](https://docs.gradle.org/current/userguide/userguide.html) (our models use Gradle to build our `.jar` files). Our team's preferred IDE is currently [IntelliJ](https://www.jetbrains.com/idea/), but any Java IDE should work just fine.
+
+## Download and Build the Mission Model Template
+
+Mission models require a couple of standard items for Aerie to process the model once it has been built:
+
+1. A [`package-info.java`](https://nasa-ammos.github.io/aerie-docs/mission-modeling/introduction/#the-package-infojava-file) file containing a reference to the top-level mission model class, annotations referencing any activities defined in the model, an annotation referencing a configuration class that can expose configuration parameters that can be varied prior to simulation, and import statements to the Aerie modeling framework to bridge the framework to the model.
+2. The top-level [mission model class](https://ammos.nasa.gov/aerie-docs/mission-modeling/introduction/#the-mission-model-class) that defines or delegates the behavior of the system being described in the model. Any quantity or state that you would like to track over the course of the simulation - which we define as a [**Resource**](https://ammos.nasa.gov/aerie-docs/mission-modeling/resources-and-models/) - should be declared and defined in this class or its delegates. The name of the top-level mission class can be anything as long as it matches the reference in `package-info.java`.
+
+Fortunately, to save you some trouble, we've created a [mission model template repository](https://github.com/NASA-AMMOS/aerie-mission-model-template) that already has these items included for you along with a gradle build setup that takes care of including the right Aerie dependencies to get your mission model `.jar` file built hassle-free. In this repository, if you take a look in [`src/main/java/missionmodel`](https://github.com/NASA-AMMOS/aerie-mission-model-template/tree/main/src/main/java/firesat), you'll see the `package-info.java` file along with the top-level `Mission` and `Configuration` classes already defined for you.
+
+On the main page for the [mission model template repository](https://github.com/NASA-AMMOS/aerie-mission-model-template), click the "Use this template" button on the top right of the page and select "Create a new repository" to create a new repository for your SSR model. Clone your new repository and follow the instructions in the [`README.md`](https://github.com/NASA-AMMOS/aerie-mission-model-template/blob/main/README.md) to setup your environment and test out building a mission model `.jar` from the model. You'll find the `.jar` you built within a `build/libs` directory generated as part of the gradle build.
+
+At this point, we could pull up the Aerie UI and load the `.jar` file into Aerie as a model, but there is nothing really interesting in the model yet. So before we bring our model into Aerie, let's give it some content.
+
+TODO:
+
+- Update mission model template to align with David's new framework
+  - Account for his register in the Mission class
+  - Update dependencies in build.gradle
+  - Change name from firesat to missionmodel
+  - Remove activities/resources from the template (If they want content they could use the tutorial repo or other examples we provide)
+
+## Your First Resource
+
+We will begin building our SSR model by creating a single resource, `RecordingRate`, to track the rate at which data is being written to the SSR over time. As a reminder, a **\*Resource** is any measurable quantity whose behavior we want to track over the course of a plan. Then, we will create a simple activity, `CollectData`, that updates the `RecordingRate` by a user-specified rate for a user-specified duration. This activity is intended to represent an on-board camera taking images and writing data to the spacecraft SSR.
+
+Although we could define the `RecordingRate` resource directly in the pre-provided top-level `Mission` class, we'd like to keep that class as simple as possible and delegate most of model's behavior definition to other, more focused classes. With this in mind, let's create a new class within the `missionmodel` package called `DataModel`, which we will eventually instantiate within the `Mission` class.
+
+In the `DataModel` class, declare the `RecordingRate` resource with the following line of code:
+
+```java
+    public MutableResource<Discrete<Double>> RecordingRate; // Megabits/s
+```
+
+:::tip
+
+As you are coding, take advantage of your IDE to auto import the modeling framework classes you need like `MutableResource`.
+
+:::
+
+Let's tease apart this line of code and use it as an opportunity to provide a brief overview of the various types of resources available to you as a modeler. The mission modeling framework provides two primary classes from which to define resources:
+
+1. `MutableResource` - resource whose value can be explicitly updated by activities or other modeling code after it has been defined. Updates to the resource take the form of "Effects" such as `increase`, `decrease`, or `set`. The values of this category of resource are explicitly tracked in objects called "Cells" within Aerie, which you can read about in detail in the [Aerie Software Design Document](https://ammos.nasa.gov/aerie-docs/overview/software-design-document/#cells) if you are interested.
+2. `Resource` - resource whose value cannot be explicitly updated after it has been defined. In other words, these resources cannot be updated via "Effects". The most common use of these resources are to create "derived" resources that are fully defined by the values of other resources (we will have some examples of these later). Since these resources get their value from other resources, they actually don't need to store their own value within a "Cell". Interestingly, the `MutableResource` class extends the `Resource` class and includes additional logic to ensure values are correctly stored in these "Cells".
+
+From these classes, there are a few different types of resources provided, which are primarily distinguished by how the value of the resource progresses between computed points:
+
+- `Discrete` - resource that maintains a constant value between computed points (i.e. a step function or piecewise constant function). Discrete resources can be defined as many different types such as `Boolean`, `Integer`, `Double`, or an enumeration. These types of resources are what you traditionally find in discrete event simulators and are the easiest to define and "effect".
+- `Linear` - resource that has a linear profile between computed points. When computing the value of such resources you have to specify both the value of the resource at a given time along with a rate so that the resource knows how it should change until the next point is computed. The resource does not have to be strictly continuous. In other words, the linear segments that are computed for the resource do not have to match up. Unlike discrete resources, a linear resource is implicitly defined as a `Double`.
+- `Polynomial` - generalized version of the linear resource that allows you to define resources that evolve over time based on polynomial functions.
+- `Clock` - special resource type to provide "stopwatch" like functionality that allows you to track the time since an event occurred.
+
+TODO: Add more content on `Clock`
+
+:::note
+
+Polynomial resources currently cannot be rendered in the Aerie UI and must be transformed to a linear resource (an example of this is shown later in the tutorial)
+
+:::
+
+Looking back at our resource declaration, you can see that `RecordingRate` is a `MutableResource` (we will emit effects on this resource in our first activity) of the type `Discrete<Double>`, so the value of the resource will stay constant until the next time we compute effects on it.
+
+Next, we must define and initialize our `RecordingRate` resource, which we can do in a class constructor that takes one parameter we'll called `registrar` of type `Registrar`. You can think of the `Registrar` class as your link to what will ultimately get exposed in the UI and in a second we will use this class to register `RecordingRate`. But first, let's add the following line to the constructor we just made to fully define our resource.
+
+```java
+RecordingRate = resource(discrete(0.0));
+```
+
+Both the `MutableResource` and `Discrete` classes have static helper functions for initializing resources of their type. If you included those functions via `import static` statements, you get the simple line above. The `discrete()` function expects an initial value for the resource, which we have specified as `0.0`.
+
+The last thing to do is to register `RecordingRate` to the UI so we can view the resource as a timeline along with our activity plan. This is accomplished with the following line of code:
+
+```java
+registrar.discrete("RecordingRate", RecordingRate, new DoubleValueMapper());
+```
+
+The first argument to this `discrete` function is the string name of the resource you want to appear in the UI, the second argument is the resource itself, and then the third argument is a [Value Mapper](https://nasa-ammos.github.io/aerie-docs/mission-modeling/activity-mappers/#value-mappers) object that matches the resource primitive type, which in this case is a `Double`. For now, you don't need to know much about Value Mappers other than they are needed for performing data serialization to the UI and there are mappers already currently available as part of the framework for all basic types. You can create custom ones if you have complex resource types, but for almost all cases, you should be able to get away with one of the pre-built mappers.
+
+You have now declared, defined, and registered your first resource and your `DataModel` class should look something like this:
+
+```java
+package missionmodel;
+
+import gov.nasa.jpl.aerie.contrib.streamline.core.MutableResource;
+import gov.nasa.jpl.aerie.contrib.streamline.modeling.Registrar;
+import gov.nasa.jpl.aerie.contrib.streamline.modeling.discrete.Discrete;
+import gov.nasa.jpl.aerie.contrib.serialization.mappers.DoubleValueMapper;
+
+import static gov.nasa.jpl.aerie.contrib.streamline.core.MutableResource.resource;
+import static gov.nasa.jpl.aerie.contrib.streamline.modeling.discrete.Discrete.discrete;
+
+public class DataModel {
+
+    public MutableResource<Discrete<Double>> RecordingRate; // Megabits/s
+
+    public DataModel(Registrar registrar) {
+        RecordingRate = resource(discrete(0.0));
+        registrar.discrete("RecordingRate", RecordingRate, new DoubleValueMapper());
+    }
+}
+```
+
+With our `DataModel` class built, we can now instantiate it within the top-level `Model` class as a member variable of that class. The `Registrar` that we are passing to `DataModel` is unique in that it can log simulation errors as a resource, so we also need to instantiate one of these special error registrars as well. After these additions, the `Mission` class should look like this:
+
+```java
+package missionmodel;
+
+import gov.nasa.jpl.aerie.contrib.streamline.modeling.Registrar;
+
+public final class Mission {
+
+  public final Registrar errorRegistrar;
+  public final DataModel dataModel;
+
+  public Mission(final gov.nasa.jpl.aerie.merlin.framework.Registrar registrar, final Configuration config) {
+    this.errorRegistrar = new Registrar(registrar, Registrar.ErrorBehavior.Log);
+    // Tutorial code
+    this.dataModel = new DataModel(this.errorRegistrar);
+
+  }
+}
+```
+
+## Your First Activity
+
+Now that we have a resource, let's build an activity called `CollectData` that emits effects on that resource. We can imagine this activity representing a camera on-board a spacecraft that collects data over a short period of time. Activities in Aerie follow the general definition given in the [CCSDS Mission Planning and Scheduling Green Book](https://public.ccsds.org/Pubs/529x0g1.pdf)
+
+> "An activity is a meaningful unit of what can be planned… The granularity of a Planning Activity depends on the use case; It can be hierarchical"
+
+Essentially, activities are the building blocks for generating your plan. Activities in Aerie follow a class/object relationship where [activity types](https://nasa-ammos.github.io/aerie-docs/mission-modeling/activity-types/introduction/) - defined as a class in Java - describe the structure, properties, and behavior of an object and activity instances are the actual objects that exist within a plan.
+
+Since activity types are classes in Java, create a new class called `CreateData` and add the following Java annotation above that class, which allows Aerie to recognize this class as an activity type.
+
+```java
+@ActivityType("CollectData")
+```
+
+Within this activity type, let's define two [parameters](https://nasa-ammos.github.io/aerie-docs/mission-modeling/activity-types/parameters/), `rate` and `duration`, and give them default arguments. When an activity instance is placed into a plan, operators can modify these default arguments prior to simulation if desired. Activity parameters are simply member variables of the activity type class with an annotation above the member variable:
+
+```java
+@Export.Parameter
+```
+
+:::note
+
+In reality, there are a variety of [parameter annotations](https://nasa-ammos.github.io/aerie-docs/mission-modeling/parameters/) you can use to tell Aerie about activity parameters and their defaults. In fact, if all member variables are intended to be parameters, you don't even need to include an annotation. For this tutorial, however, we want to be explicit with our parameter definition and will be using annotations even if they aren't technically required.
+
+:::
+
+For our activity, we will make `rate` a `double` with a default value of `10.0` megabits per second and `duration` a `Duration` type built into Aerie with a default value of `1` hour. That translates to the following code:
+
+```java
+@Parameter
+public double rate = 10.0; // Mbps
+
+@Parameter
+public Duration duration = Duration.duration(1, Duration.HOURS);
+```
+
+Right now, if an activity of this type was added to a plan, an operator could alter the parameter defaults to any value allowed by the parameter's type. Let's say that due to buffer limitations of our camera, it can only collect data at a rate of `100.0` megabits per second, and we want to notify the operator that any rate above this range is invalid. We can do this with [parameter validations](https://nasa-ammos.github.io/aerie-docs/mission-modeling/activity-types/parameters/#validations) by adding a method to our class with a couple of annotations:
+
+```java
+@Validation("Collection rate is beyond buffer limit of 100.0 Mbps")
+@Validation.Subject("rate")
+public boolean validateCollectionRate() {
+  return rate <= 100.0;
+}
+```
+
+The `@Validation` annotation specifies the message to present to the operator when the validation fails. The `@Validation.Subject` annotation specifies the parameter(s) with which the validation is associated. Now, as you will see soon, when an operator specifies a data rate above `100.0`, Aerie will show a validation error and message in the UI.
+
+Next, we need to tell our activity how and when to effect change on the `RecordingRate` resource, which is done in an [Activity Effect Model](https://nasa-ammos.github.io/aerie-docs/mission-modeling/activity-types/effect-model/). Just like with validations, an effect model is built by adding a method to our class, but with a different annotation, `@ActivityType.EffectModel`. Unlike validations, there can only be one of these methods per activity and the method should accept the top-level mission model class as a parameter (which in our case is just `Mission`). Conventionally, the method name given to the effect model is `run()`.
+
+For our activity, we simply want to model data collection at a fixed rate specified by the `rate` parameter over the full duration of the activity. Within the `run()` method, we can add the follow code to get that behavior:
+
+```java
+DiscreteEffects.increase(model.dataModel.RecordingRate, this.rate);
+delay(duration);
+DiscreteEffects.decrease(model.dataModel.RecordingRate, this.rate);
+```
+
+Effects on resources are accomplished by using one of the many static methods available in the class associated with your resource type. In this case, `RecordingRate` is a discrete resource, and therefore we are using methods from the `DiscreteEffects` class. If you peruse the static methods in `DiscreteEffects`, you'll see methods like `set()`, `increase()`, `decrease()`, `consume()`, `restore()`,`using()`, etc. Since discrete resources can be of many primitive types (e.g. `Double`,`Boolean`), there are specific methods for each type. Most of these effects change the value of the resource at one time point instantaneously, but some, like `using()`, allow you to specify an [action](https://nasa-ammos.github.io/aerie-docs/mission-modeling/activity-types/effect-model/#actions) to run like `delay()`. Prior to executing the action, the resource changes just like other effects, but once the action is complete, the effect on the resource is reversed. These resource effects are sometimes called "renewable" in contrast to the other style of effects, which are often called "consumable".
+
+In our effect model for this activity, we are using the "consumable" effects `increase()` and `decrease()`, which as you would predict, increase and decrease the value of the `RecordingRate` by the `rate` parameter. The `run()` method is executed at the start of the activity, so the increase occurs right at the activity start time. We then perform the `delay()` action for the user-specified activity `duration`, which moves time forward within this activity before finally reversing the rate increase. Since there are no other actions after the rate decrease, we know we have reached the end of the activity.
+
+If we wanted to save a line of code, we could have the "renewable" effect `using()` to achieve the same result:
+
+```java
+DiscreteEffects.using(model.dataModel.RecordingRate, -this.rate, () -> delay(duration) );
+delay(duration);
+```
+
+:::note
+
+For the case where we use `using()`, you'll notice we have to use the `delay()` action twice. This is because the first action within `using()` is spawned, which allows the execution of the effect model to continue as the `using()` effect waits for the end of its `delay()` action. This allows you to have many `using()` effects, perhaps on different resources, running concurrently within an activity. The second `delay()` actually moves time forward for the activity.
+
+:::
+
+With our effect model in place, we are done coding up the `CollectData` activity and the final result should look something like this:
+
+```java
+package missionmodel;
+
+import gov.nasa.jpl.aerie.contrib.streamline.modeling.discrete.DiscreteEffects;
+import gov.nasa.jpl.aerie.merlin.framework.annotations.ActivityType;
+import gov.nasa.jpl.aerie.merlin.framework.annotations.Export.Parameter;
+import gov.nasa.jpl.aerie.merlin.framework.annotations.Export.Validation;
+
+import gov.nasa.jpl.aerie.merlin.protocol.types.Duration;
+
+import static gov.nasa.jpl.aerie.merlin.framework.ModelActions.delay;
+import static gov.nasa.jpl.aerie.merlin.protocol.types.Duration.SECONDS;
+
+@ActivityType("CollectData")
+public class CollectData {
+
+    @Parameter
+    public double rate = 10.0; // Mbps
+
+    @Parameter
+    public Duration duration = Duration.duration(1, Duration.HOURS);
+
+    @Validation("Collection rate is beyond buffer limit of 100.0 Mbps")
+    @Validation.Subject("rate")
+    public boolean validateCollectionRate() {
+      return rate <= 100.0;
+    }
+
+    @ActivityType.EffectModel
+    public void run(Mission model) {
+
+        /*
+         Collect data at fixed rate over duration of activity
+        */
+        // Approach 1 - Modify rate at start/end of activity
+        DiscreteEffects.increase(model.dataModel.RecordingRate, this.rate);
+        delay(duration);
+        DiscreteEffects.decrease(model.dataModel.RecordingRate, this.rate);
+
+    }
+}
+```
+
+The last thing we need to do before giving our model a test drive is add a line to the `package-info.java` file to help Aerie find our newly built activity type
+
+```java
+@WithActivityType(CollectData.class)
+```
+
+Ok! Now we are all set to give this a spin.
+
+### Model Test Drive
+
+Within your IDE, compile the model (`./gradlew assemble` should do the trick) and make sure it built successfully by checking `build/lib` for a new `missionmodel.jar` file.
+
+Follow [these instructions](https://ammos.nasa.gov/aerie-docs/planning/upload-mission-model/) to upload your `.jar` file, and give your model a name and version number (e.g. SSR Model version 1.0). Next, you can follow [these instructions](https://ammos.nasa.gov/aerie-docs/planning/create-plan-and-simulate/#instructions) to create a new plan. Pick the model you just compiled to build your plan off of and name your plan `Mission Plan 1` and give it a duration of `1 day`. Click "Create" and click on the newly created plan to open it, which should take you to a view with the plan timeline in the center view panel.
+
+On the left panel, you should see your `CollectData` activity type, which you can drag and drop onto the "Activities" row in the timeline. Your `RecordingRate` resource should also appear as a row in the timeline, but with no values applied yet since we haven't simulated. Put two activities in your plan and click on the second one (the first one we will leave alone and let it use default values). On the right panel, you should now see detailed information about your activity. Look for the "Parameters" section and you will see your rate and duration parameters, which you can modify. Try modifying the rate above `100.0` and you will see a warning icon appear, which you can hover over and see the message we wrote into a Validation earlier. Modify the rate back to `20` and change the default duration to `2 hours`.
+
+:::note
+
+When activity types are initially added to the plan, they are shown with a play button icon and don't have a duration. We call these "activity directives", and it is these activities that you are allowed to modify by changing parameters, timing, etc. Once a simulation has been performed, one or more activities will appear below the directive, which are the activity instances. These actually have a duration (based on their effect model) and are the result of the simulation run.
+
+:::
+
+On the top menu bar, click "Simulation" and then "Simulate". After you see a green checkmark, `RecordingRate` should be populated with a value profile. The value should begin at 0.0 (since we initialized it that way in the model) and pop up to `10` for the first activity and `20` for the second. You'll also see that the activity instances below the activity directives (see note above) have durations that match the arguments we provided. At this point, your view will look similar to the screenshot below.
+
+![Tutorial Plan 1](assets/Tutorial_Plan_1.png)
+
+At this point, we could go into more detail about how you can [edit the timeline](https://nasa-ammos.github.io/aerie-docs/planning/timeline-editing/), edit your UI view, or view simulation history, but instead we will move back to our IDE and add some more complexity to our model.
+
+### Enumerated and Derived Resources
+
+In addition to our on-board camera, let's imagine that we also have an instrument on-board that is continuously collecting data, say a magnetometer, based on a data collection mode. Perhaps at especially interesting times in the mission, the magnetometer is placed in a high rate collection mode and at other times remains in a low rate collection mode. For our model, we want to be able to track the collection mode over time along with the associated data collection rate of that mode.
+
+The first thing we'll do to accomplish this is create a Java enumeration called `MagDataCollectionMode` that gives us the list of available collection modes along with a mapping of those modes to data collection rates using [enum fields](https://issac88.medium.com/java-enum-fields-methods-constructors-3a19256f58b). We will also add a getter method to get the data rate based on the mode. Let's say that we have three modes, `OFF`, `LOW_RATE`, and `HIGH_RATE` with values `0.0`, `500.0`, and `5000.0`, respectively. After coding this up, our enum should look like this:
+
+```java
+package missionmodel;
+
+public enum MagDataCollectionMode {
+    OFF(0.0), // kbps
+    LOW_RATE(500.0), // kbps
+    HIGH_RATE(5000.0); // kbps
+
+    private final double magDataRate;
+
+    MagDataCollectionMode(double magDataRate) {
+        this.magDataRate = magDataRate;
+    }
+
+    public double getDataRate() {
+        return magDataRate;
+    }
+}
+```
+
+With our enumeration built, we can now add a couple of new resources to our `DataModel` class. The first resource, which we'll call `MagDataMode`, will track the current data collection mode for the magnetometer. Declare this resource as a discrete `MutableResource` of type `MagDataCollectionMode`
+
+```java
+public MutableResource<Discrete<MagDataCollectionMode>> MagDataMode;
+```
+
+and then add the following lines of code to the constructor to initialize the resource to `OFF` and register it with the UI.
+
+```java
+MagDataMode = resource(discrete(MagDataCollectionMode.OFF));
+registrar.discrete("MagDataMode",MagDataMode, new EnumValueMapper<>(MagDataCollectionMode.class));
+```
+
+As you can see, declaring and defining this resource was not much different than when we built `RecordingRate` except instead of referencing the `Double` type, we are referencing our enumerated type `MagDataCollectionMode`.
+
+Another resource we can add is one to track the numerical value of the data collection rate of the magnetometer, which is based on the collection mode. In other words, we can derive the value of the rate from the mode. Since we are deriving this value and don't intend to emit effects directly onto this resource, we can declare it as a discrete `Resource` of type `Double` instead of a `MutableResource`.
+
+```java
+public Resource<Discrete<Double>> MagDataRate; // kbps
+```
+
+When we go to define this resource in the constructor, we need to tell the resource to get its value by mapping the `MagDataMode` to its corresponding rate. A special static method in the `DiscreteResourceMonad` class called `map()` allows us to define a function that operates on the value of a resource to get a derived resource value. In this case, that function is simply the getter function we added to the `MagDataCollectionMode`. The resulting definition and registration code for `MagDataRate` then becomes
+
+```java
+MagDataRate = map(MagDataMode, MagDataCollectionMode::getDataRate);
+registrar.discrete("MagDataRate", MagDataRate, new DoubleValueMapper());
+```
+
+:::note
+
+Instead of deriving a resource value from a function using `map()`, there are a number of static methods in the `DiscreteResources` class, which you can use to `add()`, `multiply()`, `divide()`, etc. resources. For example, you could have a `Total` resource that simply used `add()` to sum some other resources together.
+
+:::
+
+### Using Current Value in an Effect Model
+
+Now that we have our magnetometer resources, we need to build an activity that changes the `MagDataMode` for us (since `MagDataRate` is a derived resource, we shouldn't have to touch it) and changes the overall SSR `RecordingRate` to reflect the magnetometer's data rate change. This activity, which we'll call `ChangeMagMode`, only needs one parameter of type `MagDataCollectionMode` to allow the user to request a change to the mode. Let's give that parameter a default value of `LOW_RATE`.
+
+In the effect model for this activity (which we'll call `run()` by convention), we can use the `set()` method in the `DiscreteEffects` class to change the `MagDataMode` to the value provided by our mode parameter. The computation of the change to the `RecordingRate` caused by the mode change is a little tricky because we need to know both the value of the `MagDataRate` before and after the mode change. Once we know those value, we can subtract the old value from the new value to get the net increase to the `RecordingRate`. If the new value happens to be less than the old value, our answer will be negative, but that should be ok as long as we use the `increase()` method when effecting the `RecordingRate` resource.
+
+We can get the current value of a resource with a static method called `currentValue()` available in the `Resources` class. For our case here, we want to get the current value of the `MagDataRate` **before** we actually change the mode to the requested value, so we have to be a little careful about the order of operations within our effect model. The resulting activity type and its effect model should look something like this:
+
+```java
+package missionmodel;
+
+import gov.nasa.jpl.aerie.contrib.streamline.modeling.discrete.DiscreteEffects;
+import gov.nasa.jpl.aerie.merlin.framework.annotations.ActivityType;
+import gov.nasa.jpl.aerie.merlin.framework.annotations.Export;
+
+import static gov.nasa.jpl.aerie.contrib.streamline.core.Resources.currentValue;
+
+@ActivityType("ChangeMagMode")
+public class ChangeMagMode {
+
+    @Export.Parameter
+    public MagDataCollectionMode mode = MagDataCollectionMode.LOW_RATE;
+
+    @ActivityType.EffectModel
+    public void run(Mission model) {
+         double currentRate = currentValue(model.dataModel.MagDataRate);
+         double newRate = mode.getDataRate();
+         // Divide by 10^3 for kbps->Mbps conversion
+         DiscreteEffects.increase(model.dataModel.RecordingRate, (newRate-currentRate)/1.0e3);
+         DiscreteEffects.set(model.dataModel.MagDataMode, mode);
+    }
+}
+```
+
+Looking at our new activity definition, you can see how we use the `increase()` effect on `RecordingRate` to "increase" the data rate based on the net data change from the old rate. You may also notice a magic number where we do a unit conversion from `kbps` to `Mbps`, which isn't ideal. Later on in this tutorial, we will introduce a "Unit Aware" resource framework that will help a bit with conversions like these if desired.
+
+As a final step, make sure you add this new activity to our `package-info.java` file
+
+```java
+@ActivityType("ChangeMagMode")
+```
+
+### Second Look
+
+With our second activity and corresponding resources built, let's compile the model again and upload it into Aerie (if you forget how to do this, refer to the [Model Test Drive Page](first-model-test.mdx) for simple instructions and references). Build a new plan off of the model you just uploaded, name your plan `Mission Plan 2`, and give it a duration of `1 day`. When you open this plan, you will see your two activity types appear in the left panel, which you can drag and drop onto the plan. Add two `ChangeMagMode` activities and change the parameter of the first one to `HIGH_RATE`. Add a `CollectData` activity in between the two `ChangeMagMode` activities and then simulate.
+
+You should now see our three resources populate with values in the timeline below. You'll notice that now the `RecordingRate` resource starts at zero until the `MagDataMode` changes to `HIGH_RATE`, which pops up the rate to `5 Mbps`. Then, the `CollectData` activity increases the rate by another `10` to `15 Mbps`, but immediately decreases after the end of the activity. Finally, the `MagDataMode` changes to `LOW_RATE`, which takes the rate down to `0.5 Mbps` until the end of the plan.
+
+At this point, you can take the opportunity to play around with Aerie's [Timeline Editing](https://ammos.nasa.gov/aerie-docs/planning/timeline-editing/) capability to change the colors of activities or lines or put multiple resources onto one row. Try putting the `MagDataMode` and `MagDataRate` on the same row so you can easily see how the mode changes align with the rate changes and change the color of `MagDataRate` to red. With these changes you should get something similar to the screenshot below
+
+![Tutorial Plan 2](assets/Tutorial_Plan_2.png)
+
+### Integrating Data Rate
+
+Now is where the fun really begins! Although having the data rate in and out of our SSR is useful, we are often more concerned with the total amount of volume we have in our SSR in order to make sure we don't over fill it and have sufficient downlink opportunities to get all the data we collected back to Earth. In order to compute total volume, we must figure out a way to integrate our `RecordingRate`. It turns out there are many different methods in Aerie you can choose to arrive at the total SSR volume, but each method has its own advantages and drawbacks. We will explore 4 different options for integration with the final option, a derived `Polynomial` resource, being our recommended approach. As we progress through the options, you'll learn about a few more features of the resource framework that you can use for different use cases in your model including the use of `Reactions` and **daemon** tasks.
+
+#### Method 1 - Increase volume within activity
+
+The simplest method for performing an "integration" of `RecordingRate` is to compute the integral directly within the effect model of the activities who change the `RecordingRate`. Before we do this, let's make sure we have a data volume resource in our `DataModel` class. For each method, we are going to build a different data volume resource so we can eventually compare them in the Aerie UI. As this is our simplest method, let's call this resource `SSR_Volume_Simple` and make it store volume in Gigabits (Gb). Since we are going to directly effect this resource in our activities, this will need to be a `MutableResource`. The declaration looks just like `RecordingRate`
+
+```java
+public MutableResource<Discrete<Double>> SSR_Volume_Simple; // Gigabits
+```
+
+as does the definition, initialization, and registration in the constructor:
+
+```java
+SSR_Volume_Simple = resource(discrete(0.0));
+registrar.discrete("SSR_Volume_Simple", SSR_Volume_Simple, new DoubleValueMapper());
+```
+
+Taking a look at our `CollectData` activity, we can add the following line of code after the `delay()` within its effect model (`run()` method) to compute the data volume resulting from the activity collecting data at a constant duration over the full duration of the activity.
+
+```java
+DiscreteEffects.increase(model.dataModel.SSR_Volume_Simple,this.rate*duration.ratioOver(SECONDS)/1000.0);
+```
+
+This line will increase `SRR_Volume_Simple` at the end of the activity by `rate` times `duration` divided by our magic number to convert `Mb` to `Gb`. Note that the `duration` object has some helper functions like `ratioOver` to help you convert the `duration` type to a `double` value.
+
+There are a few notable issues with this approach. The first issue is that when a plan is simulated, the data volume of the SSR will only increase at the very end of the activity even though in reality, the volume is growing linearly in time throughout the duration of the activity. If your planners only need this level of fidelity to do their work, this may be ok. However, if your planners need a little more fidelity during the time span of the activity, you could spread out the data volume accumulation over many steps. That would look something like this in code,
+
+```java
+int numSteps = 20;
+Duration step_size = Duration.divide(duration, numSteps);
+for (int i = 0; i < numSteps; i++) {
+  delay(step_size);
+  DiscreteEffects.increase(model.dataModel.SSR_Volume_Simple,this.rate*step_size.ratioOver(SECONDS)/1000.0);
+}
+```
+
+which would replace the `delay()` and the single data volume increase line from above. The resulting timeline for `SSR_Volume_Simple` would look like a stair step with the number of steps equal to `numSteps`. It's important to remember we are still using a `Discrete` resource, so the resource is stored as a constant, "step-function" profile in Aerie. We will show the use of a `Polynomial` resource in our final method to truly store and view data volume as a linear profile.
+
+Another issue with this approach is that is does not transfer well to activities like `ChangeMagMode` that alter the `RecordingRate` and do not return the rate back to its original value at the end of the activity (i.e. activities whose effects on rate are not contained within the time span of the activity). In order to compute the magnetometer's contribution to the data volume in `ChangeMagMode`, we would need to multiply the `currentRate` by the duration since the last mode change, or if no mode change has occurred, the beginning of the plan. While this is possible by using a `Clock` resource to track time between mode changes, the `ChangeMagMode` activity would now requires additional context about the plan that would otherwise be unnecessary.
+
+A third issue to note is that the computation of `RecordingRate` and `SSR_Volume_Simple` are completely separate, and both of them live within the activity effect model. In reality, these quantities are very much related and should be tied together in some way. The relationship between rate and volume is activity independent, and thus it makes more sense to define that relationship in our `DataModel` class instead of the activity itself.
+
+Given these issues, we will hold off on implementing this approach for `ChangeMagMode` and move forward to trying out our next approach.
+
+#### Method 2 - Sample-based volume update
+
+Another method to integration we can take is a numerical approach where we compute data volume by sampling the value of the `RecordingRate` at a fixed interval across the entire plan. In order to implement this method, we can `spawn()` a simple task from our top-level `Mission` class that runs in the background while the plan is being simulated, which is completely independent of activities in the plan. Such tasks are known as `daemon` tasks, and your mission model can have an arbitrary number of them.
+
+Before we create this task, let's add another discrete `MutableResource` of type `double` called `SSR_Volume_Sampled` to the `DataModel` class. Just as with other resources we have made, the declaration will look like
+
+```java
+public MutableResource<Discrete<Double>> SSR_Volume_Sampled; // Gigabits
+```
+
+and the definition, initialization, and registration in the constructor will be
+
+```java
+SSR_Volume_Sampled = resource(discrete(0.0));
+registrar.discrete("SSR_Volume_Sampled", SSR_Volume_Sampled, new DoubleValueMapper());
+```
+
+In addition to the resource, let's add another member variable to specify the sampling interval we'd like for our integration. Choosing `60` seconds will result in the follow variable definition
+
+```java
+private final Duration INTEGRATION_SAMPLE_INTERVAL = Duration.duration(60, Duration.SECONDS);
+```
+
+Staying in the `DataModel` class, we can can create a member function called `integrateSampledSSR` that has no parameters, which we will spawn from the `Mission` class shortly. For the sake of simplicity, we will define this function to take the "right" Reimann Sum (a "rectangle" rule approximation) of the `RecordingRate` over time. The implementation of this function looks like this:
+
+```java
+public void integrateSampledSSR() {
+  while(true) {
+    delay(INTEGRATION_SAMPLE_INTERVAL);
+    Double currentRecordingRate = currentValue(RecordingRate);
+    DiscreteEffects.increase(SSR_Volume_Sampled, currentRecordingRate *
+    INTEGRATION_SAMPLE_INTERVAL.ratioOver(Duration.SECONDS) / 1000.0); // Mbit -> Gbit
+  }
+}
+```
+
+As a programmer, you may be surprised to see an infinite `while` loop, but Aerie will shut down this task, effectively breaking the loop, once the simulation reaches the end of the plan. Within the loop, the first thing we do is `delay()` by our sampling interval and then retrieve the current value of `RecordingRate`. Finally, we sum up our rectangle by multiplying the current rate by the sampling interval. We could have easily chosen to use other numerical methods like the "trapezoid" rule by storing the previous recording rate in addition to the current rate, but what we did is sufficient for now.
+
+The final piece we need to build into our model to get this method to work is a simple `spawn` with the `Mission` class to our `integrateSampledSSR` method.
+
+```java
+spawn(dataModel::integrateSampledSSR);
+```
+
+The issues with this approach to integration are probably fairly apparent to you. First of all, this approach is truly an approximation, so the resulting volume may not be the actual volume if the sampled points don't align perfectly with the changes in `RecordingRate`. Secondly, the fact we are sampling at a fixed time interval means we could be computing many more time points than we actually need if the recording rate isn't changing between time points. If you were to try to scale up this approach, you might run into performance issues with your model where simulation takes much longer than it needs to.
+
+Despite these issues `daemon` tasks are a very effective tool in a modelers tool belt for describing "background" behavior of your system. Examples for a spacecraft model could include the computation of geometry, battery degradation over time, environmental effects, etc.
+
+#### Method 3 - Update volume upon change to rate
+
+If you are looking for an efficient, yet accurate way to compute data volume from `RecordingRate`, one method you could take is to set up trigger that calls a function whenever `RecordingRate` changes and then computes volume by multiplying the rate just before the latest change by the duration that has passed since the last change. Fortunately, there is a fairly easy way to do this in Aerie's modeling framework.
+
+Let's begin by creating one more discrete `MutableResource` called `SSR_Volume_UponRateChange` in our `DataModel` class (refer back to previous instances in this tutorial for how to declare and define one of these). In addition to our volume resource, we are also going to need a `Clock` resource to help us track the time between changes to `RecordingRate`. Since this resource is more of a "helper" resource and doesn't need to be exposed to our planners, we'll make it `private` and not register it to the UI. Declaring and defining a `Clock` resource is not much different than declaring a `Discrete` except you don't have to specify a primitive type. The declaration looks like this
+
+```java
+private MutableResource<Clock> TimeSinceLastRateChange;
+```
+
+and the definition in the constructor looks like this
+
+```java
+TimeSinceLastRateChange = resource(Clock.clock(Duration.ZERO));
+```
+
+This will start a "stopwatch" right at the start of the plan so we can track the time between the start of the plan and the first time `RecordingRate` is changed. We'll also need one more member variable of type `Double`, which we'll call `previousRate` to keep track of the previous value of `RecordingRate` for us.
+
+```java
+private Double previousRecordingRate = 0.0;
+```
+
+Our next step is to build our trigger to react when there is a change to `RecordingRate`. We can do this by leveraging the `wheneverUpdates()` static method available within the framework's `Reactions` class
+
+```java
+Reactions.wheneverUpdates(RecordingRate, this::uponRecordingRateUpdate);
+```
+
+:::note
+
+The `Reactions` class has a couple more static methods that a modeler may find useful. The `every()` method allows you to specify a duration to call a recurring action (we could have used this instead of our `spawn()` for the sampled integration method). The `whenever()` method allows you to specify a `Condition`, which when met, would trigger an action of your choosing. An example of a condition could be when a resource reaches a certain threshold.
+
+:::
+
+As you can see, this method takes a resource as its first argument and some `Runnable`, like a function call, as it's second argument. We have specified that the function `uponRecordingRateUpdate` be called, so now we have to implement that function within our `DataModel` class. The implementation of that function is below, which we will walk through line by line.
+
+```java
+public void uponRecordingRateUpdate() {
+  // Determine time elapsed since last update
+  Duration t = currentValue(TimeSinceLastRateChange);
+  // Update volume only if time has actually elapsed
+  if (!t.isZero()) {
+    DiscreteEffects.increase(this.SSR_Volume_UponRateChange,
+    previousRecordingRate * t.ratioOver(Duration.SECONDS) / 1000.0); // Mbit -> Gbit
+  }
+  previousRecordingRate = currentValue(RecordingRate);
+  // Restart clock (set back to zero)
+  ClockEffects.restart(TimeSinceLastRateChange);
+}
+```
+
+When the `RecordingRate` resource changes, the first thing we do is determine how much time has passed since it last changed (or since the beginning of the plan). If no time has passed, we don't want to re-integrate and double count volume, but if time has passed, we do our simple integration by multiplying the previous rate by the elapsed time since the value of rate changed. We then store the new value of rate as the previous rate and restart our stopwatch to we get the right time next time the rate changes.
+
+And that's it! Now, every time `RecordingRate` changes, the SSR volume will update to the correct volume. However, the volume is still a discrete resource, so volume will only change as a step function at time points where the rate changes. Nonetheless, since `RecordingRate` is piece-wise constant, you'll get the right answer for volume with no error at those time points.
+
+#### Method 4 - Derived volume from polynomial resource
+
+We have finally arrived at the final method we'll go through for integrating `RecordingRate`, and in some ways, this one is the most straightforward. We will define our data volume as polynomial resource, `SSR_Volume_Polynomial`, which we can build by using an `integrate()` static method provided by the `PolynomialResources` class. As a polynomial resource, we will actually see the volume increase linearly over time as opposed to in discrete chunks. Since `SSR_Volume_Polynomial` will be derived directly from `RecordingRate`, we can make this a `Resource` as opposed to a `MutableResource`. The declaration of our new resource looks like this
+
+```java
+public Resource<Polynomial> SSR_Volume_Polynomial;  // Gigabits
+```
+
+while the definition and registration in the constructor of our `DataModel` class look like this
+
+```java
+SSR_Volume_Polynomial = scale(
+    PolynomialResources.integrate(asPolynomial(this.RecordingRate), 0.0), 1e-3); // Gbit
+registrar.real( "SSR_Volume_Polynomial", PolynomialResources.assumeLinear(SSR_Volume_Polynomial));
+```
+
+Breaking down the definition, we see the `integrate()` function takes the resource to integrate as the first argument, but that argument requires the resource to be polynomial as well. Fortunately, there is a static method in `PolynomialResources` called `asPolynomial()` that can convert discrete resources like `RecordingRate` to polynomial ones. The second argument is the initial value for the resource, which we have been assuming is `0.0` for data volume. The `integrate()` function is then wrapped by `scale()`, another handy static method in `PolynomialResources` to convert our resource from `Megabit` to `Gigabit`.
+
+The resource registration is also slightly different than what we have seen thus far as we are using a `real()` method as opposed to `discrete()` and we have to wrap our resource with yet another static helper method in `PolynomialResources` called `assumeLinear()`. The reason we have to do this is that the UI currently does not have support for `Polynomial` resources and can only render timelines as linear or constant segments. In our case, `SSR_Volume_Polynomial` is actually linear anyway, so we are not "degrading" our resource by having to make this down conversion.
+
+Now in reality, our on-board `SSR` is going to have a max capacity, and if data is removed from the `SSR`, we want to make sure our model stops decreasing the `SSR` volume once it reaches `0.0`. By good fortune, the Aerie framework includes another static method in `PolynomialResources` called `clampedIntegral()` that allows you to build a resource that takes care of all that messy logic to make sure you are adhering to your min/max limits.
+
+If we wanted to build a "clamped" version of `SSR_Volume_Polynomial`, it would look something like this
+
+```java
+var clampedIntegrate = PolynomialResources.clampedIntegrate( scale(
+    asPolynomial(this.RecordingRate), 1e-3),
+    PolynomialResources.constant(0.0),
+    PolynomialResources.constant(250.0),
+    0.0);
+SSR_Volume_Polynomial = clampedIntegrate.integral();
+```
+
+The second and third arguments of `clampedIntegrate()` are the min and max bounds for the integral and the final argument is the starting value for the resource as it was in `integrate()`. The `clampedIntegrate()` method actually returns a `record` of three resources:
+
+- integral – The clamped integral value (i.e. the main resource of interest)
+- overflow – The rate of overflow when the integral hits its upper bound. You can integrate this to get cumulative overflow.
+- underflow – The rate of underflow when the integral hits its lower bound. You can integrate this to get cumulative underflow.
+
+As expected, the `integral()` resource is mapped to `SSR_Volume_Polynomial` to complete its definition.
+
+### Integral Method Comparison
+
+Now that we have explored multiple methods to implement integration in Aerie, let's compare all of the methods in the Aerie UI. To make things more interesting, use the 2nd approach to the `Polynomial` method so we can see how that approach enforces a data volume capacity. Compile the current version of the model (`./gradlew assemble`) and upload it into Aerie. Build a new `1 day` plan off of that model and call it "Mission Plan 3".
+
+For this plan, throw a couple of `CollectData` activities near the beginning of the plan, create a `ChangeMagMode` activity after those activities in the first half of the plan and set that activity's parameter to `HIGH_RATE`. Throw one more `CollectData` and `ChangeMagMode` activity near the end of the plan to make sure we get a plan that goes over our data capacity threshold. With our simple plan built, go ahead and simulate the plan to see the resulting resource profiles.
+
+The easiest way to compare our four integration methods is to use Aerie's [Timeline Editing](https://ammos.nasa.gov/aerie-docs/planning/timeline-editing/) capability to build a row that includes all four of our data volume resources:
+
+- `SSR_Volume_Simple`
+- `SSR_Volume_Sampled`
+- `SSR_Volume_UponRateChange`
+- `SSR_Volume_Polynomial`
+
+If you do that, you'll get a timeline view that looks something like the screenshot below
+
+![Tutorial Plan 3](assets/Tutorial_Plan_3.png)
+
+Looking at `SSR_Volume_Simple`, you'll see that data volume increases at the end of each `CollectData` activity, and for the first two activities, the result at the end of the activity is consistent with the other volumes. You may recall that we did not implement a data volume integration for the `ChangeMagMode` activity for `SSR_Volume_Simple` (although we could have with some work), so as soon as one of those activities is introduced into our plan, our volume is no longer valid.
+
+`SSR_Volume_Sampled` has a nice looking profile when zoomed out at the expense of computing many points, which you can see if you zoom into a shorter time span. If you zoom far enough, you can see the stair-step associated with computation of each sampled point. If we were to change our sampling interval to something larger, we would lose some accuracy in our volume calculation if the activity start/end times aren't aligned with are sample points.
+
+`SSR_Volume_UponRateChange` has much less points, but you can see that it produces the same volume as our `SSR_Volume_Polynomial` resource at the time points it computes until we go above our maximum capacity. `SSR_Volume_Polynomial` has same computed points as `SSR_Volume_UponRateChange`, but has linear profile segments in between points. It also has an additional point once it reaches the capacity threshold, and then it remains at that threshold for the remainder of the plan (we don't have any downlinks or we would see the volume decrease).
+
+Hopefully looking at the various methods of integrating in Aerie has given you some insight into the modeling constructs available to you. You can do a ton with what you have learned thus far, but next we'll go over some additional capabilities you will likely find useful as you build models with Aerie.
+
+### Sim Configuration
+
+There is often a need for certain aspects of a model to be exposed to the planner to provide flexibility to tweak and configure the model prior to a simulation run. The Aerie modeling framework provides a [simulation configuration](https://ammos.nasa.gov/aerie-docs/mission-modeling/configuration/) interface to satisfy this need. In our SSR model, we will expose a couple variables that already exist in our code: the sample interval for our `SSR_Volume_Sampled` resource and the SSR max capacity defined as part of the `SSR_Volume_Polynomial` resource definition. We will also create a new model configuration for setting the initial state of the `MagDataMode`.
+
+Back when we initially grabbed the mission model template to give us a jumping off point for our model, you may recall that the template provided a `Configuration` class, and that class is already passed into the top-level `Mission` class as a parameter. Taking a look at the `Configuration` class (which is actually a [java record](https://www.baeldung.com/java-record-vs-final-class)), you'll see there is already a static method there called `defaultConfiguration()` that uses the [`@Template` annotation](https://ammos.nasa.gov/aerie-docs/mission-modeling/parameters/#export-template). This type of annotation assumes every variable within the parent class should be exposed as simulation configuration (or a parameter if you use this within activities) with a default value. So, in our case, we will declare three member variables and give them all default values that match the values we have for them in the `DataModel` class, which we will soon replace with references to this configuration.
+
+```java
+public static final Double SSR_MAX_CAPACITY = 250.0;
+
+public static final long INTEGRATION_SAMPLE_INTERVAL = 60;
+
+public static final MagDataCollectionMode STARTING_MAG_MODE = MagDataCollectionMode.OFF;
+```
+
+In order to hook up these member variables to our record, we need to add three constructor parameters and then update the `defaultConfiguration()` method to pass in these default values to construct a record with default values. Once we do this, we get a `Configuration` record that looks like this:
+
+```java
+package missionmodel;
+
+import static gov.nasa.jpl.aerie.merlin.framework.annotations.Export.Template;
+
+public record Configuration(Double ssrMaxCapacity,
+                            long integrationSampleInterval,
+                            MagDataCollectionMode startingMagMode) {
+
+  public static final Double SSR_MAX_CAPACITY = 250.0;
+
+  public static final long INTEGRATION_SAMPLE_INTERVAL = 60;
+
+  public static final MagDataCollectionMode STARTING_MAG_MODE = MagDataCollectionMode.OFF;
+
+  public static @Template Configuration defaultConfiguration() {
+    return new Configuration(SSR_MAX_CAPACITY,
+                             INTEGRATION_SAMPLE_INTERVAL,
+                             STARTING_MAG_MODE);
+  }
+}
+```
+
+Now, when Aerie loads in our model, the member variables above will be exposed as simulation configuration with defaults set to the defaults defined in this record. However, at the moment, changing the values from their defaults won't actually change the behavior of the simulation because our `DataModel` doesn't yet know about this configuration. Within our top-level `Mission` class, we need to pass our configuration into `DataModel` via its constructor
+
+```java
+this.dataModel = new DataModel(this.errorRegistrar, config);
+```
+
+and then update the `DataModel` class constructor to include `Configuration` as an argument:
+
+```java
+public DataModel(Registrar registrar, Configuration config) { ... }
+```
+
+Now we must find references to our original, hard-coded values for our configuration and replace them with references to our `config` object.
+
+Here is what this looks like for `ssrMaxCapacity`
+
+```java
+var clampedIntegrate = PolynomialResources.clampedIntegrate( scale(
+    asPolynomial(this.RecordingRate), 1e-3),
+    PolynomialResources.constant(0.0),
+    PolynomialResources.constant(config.ssrMaxCapacity()),
+    0.0);
+```
+
+and `integrationSampleInterval`
+
+```java
+INTEGRATION_SAMPLE_INTERVAL = Duration.duration(config.integrationSampleInterval(), Duration.SECONDS);
+```
+
+Note that for the sample interval, we had to move from a hardcoded definition as part of the variable declaration and move the definition to the constructor, which you could put on the line following the registration of the `SSR_Volume_Sampled` resource.
+
+Our final configuration parameter, `startingMagMode`, is not quite as straightforward as the other two because in addition to ensuring that the initial value of `MagDataMode` is set correctly, we need to make sure that the initial `RecordingRate` also takes into account the `MagDataRate` associated with the initial `MagDataMode`. We can achieve this by switching around the order of construction so that the `RecordingRate` is defined after the mag mode and rate. We also need to make sure the `previousRecordingRate` used to compute our `SSR_Volume_UponRateChange` resource is set to the initial value of `RecordingRate`. The resulting code will look like this
+
+```java
+MagDataMode = resource(discrete(config.startingMagMode()));
+registrar.discrete("MagDataMode",MagDataMode, new EnumValueMapper<>(MagDataCollectionMode.class));
+
+MagDataRate = map(MagDataMode, MagDataCollectionMode::getDataRate);
+registrar.discrete("MagDataRate", MagDataRate, new DoubleValueMapper());
+
+RecordingRate = resource(discrete(currentValue(MagDataRate)/1e3));
+registrar.discrete("RecordingRate", RecordingRate, new DoubleValueMapper());
+previousRecordingRate = currentValue(RecordingRate);
+```
+
+Now you should be ready to try this out in the Aerie UI. Go ahead and compile your model with simulation configuration and upload it to Aerie. Build whatever plan you'd like and then before you simulate, in the left panel view, select "Simulation" in the dropdown menu. You should now see your three configuration variables appear under "Arguments"
+
+![Simulation Config](assets/Simulation_Config.png)
+
+Aerie is smart enough to look at the types of the configuration variables and generate a input field in the UI that best matches that type. So, for example, the `startingMagMode` is a simple drop down menu with the only options available being members of the `MagDataCollectionMode` enumeration.
+
+### Unit Annotations
+
+### Activity Decomposition
+
+Coming Soon!
+
+### Unit Aware Resources
+
+Coming Soon!

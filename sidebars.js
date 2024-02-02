@@ -46,6 +46,35 @@ const sidebars = {
     },
     {
       type: 'category',
+      label: 'Tutorials',
+      link: {
+        type: 'generated-index',
+      },
+      items: [
+        {
+          type: 'category',
+          label: 'Mission Modeling',
+          link: {
+            id: 'tutorials/mission-modeling/introduction',
+            type: 'doc',
+          },
+          items: [
+            'tutorials/mission-modeling/first-build',
+            'tutorials/mission-modeling/first-resource',
+            'tutorials/mission-modeling/first-activity',
+            'tutorials/mission-modeling/first-model-test',
+            'tutorials/mission-modeling/enum-derived-resource',
+            'tutorials/mission-modeling/current-value',
+            'tutorials/mission-modeling/second-look',
+            'tutorials/mission-modeling/integrating-rate',
+            'tutorials/mission-modeling/integration-comparison',
+            'tutorials/mission-modeling/simulation-config',
+          ],
+        },
+      ],
+    },
+    {
+      type: 'category',
       label: 'Deployment',
       link: {
         id: 'deployment/introduction',
