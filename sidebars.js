@@ -91,6 +91,7 @@ const sidebars = {
         'deployment/advanced-database-migrations',
         'deployment/advanced-authentication',
         'deployment/advanced-permissions',
+        'deployment/advanced-reverse-proxy',
         {
           label: 'Environment Variables',
           type: 'link',
