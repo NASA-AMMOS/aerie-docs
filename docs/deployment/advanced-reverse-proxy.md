@@ -39,3 +39,15 @@ docker compose -f docker-compose.yml -f ./proxy/docker-compose-proxy.yml up -d -
 ```
 
 You can now visit `https://here-is-the-domain-you.set`, which will prompt you to trust a self-signed certificate, and then forward you to Aerie as usual!
+
+:::info Accepting self-signed certificates
+You will need to accept self-signed certificates for Aerie UI, Hasura, _and_ the Gateway.
+Visit the following three URLs and follow the instructions to allow self-signed certs:
+- `https://here-is-the-domain-you.set`
+- `https://here-is-the-domain-you.set:8080/console`
+- `https://here-is-the-domain-you.set:9000`
+
+Aerie will *not* function correctly if all three certificates are not accepted.
+
+This manual process can be avoided if you are able to use a testing certificate for this domain that is signed by your authorities.
+:::
