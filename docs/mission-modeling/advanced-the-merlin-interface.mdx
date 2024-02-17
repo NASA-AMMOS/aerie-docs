@@ -5,7 +5,15 @@ Aerie is a software framework for modeling spacecraft. Within Aerie is **Merlin*
 Because mission models are expressed in Java, rather than a custom DSL, Merlin has little to no ability to see the actual Java code comprising a mission model.
 Merlin must instead make inferences about the mission model based on its observable behavior.
 
-Predecessors of Merlin, such as [APGen](https://trs.jpl.nasa.gov/handle/2014/45571) and [SEQGen](https://trs.jpl.nasa.gov/handle/2014/45455), provided a domain-specific language for mission modeling, allowing them to obtain deep, fine-grained information about the composition of a mission model before performing any simulation.
+Merlin is based on 
+[Blackbird[(https://trs.jpl.nasa.gov/handle/2014/52245),
+providing Java libraries for defining activities and resources.  
+The codebase has diverged from Blackbird's, but they share the same 
+approach of simulating an activity by executing its Java 
+implementation and leveraging Java's full programming language for
+a procedural specification of system behavior.
+
+Predecessors of Merlin and Blackbird, such as [APGen](https://trs.jpl.nasa.gov/handle/2014/45571) and [SEQGen](https://trs.jpl.nasa.gov/handle/2014/45455), provided a domain-specific language for mission modeling, allowing them to obtain deep, fine-grained information about the composition of a mission model before performing any simulation.
 In some ways, this provides enhanced ergonomics, as a mission modeler can focus on expressing their model directly in the modeling language, without being concerned with the needs of the system that will be interpreting that model.
 The language itself captures all interesting aspects of the model.
 
