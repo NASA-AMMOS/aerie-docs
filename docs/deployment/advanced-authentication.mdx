@@ -16,6 +16,21 @@ To learn how to programmatically authenticate with Aerie to get a token, see the
 
 The default Aerie [docker-compose.yml](https://github.com/NASA-AMMOS/aerie/blob/develop/deployment/docker-compose.yml) file requires certain environment variables to be set to enable authentication. This section outlines the variable definitions and the services that require them for authentication.
 
+### AUTH_GROUP_ROLE_MAPPINGS
+- Description: JSON object that maps auth provider's groups to allowed Aerie roles.
+- Service: aerie_gateway
+- Accepted values: Stringified JSON. Auth provider groups are keys, values are list of allowed Aerie roles
+- Example:
+```
+{
+  "team_leads": [ "aerie_admin" ],
+  "power_users": [ "user", "viewer" ],
+  "business_users": [ "viewer" ]
+}
+```
+- Default: `{}`
+- See: [SSO auth docs](./advanced-sso) for more information.
+
 ### AUTH_TYPE
 
 - Description: Authentication method (currently only supports CAM or none)
