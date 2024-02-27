@@ -23,14 +23,11 @@
 }
 
 .cardBody {
-  /* background-color: red; */
   display: flex;
   flex-direction: column;
   height: 100%;
   justify-content: space-between;
-  /* align-items: stretch; */
   padding-bottom: 0;
-  /* background-color: lightcyan; */
   color: var(--ifm-color-secondary-dark);
 }
 
@@ -44,8 +41,6 @@
   margin: -6rem -1rem -1rem -1rem;
   padding-bottom: 2rem;
   object-fit: scale-down;
-  /* overflow: visible; */
-  /* background-color: lightpink; */
   max-width: none;
   max-height: 300px;
 }
