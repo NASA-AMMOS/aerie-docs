@@ -1,4 +1,4 @@
-# Advanced - SSO Auth
+# Advanced - SSO Authentication
 
 Aerie is able to interoperate with external auth providers like JPL CAM, [Auth0](https://auth0.com/), [AWS Cognito](https://aws.amazon.com/cognito/), etc in order to provide single-sign on (SSO) support. Due to Aerie's open source and flexible nature, the SSO implementation is very extensible, and while this allows for organizations of many types to use Aerie, it will require some configuration on the deployment side.
 
@@ -80,6 +80,12 @@ AUTH_SSO_TOKEN_NAME="iPlanetDirectoryPro" # example name of SSO token cookie
 :::info
 
 This feature was introduced in Aerie 2.5.0
+
+:::
+
+:::note
+
+This is an optional feature. If `AUTH_GROUP_ROLE_MAPPINGS` isn't set (or is set to an empty JSON: `{}`), the Gateway will not use auth provder group membership and instead use `DEFAULT_ROLE` and `ALLOWED_ROLES` as the source of truth for assigning roles, as described in the [Password Authentication docs](../advanced-permissions/#configuring-roles-for-new-users)
 
 :::
 
