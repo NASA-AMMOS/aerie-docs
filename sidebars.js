@@ -92,6 +92,7 @@ const sidebars = {
         'deployment/advanced-authentication',
         'deployment/advanced-permissions',
         'deployment/advanced-reverse-proxy',
+        'deployment/advanced-sso',
         {
           label: 'Environment Variables',
           type: 'link',
