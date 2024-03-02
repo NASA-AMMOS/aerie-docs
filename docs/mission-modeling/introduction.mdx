@@ -18,7 +18,7 @@ A mission model must contain a [package-info.java](https://www.baeldung.com/java
   language="java"
   showLineNumbers
   title="Aerie Mission Model Template (FireSat) - package-info.java"
-  url="https://raw.githubusercontent.com/NASA-AMMOS/aerie-mission-model-template/main/src/main/java/firesat/package-info.java"
+  url="https://raw.githubusercontent.com/NASA-AMMOS/aerie-mission-model-template/main/src/main/java/missionmodel/package-info.java"
 ></RemoteCodeBlock>
 
 This `package-info.java` identifies the top-level class representing the mission model, and registers activity types that may interact with the mission model. Aerie processes these annotations at compile-time, generating a set of boilerplate classes which take care of interacting with the Aerie system.
@@ -36,7 +36,7 @@ The top-level model is received by activities, however, so it must make accessib
   language="java"
   showLineNumbers
   title="Aerie Mission Model Template (FireSat) - Mission.java"
-  url="https://raw.githubusercontent.com/NASA-AMMOS/aerie-mission-model-template/main/src/main/java/firesat/Mission.java"
+  url="https://raw.githubusercontent.com/NASA-AMMOS/aerie-mission-model-template/main/src/main/java/missionmodel/Mission.java"
 ></RemoteCodeBlock>
 
 Mission resources are declared using `Registrar#discrete` or `Registrar#real` functions.
