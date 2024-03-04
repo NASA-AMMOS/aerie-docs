@@ -63,9 +63,10 @@
 
 .imgFullscreen {
   margin-top: 6rem;
+  margin-bottom: 4rem;
   width: 100%;
   border-radius: 4px;
-  box-shadow: var(--card-shadow);;
+  box-shadow: var(--card-shadow);
 }
 
 .heroButton {
