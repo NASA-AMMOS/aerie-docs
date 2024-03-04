@@ -52,7 +52,7 @@ export default function Home() {
     <Layout title={`Home`} description="Planning, sequencing, and scheduling tools for modern space missions.">
       <HomepageHeader />
       <main className={styles.siteBackground}>
-        {/* <HomepageVideo /> */}
+        <HomepageVideo />
         <h2 className={styles.sectionHeader}>Features</h2>
         <HomepageFeatures />
         {/* <HomepageTestimonials /> */}
