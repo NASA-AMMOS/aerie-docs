@@ -44,7 +44,7 @@ Similarly to activities, the annotation processor will take care of all serializ
 A `Configuration` can be a simple data class. For example:
 
 ```java
-package firesat;
+package missionmodel;
 
 import gov.nasa.jpl.aerie.merlin.framework.annotations.Export;
 import java.nio.file.Path;
