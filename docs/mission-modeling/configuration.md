@@ -6,18 +6,18 @@ A **mission model configuration** enables mission modelers to set initial missio
 
 To use a mission model configuration the `@WithConfiguration` annotation must be used within the mission model's [package-info.java](./introduction.mdx#the-package-infojava-file) to register the configuration with Aerie.
 
-For example, the Aerie mission model template [package-info.java](https://github.com/NASA-AMMOS/aerie-mission-model-template/blob/main/src/main/java/firesat/package-info.java) makes use of this annotation:
+For example, the Aerie mission model template [package-info.java](https://github.com/NASA-AMMOS/aerie-mission-model-template/blob/main/src/main/java/missionmodel/package-info.java) makes use of this annotation:
 
 ```java
 @MissionModel(model = Mission.class)
 @WithConfiguration(Configuration.class)
-package firesat;
+package missionmodel;
 
 import gov.nasa.jpl.aerie.merlin.framework.annotations.MissionModel;
 import gov.nasa.jpl.aerie.merlin.framework.annotations.MissionModel.WithConfiguration;
 ```
 
-In this example `Configuration` is the class class containing all mission model configuration data. When the `@WithConfiguration` annotation is used, the model – defined within the `@MissionModel` annotation – must accept the configuration as the last constructor parameter. See [Mission.java](https://github.com/NASA-AMMOS/aerie-mission-model-template/blob/main/src/main/java/firesat/Mission.java):
+In this example `Configuration` is the class class containing all mission model configuration data. When the `@WithConfiguration` annotation is used, the model – defined within the `@MissionModel` annotation – must accept the configuration as the last constructor parameter. See [Mission.java](https://github.com/NASA-AMMOS/aerie-mission-model-template/blob/main/src/main/java/missionmodel/Mission.java):
 
 ```java
 public Mission(final Registrar registrar, final Configuration config) {
