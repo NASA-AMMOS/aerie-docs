@@ -39,6 +39,6 @@ Understand Aerie in **5 minutes** by trying it out!
 
 1. Visit [http://localhost/](http://localhost/) to view the [Aerie UI](https://github.com/NASA-AMMOS/aerie-ui).
 
-   Note that the fast track deployment is not configured to connect to an authentication and authorization provider. As such, and any credentials are accepted.
+   Note that the fast track deployment is not configured to connect to an authentication and authorization provider, therefore any credentials are accepted.
 
 1. Head over to the planning documentation to learn how to [upload a mission model](../planning/upload-mission-model).
