@@ -1,0 +1,47 @@
+.sectionHeader {
+  color: var(--ifm-color-secondary-dark);
+  text-align: center;
+  font-size: 1rem;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 120%; /* 1.8rem */
+  letter-spacing: 0.105rem;
+  justify-content: center;
+  text-transform: uppercase;
+  flex-grow: 1;
+  margin: 0;
+}
+
+.logoSection {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  width: 100%;
+  height: auto;
+  border-top: 1px solid var(--ifm-color-secondary-light);
+  border-bottom: 1px solid var(--ifm-color-secondary-light);
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  margin-bottom: 4rem;
+}
+
+.section {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+  padding-right: 0;
+  background-color: var(--ifm-hero-background-color);
+}
+
+.logoWrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 4rem;
+  flex-grow: 1;
+}
+
+.featureImg {
+  max-height: 6rem;
+}

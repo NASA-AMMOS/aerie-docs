@@ -1,4 +1,7 @@
+@import url('https://rsms.me/inter/inter.css');
+
 :root {
+  --ifm-container-width-xl: 1170px;
   --ifm-color-primary: #2e8555;
   --ifm-color-primary-dark: #29784c;
   --ifm-color-primary-darker: #277148;
@@ -6,9 +9,22 @@
   --ifm-color-primary-light: #33925d;
   --ifm-color-primary-lighter: #359962;
   --ifm-color-primary-lightest: #3cad6e;
+  --ifm-color-secondary: #2e8555;
+  --ifm-color-secondary-darkest: #0f0f0f;
+  --ifm-color-secondary-darker: #282828;
+  --ifm-color-secondary-dark: #868686;
+  --ifm-color-secondary-light: #dbdbdb;
+  --ifm-color-secondary-lighter: #f5f5f5;
+  --ifm-color-secondary-lightest: #fbfbfb;
   --ifm-code-font-size: 95%;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
   --doc-sidebar-width: 350px !important;
+  --card-shadow: 0px 4px 16px 0px rgba(0, 0, 0, 0.08);
+  --ifm-button-background-color: #3cad6e;
+  --ifm-hero-background-color: #f5f5f5;
+  --ifm-font-family-base: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif,
+    BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    'Segoe UI Symbol';
 }
 
 [data-theme='dark'] {
@@ -20,6 +36,15 @@
   --ifm-color-primary-lighter: #32d8b4;
   --ifm-color-primary-lightest: #4fddbf;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+  --ifm-hero-background-color: #131315;
+  --ifm-color-secondary: #2e8555;
+  --ifm-color-secondary-darkest: #c0c1c1;
+  --ifm-color-secondary-darker: #f5f5f5;
+  --ifm-color-secondary-dark: #a5a5a5;
+  --ifm-color-secondary-light: #3d3b40;
+  --ifm-color-secondary-lighter: #131315;
+  --ifm-color-secondary-lightest: #2a282c;
+  --card-shadow: 0px 4px 16px 0px rgba(0, 0, 0, 0.8);
 }
 
 .header-github-link:hover {
