@@ -50,9 +50,13 @@ Three main use cases exist for auth within Aerie, each with their own configurat
 User is forwarded to Aerie UI /login page if no valid Aerie JWT is found. Credentials passed in here will be tested against the CAM API for validity.
 
 ```sh
+# Gateway vars
 AUTH_TYPE=cam
 AUTH_UI_URL="https://localhost.jpl.nasa.gov/login" # example Aerie UI /login URL
 AUTH_URL="https://atb-ocio-12b.jpl.nasa.gov:8443/cam-api" # example SSO API URL
+
+# UI var
+PUBLIC_AUTH_SSO_ENABLED=false # use /login prompt instead of SSO
 ```
 
 ### Aerie login UI without authentication
@@ -60,8 +64,12 @@ AUTH_URL="https://atb-ocio-12b.jpl.nasa.gov:8443/cam-api" # example SSO API URL
 User is forwarded to Aerie UI `/login` page if no valid Aerie JWT is found. Validity of username / password is never checked; automatically signed in as username with admin privileges. Useful for testing / dev environments
 
 ```sh
+# Gateway vars
 AUTH_TYPE=none
 AUTH_UI_URL="https://localhost.jpl.nasa.gov/login" # Aerie UI /login URL
+
+# UI var
+PUBLIC_AUTH_SSO_ENABLED=false # use /login prompt instead of SSO
 ```
 
 ### SSO token-based authentication using external auth providers.
@@ -69,10 +77,14 @@ AUTH_UI_URL="https://localhost.jpl.nasa.gov/login" # Aerie UI /login URL
 User is forwarded to SSO login UI page if no valid Aerie JWT or SSO token is found.
 
 ```sh
+# Gateway vars
 AUTH_TYPE=cam
 AUTH_UI_URL="https://atb-ocio-12b.jpl.nasa.gov:8443/cam-ui" # example SSO login UI
 AUTH_URL="https://atb-ocio-12b.jpl.nasa.gov:8443/cam-api" # example SSO API
 AUTH_SSO_TOKEN_NAME="iPlanetDirectoryPro" # example name of SSO token cookie
+
+# UI var
+PUBLIC_AUTH_SSO_ENABLED=true # use SSO login page instead of Aerie's `/login`
 ```
 
 ## Mapping auth provider groups to Aerie roles
