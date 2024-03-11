@@ -102,6 +102,22 @@ query Simulate($planId: Int!) {
 }
 ```
 
+### Forcibly Rerun Simulation
+
+Occasionally, there may be a need to resimulate a plan without changing any arguments,
+for example if there was a network failure during a prior run.
+In these cases, simulation can be forcibly rerun by providing the `force` argument to the `simulate` endpoint.
+
+```graphql
+query ForceResimulate($planId: Int!) {
+  simulate(planId: $planId, force: true) {
+    reason
+    simulationDatasetId
+    status
+  }
+}
+```
+
 ## Query for Simulation Results
 
 The output of a simulation is stored in a `simulation_dataset`. A `simulation_dataset` has both profiles (aka states or resources), and simulated activities.
