@@ -1,0 +1,318 @@
+# Constraints
+
+## Check Constraints
+
+```graphql
+query CheckConstraints($planId: Int!, $simulationDatasetId: Int) {
+  constraintViolations(planId: $planId, simulationDatasetId: $simulationDatasetId) {
+    constraintId
+    constraintName
+    constraintRevision
+    success
+    results {
+      violations {
+        activityInstanceIds
+        windows {
+          end
+          start
+        }
+      }
+      gaps {
+        end
+        start
+      }
+      resourceIds
+    }
+    errors {
+      stack
+      message
+      location {
+        column
+        line
+      }
+    }
+  }
+}
+```
+
+Returns a list of constraint violations for a given plan by `$planId`.
+The violations will include the corresponding constraint name, type, and id. An optional `$simulationDatasetId` can be provided which limits the constraint violation checking to a single simulation dataset, which is useful when external datasets are added that only reference a single simulation dataset, as constraint violations would otherwise be reported for every uploaded external dataset.
+
+## Create Constraint
+
+<details closed>
+  <summary><b>For Aerie deployments before v2.4.0</b></summary>
+
+  ```graphql
+  mutation CreateConstraint($constraint: constraint_insert_input!) {
+    insert_constraint_one(object: $constraint) {
+      id
+    }
+  }
+  ```
+
+  The `$constraint` query variable has the following type definition:
+
+  ```ts
+  type Constraint = {
+    definition: string;
+    description: string;
+    model_id: number | null;
+    name: string;
+    plan_id: number | null;
+    summary: string;
+  };
+  ```
+
+</details>
+
+```graphql
+mutation CreateConstraint($constraint: constraint_metadata_insert_input!) {
+  insert_constraint_metadata_one(object: $constraint) {
+    id
+    public
+    description
+    versions {
+      definition
+    }
+  }
+}
+```
+
+The `$constraint` query variable has the following structure:
+
+```json
+{
+  "constraint": {
+    "name": string,
+    "public": boolean, // Default false
+    "description": string, // Optional
+    "versions": {
+      "data": {
+        "definition": string // EDSL Code
+      }
+    }
+  }
+}
+```
+
+The `public` field controls whether all users can add your constraint to their constraint specifications
+or if only you can do that.
+Additionally, if `public` is set to `true`, the constraint _must_ have a unique name.
+
+The `description` field, if present, contains a human-readable description of the constraint.
+
+The `definition` field contains your EDSL constraint code.
+
+## Update Constraint Metadata
+
+***Introduced in v2.4.0***
+
+A constraint's metadata includes its name, public status, owner, and description.
+In order to update a constraint's metadata, you must be either an admin user or the owner of the constraint.
+
+```graphql
+mutation UpdateConstraintMetadata($id: Int!, $constraint: constraint_set_input!) {
+  update_constraint_by_pk(pk_columns: { id: $id }, _set: $constraint) {
+    id
+  }
+}
+```
+
+The `$constraint` query variable has the same type definition as the [create constraint](#create-constraint) query above, but less strict. You can leave properties out that you do not need to update.
+
+## Add Constraint Version
+
+***Introduced in v2.4.0***
+
+Constraint definitions are versioned and cannot be changed once created.
+
+```graphql
+mutation AddConstraintVersion($constraintId: Int!, $definition: String!) {
+  insert_constraint_definition_one(object: {constraint_id: $constraintId, definition: $definition}) {
+    revision
+  }
+}
+```
+
+## Delete Constraint Version
+
+***Introduced in v2.4.0***
+
+In order to delete a constraint version, it must not be in use on any constraint specifications (see [below](#manage-constraint-specifications)).
+
+```graphql
+mutation DeleteConstraintVersion($constraintId: Int!, $revsion: Int!) {
+  delete_constraint_definition_by_pk(constraint_id: $constraintId, revision: $revsion){
+    definition
+  }
+}
+```
+
+## Delete Constraint
+
+<details closed>
+  <summary><b>For Aerie deployments before v2.4.0</b></summary>
+
+  ```graphql
+  mutation DeleteConstraint($id: Int!) {
+    delete_constraint_by_pk(id: $id) {
+      id
+    }
+  }
+  ```
+
+</details>
+
+In order to delete a constraint, it must not be in use on any constraint specifications (see [below](#manage-constraint-specifications)).
+
+```graphql
+mutation DeleteConstraint($id: Int!) {
+  delete_constraint_metadata_by_pk(id: $id){
+    id
+  }
+}
+```
+
+## Manage Constraint Specifications
+
+***Introduced in v2.4.0.***
+
+There are two types of constraint specifications in Aerie:
+a **model specification** and a **plan specification**.
+
+- A **constraint plan specification** is the set of constraints that
+will be checked against the plan when you [Check Constraints](#check-constraints).
+- A **constraint model specification** is used as a guideline for
+the constraint specification of every plan that uses the model.
+All new plans created from this model will start with their constraint
+specification prepopulated with the contents of their model's constraint specification.
+Note that updating a model's constraint specification will not automatically update
+the constraint specification of plans using the model.
+
+### Add Constraint to Model Specification
+
+```graphql
+mutation AddConstraintModelSpec($constraint: constraint_model_specification_insert_input!) {
+  insert_constraint_model_specification_one(object: $constraint) {
+    model_id
+    constraint_id
+    constraint_revision
+  }
+}
+```
+
+The `$constraint` query variable has the following structure.
+
+```json
+{
+  "model_id": integer,
+  "constraint_id": integer,
+  "constraint_revision": integer, // optional
+}
+```
+
+The `constraint_revision` field is used to specify which version of the constraint to use when checking constraints.
+If absent, the latest version of the constraint will be used.
+
+### Update Constraint Version on a Plan Specification
+
+Excluding the revision will set the recommended version of the constraint to the latest version.
+
+```graphql
+mutation SetConstraintVersion($modelId: Int!, $constraintId: Int!, $constraintVersion: Int) {
+  update_constraint_model_specification_by_pk(
+    pk_columns: {model_id: $modelId, constraint_id: $constraintId},
+    _set: {constraint_revision: $constraintVersion}
+  ) {
+    model_id
+    constraint_id
+    constraint_revision
+  }
+}
+```
+
+### Remove a Constraint from the Model Specification
+
+```graphql
+mutation RemoveConstraintFromModelSpec($modelId: Int!, $constraintId: Int!) {
+  delete_constraint_model_specification_by_pk(model_id: $modelId, constraint_id: $constraintId) {
+    constraint_id
+  }
+}
+```
+
+### Add Constraint to Plan Specification
+
+```graphql
+mutation AddConstraintPlanSpec($constraint: constraint_specification_insert_input!) {
+  insert_constraint_specification_one(object: $constraint) {
+    plan_id
+    enabled
+    constraint_id
+    constraint_revision
+  }
+}
+```
+
+The `$constraint` query variable has the following structure.
+
+```json
+{
+  "plan_id": integer,
+  "constraint_id": integer,
+  "constraint_revision": integer, // optional
+  "enabled": boolean, // optional, defaults to true
+}
+```
+
+The `constraint_revision` field is used to specify which version of the constraint to use when checking constraints.
+If absent, the latest version of the constraint will be used.
+
+The `enabled` field controls whether a constraint will be checked.
+
+### Update Constraint Version on a Plan Specification
+
+Excluding the revision will set the plan to use the latest version of the constraint.
+
+```graphql
+mutation SetConstraintVersion($planId: Int!, $constraintId: Int!, $constraintVersion: Int) {
+  update_constraint_specification_by_pk(
+    pk_columns: {plan_id: $planId, constraint_id: $constraintId},
+    _set: {constraint_revision: $constraintVersion}
+  ) {
+    plan_id
+    constraint_id
+    constraint_revision
+    enabled
+  }
+}
+```
+
+### Enable/Disable Constraints on a Plan Specification
+
+Constraints that are disabled will not be checked when checking constraints.
+
+```graphql
+mutation SetConstraintVersion($planId: Int!, $constraintId: Int!, $enabled: Boolean!) {
+  update_constraint_specification_by_pk(
+    pk_columns: {plan_id: $planId, constraint_id: $constraintId},
+    _set: {enabled: $enabled}
+  ) {
+    plan_id
+    constraint_id
+    constraint_revision
+    enabled
+  }
+}
+```
+
+### Remove a Constraint from the Plan Specification
+
+```graphql
+mutation RemoveConstraintFromSpec($planId: Int!, $constraintId: Int!) {
+  delete_constraint_specification_by_pk(plan_id: $planId, constraint_id: $constraintId) {
+    constraint_id
+  }
+}
+```
