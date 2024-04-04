@@ -65,7 +65,7 @@ If you want to run **scheduling** against your plan you need to [create an assoc
 
 :::
 
-## Query for All Activity Directives (aka Instances) for a Plan
+## Query for All Activity Directives for a Plan
 
 Notice how in this query we get the same `plan` data as the previous query, but also the nested `activity_directives`. If you are familiar with relational databases you can think of this as a join query between the `plan` table and `activity_directive` table (in Hasura these joins are made via [relationships](https://hasura.io/learn/graphql/hasura/relationships/)). This is the secret sauce behind GraphQL. It allows us to query for deeply-nested data across the Aerie system in a single unified way.
 
@@ -126,6 +126,114 @@ query GetActivityTypesForPlan($id: Int!) {
         parameters
         required_parameters
       }
+    }
+  }
+}
+```
+
+## Create Activity Directive
+
+TODO: Finish
+
+```graphql
+mutation CreateDirectives($directives: [activity_directive_insert_input!]!  ) {
+  insert_activity_directive(objects: $directives) {
+    returning {
+      id
+      start_offset
+    }
+  }
+}
+```
+
+The query variable `directives` is a list of activity directives.
+Each directive has the following shape:
+```json
+{
+  "name": string, // optional
+  "plan_id": integer,
+  "type": string,
+  "start_offset": duration, // format: "HH:MM:SS.sss"
+  "arguments": jsonb
+}
+```
+
+## Query for Activity Effective Arguments
+
+This query returns a set of effective arguments given a set of required (and overridden) arguments.
+
+```graphql
+query GetEffectiveArgs($modelId: ID!, $activityType: String!, $arguments: ActivityArguments!) {
+  getActivityEffectiveArguments(
+    missionModelId: $modelId
+    activityTypeName: $activityType
+    activityArguments: $arguments
+  ) {
+    arguments
+    errors
+    success
+  }
+}
+```
+
+For example, running the query with the arguments of:
+
+```json
+{
+  "modelId": 1,
+  "activityType": "BakeBananaBread",
+  "arguments": { "tbSugar": 1, "glutenFree": false }
+}
+```
+
+Results in:
+
+```json
+{
+  "data": {
+    "getActivityEffectiveArguments": {
+      "arguments": {
+        "glutenFree": false,
+        "tbSugar": 1,
+        "temperature": 350
+      },
+      "success": true
+    }
+  }
+}
+```
+
+When a required argument is not provided, the returned JSON will indicate which argument is missing.
+With ``examples/banananation``'s ``BakeBananaBread``, where only the ``temperature`` parameter has a default value:
+
+```graphql
+{
+  "modelId": 1,
+  "activityType": "BakeBananaBread",
+  "arguments": {}
+}
+```
+
+Results in:
+
+```json
+{
+  "data": {
+    "getActivityEffectiveArguments": {
+      "arguments": {
+        "temperature": 350
+      },
+      "errors": {
+        "tbSugar": {
+          "schema": {"type": "int"} ,
+          "message": "Required argument for activity \"BakeBananaBread\" not provided: \"tbSugar\" of type ValueSchema.INT"
+        },
+        "glutenFree": {
+          "schema": {"type": "boolean"},
+          "message": "Required argument for activity \"BakeBananaBread\" not provided: \"glutenFree\" of type ValueSchema.BOOLEAN"
+        }
+      },
+      "success": false
     }
   }
 }

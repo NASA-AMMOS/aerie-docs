@@ -15,10 +15,12 @@ In order to perform scheduling tasks on a branch, it is necessary to also [creat
 ## Create Merge Request
 
 ```graphql
-mutation CreateMergeRequest($requester_username: String!, $source_plan_id: Int!, $target_plan_id: Int!) {
+mutation CreateMergeRequest($source_plan_id: Int!, $target_plan_id: Int!) {
   create_merge_request(
-    args: { requester_username: $requester_username, target_plan_id: $target_plan_id, source_plan_id: $source_plan_id }
-  ) {
+    args: {
+      target_plan_id: $target_plan_id, 
+    	source_plan_id: $source_plan_id
+    }) {
     merge_request_id
   }
 }
@@ -31,7 +33,7 @@ A withdrawn merge request cannot be used to begin a merge.
 
 ```graphql
 mutation WithdrawMergeRequest($merge_request_id: Int!) {
-  withdraw_merge_request(args: { merge_request_id: $merge_request_id }) {
+  withdraw_merge_request(args: {_merge_request_id: $merge_request_id}) {
     merge_request_id
   }
 }
@@ -44,11 +46,11 @@ Beginning a merge locks the target plan until the merge is either cancelled, den
 Once you have a `pending` merge request between two plans, you can use the following mutation to begin the merge:
 
 ```graphql
-mutation BeginMerge($reviewer_username: String!, $merge_request_id: Int!) {
-  begin_merge(args: { reviewer_username: $reviewer_username, merge_request_id: $merge_request_id }) {
+mutation BeginMerge($merge_request_id: Int!) {
+  begin_merge(args: {_merge_request_id: $merge_request_id}) {
     merge_request_id
-    conflicting_activities
     non_conflicting_activities
+    conflicting_activities
   }
 }
 ```
@@ -56,8 +58,8 @@ mutation BeginMerge($reviewer_username: String!, $merge_request_id: Int!) {
 By default, the above mutation will return the list of non-conflicting activities and the list of conflicting activities. If you would like neither, you can instead perform the following mutation:
 
 ```graphql
-mutation BeginMerge($reviewer_username: String!, $merge_request_id: Int!) {
-  begin_merge(args: { reviewer_username: $reviewer_username, merge_request_id: $merge_request_id }) {
+mutation BeginMerge($merge_request_id: Int!) {
+  begin_merge(args: {_merge_request_id: $merge_request_id}) {
     merge_request_id
   }
 }
@@ -67,7 +69,7 @@ If you want the list of non-conflicting activities of an in-progress merge at a 
 
 ```graphql
 query GetNonConflictingActivities($merge_request_id: Int!) {
-  get_non_conflicting_activities(args: { merge_request_id: $merge_request_id }) {
+  get_non_conflicting_activities(args: {_merge_request_id: $merge_request_id}) {
     activity_id
     change_type
     source
@@ -80,7 +82,7 @@ If you want the list of conflicting activities of an in-progress merge, perform 
 
 ```graphql
 query GetConflictingActivities($merge_request_id: Int!) {
-  get_conflicting_activities(args: { merge_request_id: $merge_request_id }) {
+  get_conflicting_activities(args: {_merge_request_id: $merge_request_id}) {
     activity_id
     change_type_source
     change_type_target
@@ -98,7 +100,9 @@ You can cancel any `in-progress` merge.
 
 ```graphql
 mutation CancelMerge($merge_request_id: Int!) {
-  cancel_merge(args: { merge_request_id: $merge_request_id })
+  cancel_merge(args: { _merge_request_id: $merge_request_id }) {
+    merge_request_id
+  }
 }
 ```
 
@@ -138,7 +142,9 @@ It is possible to deny an in-progress merge, for example, if a request is outdat
 
 ```graphql
 mutation DenyMerge($merge_request_id: Int!) {
-  deny_merge(args: { merge_request_id: $merge_request_id })
+  deny_merge(args: { merge_request_id: $merge_request_id }) {
+    merge_request_id
+  }
 }
 ```
 
@@ -148,6 +154,8 @@ Once all conflicts have been resolved, you can commit a merge.
 
 ```graphql
 mutation CommitMerge($merge_request_id: Int!) {
-  commit_merge(args: { merge_request_id: $merge_request_id })
+  commit_merge(args: { _merge_request_id: $merge_request_id }) {
+    merge_request_id
+  }
 }
 ```
