@@ -16,14 +16,14 @@ The following environment variables will need to be set in conjunction for SSO a
 - Example: `https://your-auth-provider-api-endpoint`
 - Default: `https://atb-ocio-12b.jpl.nasa.gov:8443/`
 
-#### AUTH_URL
+#### AUTH_UI_URL
 - Description: Login UI URL that the Gateway will redirect the UI to if SSO auth fails. Likely found in auth provider docs.
 - Accepted values: Any URL
 - Example: `https://your-auth-provider-login-screen`
 - Default: `https://atb-ocio-12b.jpl.nasa.gov:8443/cam-ui`
 
 #### AUTH_SSO_TOKEN_NAME
-- Description: Name of the cookie(s) that the Gateway will parse for SSO token(s)
+- Description: Name of the cookie(s) that the Gateway will parse for SSO token(s). See the [following tip](#setting-default_roles) to make sure you're setting array env vars correctly.
 - Accepted values: List of strings
 - Example: `["my_sso_token_cookie_name"]`
 - Default: `["iPlanetDirectoryPro"]`
@@ -81,7 +81,7 @@ User is forwarded to SSO login UI page if no valid Aerie JWT or SSO token is fou
 AUTH_TYPE=cam
 AUTH_UI_URL="https://atb-ocio-12b.jpl.nasa.gov:8443/cam-ui" # example SSO login UI
 AUTH_URL="https://atb-ocio-12b.jpl.nasa.gov:8443/cam-api" # example SSO API
-AUTH_SSO_TOKEN_NAME="iPlanetDirectoryPro" # example name of SSO token cookie
+AUTH_SSO_TOKEN_NAME='["iPlanetDirectoryPro"]' # example name of SSO token cookie
 
 # UI var
 PUBLIC_AUTH_SSO_ENABLED=true # use SSO login page instead of Aerie's `/login`
@@ -125,7 +125,17 @@ The `AUTH_GROUP_ROLE_MAPPINGS` environment variable must be valid JSON in the fo
 ```
 
 :::info
-This variable will be run through `JSON.parse()` in the Auth Adapters, so it must be valid JSON (e.g. double quotes, no trailing comma, etc). An error will be thrown from the Gateway on boot if the environment variable is invalid JSON.
+This variable will be run through `JSON.parse()` in the Auth Adapters, so it must be valid JSON (e.g. double quotes, no trailing comma, etc). An error will be thrown from the Gateway on boot if the environment variable is invalid JSON. View the [following tip](#setting-default_roles) to make sure you're setting env vars as literal values, e.g. in a `docker-compose.yml` file:
+```yaml
+aerie_gateway:
+  environment:
+    AUTH_GROUP_ROLE_MAPPINGS: |
+      {
+        "some_auth_group_name": ["aerie_admin", "user", "viewer"],
+        "another_auth_group_name": ["viewer"]
+      }
+```
+
 :::
 
 ### Setting `DEFAULT_ROLE`'s
