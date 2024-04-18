@@ -2,8 +2,8 @@
 
 To aid in migrating between database versions we provide a Python script called [aerie_db_migration.py](https://github.com/NASA-AMMOS/aerie/blob/develop/deployment/aerie_db_migration). In order to run it, the following software is required:
 
-- [Python 3.7](https://www.python.org/downloads/) or later
-- [Hasura CLI 2.13.0](https://hasura.io/docs/latest/hasura-cli/install-hasura-cli/) or later
+- [Python 3.9](https://www.python.org/downloads/) or later
+- [Hasura CLI 2.35.1](https://hasura.io/docs/latest/hasura-cli/install-hasura-cli/) or later
 
 Additional Python package requirements can be installed by running the following command in the [deployment](https://github.com/NASA-AMMOS/aerie/tree/develop/deployment) directory:
 
