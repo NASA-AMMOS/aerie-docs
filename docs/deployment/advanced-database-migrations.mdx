@@ -27,6 +27,9 @@ The script expects all migration files present on the server to also exist on th
 
 ## Arguments
 
+<details closed>
+  <summary><b>For Aerie deployments before v2.8.0</b></summary>
+
 `aerie_db_migration` takes the following command line arguments:
 
 ```sh
@@ -34,7 +37,7 @@ aerie_db_migration.py [-h] (-a | -r) [--all] [-db DB_NAMES [DB_NAMES ...]] [-p H
 ```
 
 | Option Name                                                              | Option Description                                                                                                           |
-| ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+|--------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------|
 | `-h`, `--help`                                                           | Shows the help message.                                                                                                      |
 | `-a`, `--apply`                                                          | Apply migration steps to specified databases.                                                                                |
 | `-r`, `--revert`                                                         | Revert migration steps to specified databases.                                                                               |
@@ -47,8 +50,34 @@ aerie_db_migration.py [-h] (-a | -r) [--all] [-db DB_NAMES [DB_NAMES ...]] [-p H
 It is necessary to at least specify `--apply` or `--revert`.
 
 If you are not running `aerie_db_migration` from within `deployment`, or if the `hasura` directory containing the `config.yaml` and the `migrations` directory is not in the directory that `aerie_db_migration` is being run from, then it is necessary to specify `--hasura-path`.
+</details>
+
+`aerie_db_migration.py` takes the following command line arguments:
+
+```sh
+aerie_db_migration.py [-h] (-a | -r) [--all] [-p HASURA_PATH] [-e ENV_PATH] [-n NETWORK_LOCATION]
+```
+
+| Option Name                                                  | Option Description                                                                                                           |
+|--------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------|
+| `-h`, `--help`                                               | Shows the help message.                                                                                                      |
+| `-a`, `--apply`                                              | Apply migration steps to the database.                                                                                       |
+| `-r`, `--revert`                                             | Revert migration steps to the database.                                                                                      |
+| `--all`                                                      | Apply (Revert) _ALL_ unapplied (applied) migration steps to the database.                                                    |
+| `-p HASURA_PATH`, `--hasura-path HASURA_PATH`                | The path to the directory containing the `config.yaml` for Aerie. Defaults to `./hasura`                                     |
+| `-e ENV_PATH`, `--env-path ENV_PATH`                         | The path to the `.env` file used to deploy Aerie. **Must** define `AERIE_USERNAME` and `AERIE_PASSWORD`. Defaults to `.env`. |
+| `-n NETWORK_LOCATION`, `--network-location NETWORK_LOCATION` | The network location of the database. Defaults to `localhost`.                                                               |
+
+It is necessary to at least specify `--apply` or `--revert`.
+
+If you are not running `aerie_db_migration.py` from within `deployment`,
+or if the `hasura` directory containing the `config.yaml` and the `migrations` directory is not in the directory
+that `aerie_db_migration.py` is being run from, then it is necessary to specify `--hasura-path`.
 
 ## Migrating a Database
+
+<details closed>
+  <summary><b>For Aerie deployments before v2.8.0</b></summary>
 
 If `--all` has been specified, then `aerie_db_migration.py` will automatically apply or revert all applicable changes to the specified databases (or all available databases if none are specified). It will then output the details of each change applied, followed by the overall status. For example:
 
@@ -109,3 +138,50 @@ Entering `y` will apply the migration and then proceed to the next step,
 should one exist. Entering `n` will return to the Database Selection screen.
 
 Entering `q` at any point will exit the program.
+
+</details>
+
+If `--all` has been specified, then `aerie_db_migration.py` will automatically apply or revert all applicable changes to the database.
+It will then output the details of each change applied, followed by the overall status. For example:
+
+```sh
+> aerie_db_migration.py -a --all
+###############################
+AERIE DATABASE MIGRATION HELPER
+###############################
+VERSION  TYPE  NAME
+1        up    sample_migration
+INFO migrations applied
+INFO Metadata reloaded
+INFO Metadata is consistent
+
+###############
+Database Status
+###############
+VERSION  NAME              SOURCE STATUS  DATABASE STATUS
+1        sample_migration  Present        Present
+```
+
+Otherwise, `aerie_db_migration` will enter a step-by-step mode, where you will be prompted
+whether to apply each available migration step. For example:
+
+```sh
+> aerie_db_migration.py -a
+###############################
+AERIE DATABASE MIGRATION HELPER
+###############################
+
+MIGRATION STEPS AVAILABLE:
+VERSION  NAME              SOURCE STATUS  DATABASE STATUS
+1        sample_migration  Present        Not Present
+
+CURRENT STEP:
+
+VERSION  TYPE  NAME
+1        up    sample_migration
+
+Apply 1_sample_migration? (y/n/quit): _
+```
+
+Entering `y` will apply the migration and then proceed to the next step, should one exist.
+Entering `n`, `q`, or `quit` will exit the program.
