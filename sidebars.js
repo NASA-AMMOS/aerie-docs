@@ -326,7 +326,8 @@ const sidebars = {
   upgradeGuides: [
     'upgrade-guides/2-7-1-to-2-8-0',
     'upgrade-guides/2-7-0-to-2-7-1',
-    'upgrade-guides/2-6-1-to-2-7-0',
+    'upgrade-guides/2-6-2-to-2-7-0',
+    'upgrade-guides/2-6-1-to-2-6-2',
     'upgrade-guides/2-6-0-to-2-6-1',
     'upgrade-guides/2-5-0-to-2-6-0',
     'upgrade-guides/2-4-0-to-2-5-0',
