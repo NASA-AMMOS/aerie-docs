@@ -16,7 +16,7 @@ function HomepageHeader() {
   return (
     <header className={clsx('hero', styles.heroBanner)}>
       <div className="container">
-        <div className={styles.tagline}>Open source from NASA's Jet Propulsion Laboratory</div>
+        <div className={styles.tagline}>Open source from NASA's Advanced Multi-Mission Operations System</div>
         <h1 className={clsx('hero__title', styles.heroTitle)}>
           Planning, scheduling, and sequencing tools for modern space missions.
         </h1>
