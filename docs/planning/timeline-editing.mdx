@@ -1,7 +1,9 @@
 import timelineEditor from './assets/timeline-editor.png';
 import timelineRowEditor from './assets/timeline-row-editor.png';
+import timelineActivityOptionsEditor from './assets/timeline-activity-options-editor.png';
+import timelineYAxisSettings from './assets/timeline-y-axis-settings.png';
+import timelineActivityTree from './assets/timeline-activity-tree.png';
 import timelineActivityEditingDemo from './assets/timeline-activity-layer-adding.mov';
-import timelineActivityHeightEditingDemo from './assets/timeline-activity-height-editing.mov';
 import timelineLineLayerEditingDemo from './assets/timeline-line-layer-editing.mov';
 
 # Timeline Editing
@@ -18,9 +20,7 @@ Changes made in the Timeline Editor are not automatically saved and must be save
 
 <figure>
   <img alt="Aerie UI - Timeline Editor" src={timelineEditor} />
-  <figcaption>
-    Figure 1: Aerie UI Timeline Editor - Manage Timeline properties, Vertical Guides, and Rows
-  </figcaption>
+  <figcaption>Figure 1: Aerie UI Timeline Editor - Manage Timeline properties, Vertical Guides, and Rows</figcaption>
 </figure>
 
 ### Edit Timeline Margins
@@ -40,7 +40,7 @@ Click on the plus button to add a new row to the timeline. A row will be added b
 Edit row properties from within the timeline row editor. If multiple rows exist you can use the top dropdown to edit different rows. A blue highlight will appear around the row in the timeline that you are currently editing. You can also edit a row by clicking on the pencil icon in the header of a row in the timeline.
 
 <figure>
-  <img alt="Aerie UI - Timeline Row Editor" src={timelineRowEditor} />
+  <img alt="Aerie UI - Timeline Row Editor" src={timelineRowEditor} style={{ maxHeight: '100%', width: '100%' }} />
   <figcaption>
     Figure 2: Aerie UI Timeline Row Editor - Manage Row properties, Horizontal Guides, Y Axes, and Layers
   </figcaption>
@@ -48,29 +48,83 @@ Edit row properties from within the timeline row editor. If multiple rows exist 
 
 ### Add an Activity Layer
 
-To visualize activities on the timeline add a new layer using the plus button in the Layers section. By default new layers have a layer type of Activity. Additionally, the default Aerie UI view has a single row with a single activity layer with all activities visualized by default. Manage which activities are visualized in an activity layer by clicking on the search input for the layer and selecting activities. Activities can be filtered by substring match using the input. Once you have a filter applied you can also select all matches using the Select X activities button at the bottom of the result list. You can also manage the color of the layer using the color picker. Below is a demonstration of this workflow.
+To visualize activities on the timeline add a new layer using the plus button in the Layers section. By default new layers have a layer type of Activity. Additionally, the default Aerie UI view creates a row with a single activity layer with all activities grouped by type. Manage which activities are visualized in an activity layer by clicking on the search input for the layer and selecting activities. Activities can be filtered by substring match using the input. Once you have a filter applied you can also select all matches using the Select X activities button at the bottom of the result list. You can also manage the color of the layer using the color picker. Below is a demonstration of this workflow.
 
 <video controls>
   <source src={timelineActivityEditingDemo} />
 </video>
 
-### Managing Activity Layer Height
+<br />
+<br />
 
-Rows by default have a manually specified height. The UI will pack directives and simulated activities in a layer to make the most efficient use of the available space. However if the packed content is still too big for the manually specified height the content will begin to overdraw upon itself. To resolve this issue you can input a larger manual height for the row or specify that the row automatically calculate the minimum height needed to prevent overdraw. Control the row height manually from within the Details section of the timeline row editor or by dragging on the bottom of the row. Alternatively use the Auto option from within the Resize Mode dropdown in the Details section to have the row automatically resize to the content.
-
-:::info Note
-Use of Auto mode can result in degraded Aerie UI performance when visualizing thousands of activities on the timeline. It is recommended that you use a smaller, manually specified height for this scenario. Alternatively you can filter the activities down to a more manageable set to improve performance.
+:::info
+Note All activity layers within a row are drawn on the same canvas so that all of the activities are grouped and packed together correctly. Activities will take on the color of the layer that they came from.
 :::
 
-Below is a demonstration of this workflow.
+### Manage how Activities are Rendered
 
-<video controls>
-  <source src={timelineActivityHeightEditingDemo} />
-</video>
+An Activity Options section will appear in the row editor when the row has at least one activity layer. Activity options govern how activities are rendered for this row.
+
+<figure>
+  <img
+    alt="Aerie UI - Timeline Activity Options"
+    src={timelineActivityOptionsEditor}
+    style={{ maxHeight: '100%', width: '100%' }}
+  />
+  <figcaption>Figure 3: Aerie UI Timeline Activity Options Editor - Manage Activity Rendering</figcaption>
+</figure>
+
+#### 1. Activity Display Mode
+
+Activities can be rendered in two ways:
+
+- `Grouped Mode`: Activities are recursively grouped by type. In this mode, activity groups appear in the left side of the row and can be expanded to reveal the directives and spans within each type group. If a directive/span has descendents, the directive/span can be expanded to reveal its grouped descendents. This behavior continues down the decomposition tree until the resulting directive/span has no descendents. This mode is useful for understanding larger sets of activities in a broad sense across an entire plan, especially if the plan is long or contains a significant number of activities that cannot easily be visualized in a small area.
+- `Compact Mode`: Activities from all of the layers are packed together in a space efficient waterfall manner. This mode is useful for visualizing smaller sets of activities in a more traditional timeline view. In this mode the row will not autosize and must be manually adjusted to accommodate the current activity packing solution. This allows for a more precise adjustment of the density in the timeline.
+
+#### 2. Activity Label Visibility
+
+There are several options to control how activity labels appear in the timeline:
+
+- `On`: Always show activity labels regardless of collision.
+- `Off`: Never show activity labels.
+- `Auto`: Show activity labels when they do not collide with other labels or activities.
+
+#### 3. Directive and Span Visibility
+
+By default, both directives and spans are shown in a row. Alternatively you may choose to show only directive or only spans.
+
+#### 4. Hierarchy Root
+
+When in `Grouped` mode, the `Hierarchy` option affects the root of the type group trees. By default, `Flat` mode is selected for `Hierarchy` option. In `Flat` mode, all activities will be considered when making groups by type regardless of decomposition. This is useful when trying to understand all of the resulting activities from a simulation without needing to expand various activity decompositions. By contrast, `By Directive` mode starts this grouping at the directive level, effectively hiding any child spans until further down in the trees. This mode is useful when you are interested in examining the timeline from a decomposition perspective.
+
+#### 5. Activity Height
+
+Use the `Height` option to control the height of activities in both `Grouped` and `Compact` modes.
+
+### Understanding the Grouped Activity Tree
+
+<figure>
+  <img
+    alt="Aerie UI - Timeline Activity Tree"
+    src={timelineActivityTree}
+    style={{ maxHeight: '100%', width: '100%' }}
+  />
+  <figcaption>Figure 3: Aerie UI Timeline Activity Tree</figcaption>
+</figure>
+
+In `Grouped` mode the activity tree presented in the row header has several important indicators and actions:
+
+1. `Filter Activities by Time Window` - Automatically filter nodes in the tree when you zoom and pan around in the plan.
+2. This folder represents a group of activities whose type is `BananaNap`. Groups can contain both directives and spans.
+3. This icon represents a directive without a span.
+4. This icon represents a directive and its root span. The `parent` span has children spans which can be expanded as demonstrated here.
+5. Click on this button while hovering over a non-leaf node in the tree to select that directive/span. In this case, the `parent` row is blue since it has been selected. Note that when selecting a combined directive and span node, the span details will be prefered over the directive details. You can jump between span and directive using a button in the the top right of the `Selected Activity` panel.
+6. This icon represents a span. In this case, `child` is a span that also has children which are expanded below and grouped appropriately.
+7. This node is a span that does not have any children. The node can be selected by clicking directly on the node. Double click to open the `Selected Activity` panel if not already open.
 
 ### Add a Resource Line Layer
 
-To show resources on the timeline in a line plot, add a new layer using the plus button in the Layers section and change the layer type to Line. If the row did not already contain a Y axis, a new one will automatically be created and assigned to the line layer. To select resources to plot on this layer, click on the input on the layer and select one or more resources. Control the min and max of the plot by modifying the associated Y axis above. You can use the "fit" button to automatically fit the min and max of the axis to the bounds of the data on demand.
+To show resources on the timeline in a line plot, add a new layer using the plus button in the Layers section and change the layer type to Line. If the row did not already contain a Y axis, a new one will automatically be created and assigned to the line layer. To select resources to plot on this layer, click on the input on the layer and select a resource. It is not recommended to select more than one resource.
 
 :::info Note
 Y axes are independent of layers. When you create a new line or x-range layer the layer will automatically be assigned to a Y axis. To modify which Y axis a layer is associated with you, click on the settings icon for the layer and select a Y axis from the Y Axis dropdown.
@@ -86,10 +140,27 @@ Below is a demonstration of this workflow.
 
 To show resources on the timeline in as an x-range plot, add a new layer using the plus button in the Layers section and change the layer type to X-Range. If the row did not already contain a Y axis, a new one will automatically be created and assigned to the x-range layer. A Y Axis is only used to provide a label to the x-range plot. To select resources to plot on this layer, click on the input on the layer and select one or more resources.
 
+### Manage Y Axis Settings
+
+Y Axes have additional options available in the settings menu popover. By default, horizontal ticks are shown and Y Axis domain fitting is set to `Autofit Time Window`. The domain fitting option controls how the Y Axis domain behaves in response to your plan and current time window and has three modes:
+
+1. `Autofit Plan`: Automatically fit the domain to the bounds of all resources associated with the axis across the entire plan.
+2. `Autofit Time Window`: Automatically fit the domain to the bounds of all resources associated with the axis, filtered to the current time window. As you zoom and pan through the plan, the bounds will automatically update and the resources will rescale on the canvas.
+3. `Manual`: Manually enter a static min and max for the axis.
+
+<figure>
+  <img alt="Aerie UI - Y Axis Settings" src={timelineYAxisSettings} style={{ maxHeight: '100%', width: '100%' }} />
+  <figcaption>Figure 3: Aerie UI Timeline Y Axis Settings</figcaption>
+</figure>
+
+### Manage Line and X-Range Names
+
+By default, line and x-range layers will use the name of the resource associated with them when displayed in the row legend on the left and in the tooltip when hovering over a resource. When available, units will be appended to the resource name. To override this resource name, enter a name for the resource within the layer settings menu. Units will still be appended to your custom name.
+
 ### Manage Horizontal Guides
 
 Horizontal guides can be added to a row when a row has at least one line or x-range layer. Add a horizontal guide using the plus button in the Horizontal Guides section. Horizontal guides are associated with a single Y axis and will use the first available Y axis by default. You can edit the name, Y value, associated Y axis, and color of each horizontal guide from within this section.
 
-### Manage Layer Order
+### Layer Order
 
-Click and drag on a layer to re-order the layer. Note that the layers within a row are drawn on top of each other, meaning that layers will appear in reverse order from the layers list.
+Layers have a fixed draw order in a row. X-range layers are on the bottom, activity layers are in the middle, and line layers are on top.
