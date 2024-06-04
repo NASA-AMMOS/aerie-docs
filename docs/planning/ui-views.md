@@ -214,12 +214,7 @@ interface Axis {
 }
 
 interface Label {
-  align?: CanvasTextAlign; // not yet implemented
-  baseline?: CanvasTextBaseline; // not yet implemented
   color?: string;
-  fontFace?: string; // not yet implemented
-  fontSize?: number; // not yet implemented
-  hidden?: boolean; // not yet implemented
   text: string;
 }
 ```

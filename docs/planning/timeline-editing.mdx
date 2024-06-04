@@ -48,18 +48,11 @@ Edit row properties from within the timeline row editor. If multiple rows exist 
 
 ### Add an Activity Layer
 
-To visualize activities on the timeline add a new layer using the plus button in the Layers section. By default new layers have a layer type of Activity. Additionally, the default Aerie UI view creates a row with a single activity layer with all activities grouped by type. Manage which activities are visualized in an activity layer by clicking on the search input for the layer and selecting activities. Activities can be filtered by substring match using the input. Once you have a filter applied you can also select all matches using the Select X activities button at the bottom of the result list. You can also manage the color of the layer using the color picker. Below is a demonstration of this workflow.
+To visualize activities on the timeline add a new layer using the plus button in the Layers section. By default new layers have a layer type of Activity. Additionally, the default Aerie UI view creates a row with a single activity layer with all activities grouped by type. Manage which activities are visualized in an activity layer by clicking on the search input for the layer and selecting activities. Activities can be filtered by substring match using the input. Once you have a filter applied you can also select all matches using the Select X activities button at the bottom of the result list. You can also manage the color of the layer using the color picker. All activity layers within a row are drawn on the same canvas so that all of the activities are grouped and packed together correctly. Below is a demonstration of this workflow.
 
 <video controls>
   <source src={timelineActivityEditingDemo} />
 </video>
-
-<br />
-<br />
-
-:::info
-Note All activity layers within a row are drawn on the same canvas so that all of the activities are grouped and packed together correctly. Activities will take on the color of the layer that they came from.
-:::
 
 ### Manage how Activities are Rendered
 
@@ -99,7 +92,7 @@ When in `Grouped` mode, the `Hierarchy` option affects the root of the type grou
 
 #### 5. Activity Height
 
-Use the `Height` option to control the height of activities in both `Grouped` and `Compact` modes.
+Sets the height of activities in the row.
 
 ### Understanding the Grouped Activity Tree
 
@@ -118,7 +111,7 @@ In `Grouped` mode the activity tree presented in the row header has several impo
 2. This folder represents a group of activities whose type is `BananaNap`. Groups can contain both directives and spans.
 3. This icon represents a directive without a span.
 4. This icon represents a directive and its root span. The `parent` span has children spans which can be expanded as demonstrated here.
-5. Click on this button while hovering over a non-leaf node in the tree to select that directive/span. In this case, the `parent` row is blue since it has been selected. Note that when selecting a combined directive and span node, the span details will be preferred over the directive details. You can jump between span and directive using a button in the top right of the `Selected Activity` panel.
+5. Click on this button while hovering over an expandable folder/element in the tree to select that directive/span. In this case, the `parent` row is blue since it has been selected. Note that when selecting a combined directive and span node, the span details will be preferred over the directive details. You can jump between span and directive using a button in the top right of the `Selected Activity` panel.
 6. This icon represents a span. In this case, `child` is a span that also has children which are expanded below and grouped appropriately.
 7. This node is a span that does not have any children. The node can be selected by clicking directly on the node. Double click to open the `Selected Activity` panel if not already open.
 
