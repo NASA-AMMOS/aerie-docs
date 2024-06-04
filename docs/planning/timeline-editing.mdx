@@ -1,6 +1,7 @@
 import timelineEditor from './assets/timeline-editor.png';
 import timelineRowEditor from './assets/timeline-row-editor.png';
 import timelineActivityOptionsEditor from './assets/timeline-activity-options-editor.png';
+import timelineActivityOptionsMode from './assets/timeline-activity-options-mode.png';
 import timelineYAxisSettings from './assets/timeline-y-axis-settings.png';
 import timelineActivityTree from './assets/timeline-activity-tree.png';
 import timelineActivityEditingDemo from './assets/timeline-activity-layer-adding.mov';
@@ -74,6 +75,15 @@ Activities can be rendered in two ways:
 - `Grouped Mode`: Activities are recursively grouped by type. In this mode, activity groups appear in the left side of the row and can be expanded to reveal the directives and spans within each type group. If a directive/span has descendents, the directive/span can be expanded to reveal its grouped descendents. This behavior continues down the decomposition tree until the resulting directive/span has no descendents. This mode is useful for understanding larger sets of activities in a broad sense across an entire plan, especially if the plan is long or contains a significant number of activities that cannot easily be visualized in a small area.
 - `Compact Mode`: Activities from all of the layers are packed together in a space efficient waterfall manner. This mode is useful for visualizing smaller sets of activities in a more traditional timeline view. In this mode the row will not autosize and must be manually adjusted to accommodate the current activity packing solution. This allows for a more precise adjustment of the density in the timeline.
 
+<figure>
+  <img
+    alt="Aerie UI - Timeline Activity Display Mode"
+    src={timelineActivityOptionsMode}
+    style={{ maxHeight: '100%', width: '100%' }}
+  />
+  <figcaption>Figure 4: Aerie UI Timeline Activity Options Display Mode</figcaption>
+</figure>
+
 #### 2. Activity Label Visibility
 
 There are several options to control how activity labels appear in the timeline:
@@ -102,7 +112,7 @@ Sets the height of activities in the row.
     src={timelineActivityTree}
     style={{ maxHeight: '100%', width: '100%' }}
   />
-  <figcaption>Figure 3: Aerie UI Timeline Activity Tree</figcaption>
+  <figcaption>Figure 5: Aerie UI Timeline Activity Tree</figcaption>
 </figure>
 
 In `Grouped` mode the activity tree presented in the row header has several important indicators and actions:
@@ -143,7 +153,7 @@ Y Axes have additional options available in the settings menu popover. By defaul
 
 <figure>
   <img alt="Aerie UI - Y Axis Settings" src={timelineYAxisSettings} style={{ maxHeight: '100%', width: '100%' }} />
-  <figcaption>Figure 3: Aerie UI Timeline Y Axis Settings</figcaption>
+  <figcaption>Figure 6: Aerie UI Timeline Y Axis Settings</figcaption>
 </figure>
 
 ### Manage Line and X-Range Names
