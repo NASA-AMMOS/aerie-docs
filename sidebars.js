@@ -322,6 +322,11 @@ const sidebars = {
       ],
     },
     'glossary',
+    {
+      label: 'Keyboard Shortcuts',
+      type: 'doc',
+      id: 'keyboard-shortcuts',
+    },
   ],
   upgradeGuides: [
     'upgrade-guides/2-11-0-to-2-12-0',
