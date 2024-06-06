@@ -137,10 +137,11 @@ interface Timeline {
 }
 ```
 
-To visualize data in a timeline you need to add row objects to the `rows` array. A row is a layered visualization of time-ordered data. Each layer of a row is specified as an object of the `layers` array. The interfaces for a `Row` and `Layer` are as follows:
+To visualize data in a timeline you need to add row objects to the `rows` array. A row is a layered visualization of time-ordered data. Each layer of a row is specified as an object of the `layers` array. The interfaces for a `Row`, `Layer`, and `ActivityOptions` are as follows:
 
 ```ts
 interface Row {
+  activityOptions?: ActivityOptions;
   autoAdjustHeight: boolean;
   expanded: boolean;
   height: number;
@@ -160,9 +161,26 @@ interface Layer {
   id: number;
   yAxisId: number | null;
 }
+
+type ActivityOptions = {
+  // Height of activity subrows
+  activityHeight: number;
+
+  // Whether or not to display only directives, only spans, or both in the row
+  composition: 'directives' | 'spans' | 'both';
+
+  // Describes the primary method in which activities are visualized within this row
+  displayMode: 'grouped' | 'compact';
+
+  // If 'directive' the activities are grouped starting with directive types, if 'flat' activities are grouped by type regardless of hierarchy
+  hierarchyMode: 'directive' | 'flat';
+
+  // Activity text label behavior
+  labelVisibility: 'on' | 'off' | 'auto';
+};
 ```
 
-Here is a JSON object that creates a single row with one activity layer. Notice the `filter` property, which is a [JavaScript Regular Expression](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions) that specifies we only want to see `activity` of `type` `.*`. This is a regex for giving all activity types.
+Here is a JSON object that creates a single row with one activity layer.
 
 ```json
 {
@@ -175,7 +193,7 @@ Here is a JSON object that creates a single row with one activity layer. Notice 
       "activityColor": "#283593",
       "activityHeight": 20,
       "chartType": "activity",
-      "filter": { "activity": { "type": ".*" } },
+      "filter": { "activity": { "types": ["BiteBanana", "PickBanana"] } },
       "id": 0,
       "yAxisId": null
     }
@@ -196,12 +214,7 @@ interface Axis {
 }
 
 interface Label {
-  align?: CanvasTextAlign;
-  baseline?: CanvasTextBaseline;
   color?: string;
-  fontFace?: string;
-  fontSize?: number;
-  hidden?: boolean;
   text: string;
 }
 ```
@@ -212,6 +225,13 @@ Here is the JSON for creating a row with two overlaid `resource` layers. The fir
 
 ```json
 {
+  "activityOptions": {
+    "activityHeight": 16,
+    "composition": "both",
+    "displayMode": "grouped",
+    "hierarchyMode": "flat",
+    "labelVisibility": "auto"
+  },
   "autoAdjustHeight": false,
   "height": 100,
   "horizontalGuides": [],
@@ -219,7 +239,7 @@ Here is the JSON for creating a row with two overlaid `resource` layers. The fir
   "layers": [
     {
       "chartType": "line",
-      "filter": { "resource": { "name": "peel" } },
+      "filter": { "resource": { "names": ["peel"] } },
       "id": 1,
       "lineColor": "#283593",
       "lineWidth": 1,
@@ -228,7 +248,7 @@ Here is the JSON for creating a row with two overlaid `resource` layers. The fir
     },
     {
       "chartType": "line",
-      "filter": { "resource": { "name": "fruit" } },
+      "filter": { "resource": { "names": ["fruit"] } },
       "id": 2,
       "lineColor": "#ffcd69",
       "lineWidth": 1,
