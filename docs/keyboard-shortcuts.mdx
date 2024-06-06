@@ -6,11 +6,9 @@ export const Shortcut = ({ children }) => (
   <kbd
     style={{
       margin: '0.2rem 0rem',
-      backgroundColor: 'var(--color-secondary-lightest)',
-      // borderColor: 'var(--color-secondary-lighter)',
     }}
   >
-    <span>{children}</span>
+    {children}
   </kbd>
 );
 
@@ -24,16 +22,12 @@ The easiest way to zoom in and out is using <Shortcut>⌘</Shortcut> + <Shortcut
 or a mouse.
 
 - <Shortcut>middle mouse button</Shortcut> + <Shortcut>drag</Shortcut> pans the timeline horizontally
-
 - <Shortcut>=</Shortcut> zooms timeline in
 - <Shortcut>-</Shortcut> zooms timeline out
-
 - <Shortcut>[</Shortcut> nudges timeline left
 - <Shortcut>]</Shortcut> nudges timeline right
-
 - <Shortcut>ctrl</Shortcut> + <Shortcut>T</Shortcut> toggles the cursor visibility
 - <Shortcut>0</Shortcut> resets the timeline zoom
-
 - <Shortcut>delete</Shortcut> or <Shortcut>backspace</Shortcut> deletes selected activity directive
 
 <br />
@@ -58,9 +52,16 @@ or a mouse.
     left click
   </Shortcut> (Windows) resets invalid parameters if possible
 
+<br />
+
 ### Expansion Rule Form
 
 - <Shortcut>⌘</Shortcut> + <Shortcut>s</Shortcut> (MacOS) or <Shortcut>ctrl</Shortcut> + <Shortcut>s</Shortcut> (Windows)
   saves the form
 
+<br />
+
 ### Sequence Editor
+
+- <Shortcut>⌘</Shortcut> + <Shortcut>s</Shortcut> (MacOS) or <Shortcut>ctrl</Shortcut> + <Shortcut>s</Shortcut> (Windows)
+  saves the sequence
