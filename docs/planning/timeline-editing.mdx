@@ -98,7 +98,12 @@ By default, both directives and spans are shown in a row. Alternatively you may 
 
 #### 4. Hierarchy Root
 
-When in `Grouped` mode, the `Hierarchy` option affects the root of the type group trees. By default, `Flat` mode is selected for `Hierarchy` option. In `Flat` mode, all activities will be considered when making groups by type regardless of decomposition. This is useful when trying to understand all of the resulting activities from a simulation without needing to expand various activity decompositions. By contrast, `By Directive` mode starts this grouping at the directive level, effectively hiding any child spans until further down in the trees. This mode is useful when you are interested in examining the timeline from a decomposition perspective.
+_This option is only available in `Grouped` mode._
+
+Affects which activities appear in the initial type groups. By default, `Flat` is selected.
+
+- `Flat`: Both activity directives and spans will appear in the top most type groups. This is useful when examining all activities resulting from a simulation without needing to consider activity decomposition.
+- `By Directive`: Only activity directives will appear in the top most type groups, effectively hiding any child spans until further down in the trees. This is useful when examining the timeline from a decomposition perspective.
 
 #### 5. Activity Height
 
