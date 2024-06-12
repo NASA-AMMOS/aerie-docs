@@ -188,6 +188,7 @@ const sidebars = {
         'scheduling/goals',
         'scheduling/run-scheduling',
         'scheduling/global-conditions',
+        'scheduling/modelling-temporal-relations',
         'scheduling/temporal-subset',
         {
           label: 'EDSL Docs',

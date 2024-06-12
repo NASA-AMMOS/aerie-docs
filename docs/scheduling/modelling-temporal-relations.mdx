@@ -1,0 +1,140 @@
+import xbeforey from './assets/xbeforey.png';
+import xequalsy from './assets/xequalsy.png';
+import xmeetsy from './assets/xmeetsy.png';
+import xoverlapsy from './assets/xoverlapsy.png';
+import xcontainsy from './assets/xcontainsy.png';
+import xstartsy from './assets/xstartsy.png';
+
+# Modelling Temporal Relations with Coexistence Goal
+In mission modeling and planning for space systems, having the capability to establish temporal dependencies between events or activities is crucial.
+Aerie includes the capability to model flexible temporal relations through the use of `Coexistence Goals`.
+
+A Coexistence Goal can be used to define a causality relation between two activities: the first activity is a directive that should be already included in the plan,
+while the second is an activity type to be added to the plan under certain conditions. Both activities can be instantaneous or have a duration, and can be related temporally
+in several ways. The [Allen’s Temporal Relations](https://en.wikipedia.org/wiki/Allen%27s_interval_algebra) describe 14 different ways in which two time intervals relate to each other.
+Many of these relations can be easily generalized to relations between timepoints for instantaneous activities.
+
+The following sections introduce the syntax to represent temporal relations in Aerie and provide a number of examples.
+
+## Flexible Time Intervals in eDSL
+Consider a time interval as a time range defined by two timepoints that specify the lower and upper bounds of the interval. For example, `[lb, ub]` represents a closed time interval bounded by the timepoints `lb` and `ub`.
+We define a flexible interval as a time range where its timepoints are specified relative to another timepoint. For example, considering `ae` as the timepoint at which an activity `a` ends, we can define a time interval relative to it
+as follows: `[ae + x, ae + y]` where `x` and `y` represents the delta lower and upper bounds with respect to`a`'s end.
+
+Flexible Time Intervals are represented in Aerie by means of `TimingConstraint.bounds`, which are composed of two `TimingConstraint.singletons` to model the lower and upper bound.
+For example,
+```ts
+TimingConstraint.bounds(TimingConstraint.singleton(WindowProperty.START).plus(Temporal.Duration.from({ minutes : 5})), TimingConstraint.singleton(WindowProperty.START).plus(Temporal.Duration.from({ minutes : 10})))
+```
+represents a time interval that ranges between 5 and 10 units of time after the start timepoint of a `Window` (`WindowProperty.START`).
+
+`bounds` represent the core expression to model Allen relations.
+
+## Allen's Temporal Relations
+The following paragraphs provide examples for 7 Allen relations, while the other 7 are the opposite relation (e.g. Starts vs Started_by).
+The examples are based on the Banananation scenario. GrowBanana and DurationParameterActivity are used as examples of durative activities while peelBanana is used whenever instantaneous activities are applicable.
+
+### Before
+The relation `x BEFORE[lb, ub] y` indicates that y must start between `[lb, ub]` units of time after x completes. Both activities can be instantaneous or durative.
+In the example below, peelBanana starts between `[5, 10]` units of time after GrowBanana finishes.
+
+<figure align="center">
+  <img alt="Allen Relation BEFORE" src={xbeforey} width="350" />
+  <figcaption>Figure 1: Relation x BEFORE [lb, ub] y</figcaption>
+</figure>
+
+```ts
+  export default () => Goal.CoexistenceGoal({
+    forEach: ActivityExpression.ofType(ActivityTypes.GrowBanana),
+    activityTemplate: (span) => ActivityTemplates.PeelBanana({peelDirection: "fromStem"}),
+    startsWithin: TimingConstraint.bounds(TimingConstraint.singleton(WindowProperty.END).plus(Temporal.Duration.from({ minutes : 5})), TimingConstraint.singleton(WindowProperty.END).plus(Temporal.Duration.from({ minutes : 10})))
+  })
+```
+
+### Equals
+The relation `x EQUALS y` indicates that y starts and finishes at the same time as x. Both activities must be durative. The timepont variant would need to consider the start value.
+In the example below, DurationParameterActivity starts and finishes at the same time as GrowBanana.
+
+<figure align="center">
+  <img alt="Allen Relation EQUALS" src={xequalsy} width="200" />
+  <figcaption>Figure 2: Relation x EQUALS y</figcaption>
+</figure>
+
+```ts
+  export default () => Goal.CoexistenceGoal({
+    forEach: ActivityExpression.ofType(ActivityTypes.GrowBanana),
+    activityTemplate: (span) => ActivityTemplates.DurationParameterActivity({duration: Temporal.Duration.from({ hours : 1})}),
+    startsAt: TimingConstraint.singleton(WindowProperty.START),
+    endsAt: TimingConstraint.singleton(WindowProperty.END)
+  })
+```
+
+### Meets
+The relation `x MEETS y` indicates that y starts right after the time x finishes. x must be a durative activity while y could be durative or instantaneous.
+In the example below, peelBanana takes place at the time when GrowBanana finishes.
+
+<figure align="center">
+  <img alt="Allen Relation MEETS" src={xmeetsy} width="300" />
+  <figcaption>Figure 3: Relation x MEETS y</figcaption>
+</figure>
+
+```ts
+  export default () => Goal.CoexistenceGoal({
+    forEach: ActivityExpression.ofType(ActivityTypes.GrowBanana),
+    activityTemplate: (span) => ActivityTemplates.PeelBanana({peelDirection: "fromStem"}),
+    startsAt: TimingConstraint.singleton(WindowProperty.END)
+  })
+```
+
+### Overlaps
+The relation `x OVERLAPS[lb,ub] y` indicates that y start time overlaps x end time by an amount of time between `lb` and `ub`. Both activities must be durative.
+In the example below, DurationParameterActivity starts between [5,10] units of time before GrowBanana finishes.
+
+<figure align="center">
+  <img alt="Allen Relation OVERLAPS" src={xoverlapsy} width="300" />
+  <figcaption>Figure 4: Relation x OVERLAPS y</figcaption>
+</figure>
+
+```ts
+  export default () => Goal.CoexistenceGoal({
+    forEach: ActivityExpression.ofType(ActivityTypes.GrowBanana),
+    activityTemplate: (span) => ActivityTemplates.DurationParameterActivity({duration: Temporal.Duration.from({ hours : 1})}),
+    startsWithin: TimingConstraint.bounds(TimingConstraint.singleton(WindowProperty.END).minus(Temporal.Duration.from({ minutes : 10})), TimingConstraint.singleton(WindowProperty.END).minus(Temporal.Duration.from({minutes : 5})))
+  })
+```
+
+### Contains
+The relation `x CONTAINS[lb1,ub1] [lb2, ub2] y` indicates that y starts between `[lb1,ub1]` units of time after x does, and it ends between `[lb2,ub2]` before x does. Both activities must be durative.
+In the example below, DurationParameterActivity starts between `[5,10]` units of time after GrowBanana starts and finishes between `[5,10]` units of time before GrowBanana does.
+
+
+<figure align="center">
+  <img alt="Allen Relation CONTAINS" src={xcontainsy} width="300" />
+  <figcaption>Figure 5: Relation x CONTAINS y</figcaption>
+</figure>
+
+```ts
+  export default () => Goal.CoexistenceGoal({
+    forEach: ActivityExpression.ofType(ActivityTypes.GrowBanana),
+    activityTemplate: (span) => ActivityTemplates.DurationParameterActivity({duration: Temporal.Duration.from({ minutes : 50})}),
+    startsWithin: TimingConstraint.bounds(TimingConstraint.singleton(WindowProperty.START).plus(Temporal.Duration.from({ minutes : 5})), TimingConstraint.singleton(WindowProperty.START).plus(Temporal.Duration.from({minutes : 10}))),
+    endsWithin: TimingConstraint.bounds(TimingConstraint.singleton(WindowProperty.END).minus(Temporal.Duration.from({ minutes : 10})), TimingConstraint.singleton(WindowProperty.END).minus(Temporal.Duration.from({ minutes : 5})))
+  })
+```
+
+### Starts
+The relation `x STARTS[lb,ub] y` indicates that y starts between `[lb,ub]` after x does. x must be durative.
+In the example below, DurationParameterActivity starts between `[5,10]` units of time after GrowBanana does.
+
+<figure align="center">
+  <img alt="Allen Relation STARTS" src={xstartsy} width="300" />
+  <figcaption>Figure 5: Relation x STARTS y</figcaption>
+</figure>
+
+```ts
+  export default () => Goal.CoexistenceGoal({
+    forEach: ActivityExpression.ofType(ActivityTypes.GrowBanana),
+    activityTemplate: (span) => ActivityTemplates.PeelBanana({peelDirection: "fromStem"}),
+    startsWithin: TimingConstraint.bounds(TimingConstraint.singleton(WindowProperty.START).plus(Temporal.Duration.from({ minutes : 5})), TimingConstraint.singleton(WindowProperty.START).plus(Temporal.Duration.from({ minutes : 10})))
+  })
+```
