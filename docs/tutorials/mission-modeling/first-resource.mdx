@@ -1,0 +1,100 @@
+# Your First Resource
+
+We will begin building our SSR model by creating a single resource, `RecordingRate`, to track the rate at which data is being written to the SSR over time. As a reminder, a **Resource** is any measurable quantity whose behavior we want to track over the course of a plan. Then, we will create a simple activity, `CollectData`, that updates the `RecordingRate` by a user-specified rate for a user-specified duration. This activity is intended to represent an on-board camera taking images and writing data to the spacecraft SSR.
+
+Although we could define the `RecordingRate` resource directly in the pre-provided top-level `Mission` class, we'd like to keep that class as simple as possible and delegate most of model's behavior definition to other, more focused classes. With this in mind, let's create a new class within the `missionmodel` package called `DataModel`, which we will eventually instantiate within the `Mission` class.
+
+In the `DataModel` class, declare the `RecordingRate` resource with the following line of code:
+
+```java
+public MutableResource<Discrete<Double>> RecordingRate; // Megabits/s
+```
+
+:::tip
+
+As you are coding, take advantage of your IDE to auto import the modeling framework classes you need like `MutableResource`.
+
+:::
+
+Let's tease apart this line of code and use it as an opportunity to provide a brief overview of the various types of resources available to you as a modeler. The mission modeling framework provides two primary classes from which to define resources:
+
+1. `MutableResource` - resource whose value can be explicitly updated by activities or other modeling code after it has been defined. Updates to the resource take the form of "Effects" such as `increase`, `decrease`, or `set`. The values of this category of resource are explicitly tracked in objects called "Cells" within Aerie, which you can read about in detail in the [Aerie Software Design Document](https://ammos.nasa.gov/aerie-docs/overview/software-design-document/#cells) if you are interested.
+2. `Resource` - resource whose value cannot be explicitly updated after it has been defined. In other words, these resources cannot be updated via "Effects". The most common use of these resources are to create "derived" resources that are fully defined by the values of other resources (we will have some examples of these later). Since these resources get their value from other resources, they actually don't need to store their own value within a "Cell". Interestingly, the `MutableResource` class extends the `Resource` class and includes additional logic to ensure values are correctly stored in these "Cells".
+
+From these classes, there are a few different types of resources provided, which are primarily distinguished by how the value of the resource progresses between computed points:
+
+- `Discrete` - resource that maintains a constant value between computed points (i.e. a step function or piecewise constant function). Discrete resources can be defined as many different types such as `Boolean`, `Integer`, `Double`, or an enumeration. These types of resources are what you traditionally find in discrete event simulators and are the easiest to define and "effect".
+- `Linear` - resource that has a linear profile between computed points. When computing the value of such resources you have to specify both the value of the resource at a given time along with a rate so that the resource knows how it should change until the next point is computed. The resource does not have to be strictly continuous. In other words, the linear segments that are computed for the resource do not have to match up. Unlike discrete resources, a linear resource is implicitly defined as a `Double`.
+- `Polynomial` - generalized version of the linear resource that allows you to define resources that evolve over time based on polynomial functions.
+- `Clock` - special resource type to provide "stopwatch" like functionality that allows you to track the time since an event occurred.
+
+TODO: Add more content on `Clock`
+
+:::info
+
+Polynomial resources currently cannot be rendered in the Aerie UI and must be transformed to a linear resource (an example of this is shown later in the tutorial)
+
+:::
+
+Looking back at our resource declaration, you can see that `RecordingRate` is a `MutableResource` (we will emit effects on this resource in our first activity) of the type `Discrete<Double>`, so the value of the resource will stay constant until the next time we compute effects on it.
+
+Next, we must define and initialize our `RecordingRate` resource, which we can do in a class constructor that takes one parameter we'll called `registrar` of type `Registrar`. You can think of the `Registrar` class as your link to what will ultimately get exposed in the UI and in a second we will use this class to register `RecordingRate`. But first, let's add the following line to the constructor we just made to fully define our resource.
+
+```java
+RecordingRate = resource(discrete(0.0));
+```
+
+Both the `MutableResource` and `Discrete` classes have static helper functions for initializing resources of their type. If you included those functions via `import static` statements, you get the simple line above. The `discrete()` function expects an initial value for the resource, which we have specified as `0.0`.
+
+The last thing to do is to register `RecordingRate` to the UI so we can view the resource as a timeline along with our activity plan. This is accomplished with the following line of code:
+
+```java
+registrar.discrete("RecordingRate", RecordingRate, new DoubleValueMapper());
+```
+
+The first argument to this `discrete` function is the string name of the resource you want to appear in the UI, the second argument is the resource itself, and then the third argument is a [Value Mapper](https://nasa-ammos.github.io/aerie-docs/mission-modeling/activity-mappers/#value-mappers) object that matches the resource primitive type, which in this case is a `Double`. For now, you don't need to know much about Value Mappers other than they are needed for performing data serialization to the UI and there are mappers already currently available as part of the framework for all basic types. You can create custom ones if you have complex resource types, but for almost all cases, you should be able to get away with one of the pre-built mappers.
+
+You have now declared, defined, and registered your first resource and your `DataModel` class should look something like this:
+
+```java
+package missionmodel;
+
+import gov.nasa.jpl.aerie.contrib.streamline.core.MutableResource;
+import gov.nasa.jpl.aerie.contrib.streamline.modeling.Registrar;
+import gov.nasa.jpl.aerie.contrib.streamline.modeling.discrete.Discrete;
+import gov.nasa.jpl.aerie.contrib.serialization.mappers.DoubleValueMapper;
+
+import static gov.nasa.jpl.aerie.contrib.streamline.core.MutableResource.resource;
+import static gov.nasa.jpl.aerie.contrib.streamline.modeling.discrete.Discrete.discrete;
+
+public class DataModel {
+
+    public MutableResource<Discrete<Double>> RecordingRate; // Megabits/s
+
+    public DataModel(Registrar registrar) {
+        RecordingRate = resource(discrete(0.0));
+        registrar.discrete("RecordingRate", RecordingRate, new DoubleValueMapper());
+    }
+}
+```
+
+With our `DataModel` class built, we can now instantiate it within the top-level `Model` class as a member variable of that class. The `Registrar` that we are passing to `DataModel` is unique in that it can log simulation errors as a resource, so we also need to instantiate one of these special error registrars as well. After these additions, the `Mission` class should look like this:
+
+```java
+package missionmodel;
+
+import gov.nasa.jpl.aerie.contrib.streamline.modeling.Registrar;
+
+public final class Mission {
+
+  public final Registrar errorRegistrar;
+  public final DataModel dataModel;
+
+  public Mission(final gov.nasa.jpl.aerie.merlin.framework.Registrar registrar, final Configuration config) {
+    this.errorRegistrar = new Registrar(registrar, Registrar.ErrorBehavior.Log);
+    // Tutorial code
+    this.dataModel = new DataModel(this.errorRegistrar);
+
+  }
+}
+```

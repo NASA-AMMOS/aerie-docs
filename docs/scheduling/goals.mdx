@@ -21,10 +21,11 @@ ActivityExpression.ofType(ActivityTypes.ParamActivity);
 In this case, all the activities of type `ParamActivity` will be matched (disregarding its parameters) and potentially used for satisfying the goal.
 
 ```ts
-ActivityExpression.ofType(ActivityTypes.ParamActivity, { param: 1 });
+ActivityExpression.build(ActivityTypes.ParamActivity, { param: 1 });
 ```
 
-In this case, all the activities of type `ParamActivity` with parameter `param` equal to 1 will be matched and used for satisfying the goal.
+In this case, all the activities of type `ParamActivity` with parameter `param` equal to 1 will be matched and used for satisfying the goal. To do this, you must use the `.build`
+function instead of `.ofType`.
 
 An optional `ActivityExpression` can be passed with the `activityFinder` parameter of goals. See below for examples of its use in goals.
 
@@ -112,7 +113,7 @@ The Coexistence Goal specifies that a certain activity should occur once **for e
 
 #### Inputs
 
-- `forEach` - A set of time `Windows`, or a set of activities (`ActivityExpression`)
+- `forEach` - A set of time `Windows`, `Intervals` or `Instants`, or a set of activities (`ActivityExpression`)
 - `activityTemplate` - The description of the activity to insert after each activity identified by `forEach`. This can be an `ActivityTemplate` object or an `ActivityTemplate` factory function with one argument of either `ActivityInstance` or `Interval`, depending on if `forEach` was an `ActivityExpression` or `Windows`, respectively. This allows to define the content of the `ActivityTemplate` with components of the anchor activity or window.
 - `activityFinder` - an optional activity expression. If present, it will be used as replacement of `activityTemplate` to match against existing activities in the plan.
 - `startsAt` - Optionally specify a specific time when the activity should start relative to the window
@@ -223,6 +224,31 @@ export default () =>
     activityTemplate: ActivityTemplates.PeelBanana({ peelDirection: 'fromStem' }),
     activityFinder: ActivityExpression.ofType(ActivityTypes.PeelBanana),
     endsAt: TimingConstraint.singleton(WindowProperty.END).plus(Temporal.Duration.from({ minutes: 5 })),
+  });
+```
+
+In these final two examples, the `forEach` condition defines a time `Instant` and `Interval` respectively at which the goal has to create an instance of the activity template.
+
+```ts
+export default () =>
+  Goal.CoexistenceGoal({
+    forEach: Temporal.Instant.from('2021-01-01T05:00:00.000Z'),
+    activityTemplate: span => ActivityTemplates.PeelBanana({ peelDirection: 'fromStem' }),
+    startsAt: TimingConstraint.singleton(WindowProperty.START),
+  });
+```
+
+```ts
+export default () =>
+  Goal.CoexistenceGoal({
+    forEach: Interval.Between(
+      Temporal.Instant.from('2021-01-01T05:00:00.000Z'),
+      Temporal.Instant.from('2021-01-01T10:00:00.000Z'),
+      Inclusivity.Inclusive,
+      Inclusivity.Exclusive,
+    ),
+    activityTemplate: span => ActivityTemplates.PeelBanana({ peelDirection: 'fromStem' }),
+    startsAt: TimingConstraint.singleton(WindowProperty.START),
   });
 ```
 
@@ -363,7 +389,7 @@ export default function orGoalExample() {
 
 ### AND Goal - Conjunction of Goals
 
-The AND Goal aggregates several goals together and specifies that at least one of them must be satisfied.
+The AND Goal aggregates several goals together and specifies that all of them must be satisfied.
 
 #### Inputs
 
@@ -410,7 +436,7 @@ if you have a preset of the `BiteBanana` activity called "big bite", you can acc
 
 ```ts
 export default (): Goal => {
-  return Goal.RecurrenceGoal({
+  return Goal.ActivityRecurrenceGoal({
     activityTemplate: ActivityTemplates.BiteBanana(ActivityPresets.BiteBanana["big bite"]),
     interval: ...
   });
@@ -511,7 +537,7 @@ This section describes how to create a new scheduling goal via the Aerie UI. In 
 
 import schedulingPanel from './assets/scheduling-panel.png';
 
-<figure align="center">
+<figure>
   <img alt="Aerie UI - Scheduling Panel" src={schedulingPanel} />
   <figcaption>Figure 1: Aerie UI Scheduling Panel</figcaption>
 </figure>
@@ -520,7 +546,7 @@ Next click "New" to create a new scheduling goal in the specification for the pl
 
 import goalEditorNew from './assets/goal-editor-new.png';
 
-<figure align="center">
+<figure>
   <img alt="Aerie UI - Scheduling Goal Editor - New Goal" src={goalEditorNew} />
   <figcaption>Figure 2: Scheduling Goal Editor - New Goal</figcaption>
 </figure>
@@ -561,7 +587,7 @@ The editor should tell you that `ActivityRecurrenceGoal()` takes one argument:
 
 import invalidRecurrenceGoal from './assets/invalid-recurrence-goal.png';
 
-<figure align="center">
+<figure>
   <img alt="Aerie UI - Invalid Recurrence Goal" src={invalidRecurrenceGoal} />
   <figcaption>Figure 3: Invalid Recurrence Goal</figcaption>
 </figure>
@@ -608,7 +634,7 @@ To delete or edit a scheduling goal via the UI, open the scheduling pane and rig
 
 import goalContextMenu from './assets/goal-context-menu.png';
 
-<figure align="center">
+<figure>
   <img alt="Aerie UI - Goal Context Menu" src={goalContextMenu} />
   <figcaption>Figure 4: Goal Context Menu</figcaption>
 </figure>
@@ -617,7 +643,7 @@ Click on "Delete Goal" to delete the goal. If you click on "Edit Goal" it will o
 
 import goalEditorEdit from './assets/goal-editor-edit.png';
 
-<figure align="center">
+<figure>
   <img alt="Aerie UI - Scheduling Goal Editor - Edit Goal" src={goalEditorEdit} />
   <figcaption>Figure 5: Scheduling Goal Editor - Edit Goal</figcaption>
 </figure>

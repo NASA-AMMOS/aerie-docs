@@ -1,0 +1,127 @@
+# Your First Activity
+
+Now that we have a resource, let's build an activity called `CollectData` that emits effects on that resource. We can imagine this activity representing a camera on-board a spacecraft that collects data over a short period of time. Activities in Aerie follow the general definition given in the [CCSDS Mission Planning and Scheduling Green Book](https://public.ccsds.org/Pubs/529x0g1.pdf)
+
+> "An activity is a meaningful unit of what can be planned… The granularity of a Planning Activity depends on the use case; It can be hierarchical"
+
+Essentially, activities are the building blocks for generating your plan. Activities in Aerie follow a class/object relationship where [activity types](https://nasa-ammos.github.io/aerie-docs/mission-modeling/activity-types/introduction/) - defined as a class in Java - describe the structure, properties, and behavior of an object and activity instances are the actual objects that exist within a plan.
+
+Since activity types are classes in Java, create a new class called `CreateData` and add the following Java annotation above that class, which allows Aerie to recognize this class as an activity type.
+
+```java
+@ActivityType("CollectData")
+```
+
+Within this activity type, let's define two [parameters](https://nasa-ammos.github.io/aerie-docs/mission-modeling/activity-types/parameters/), `rate` and `duration`, and give them default arguments. When an activity instance is placed into a plan, operators can modify these default arguments prior to simulation if desired. Activity parameters are simply member variables of the activity type class with an annotation above the member variable:
+
+```java
+@Export.Parameter
+```
+
+:::info
+
+In reality, there are a variety of [parameter annotations](https://nasa-ammos.github.io/aerie-docs/mission-modeling/parameters/) you can use to tell Aerie about activity parameters and their defaults. In fact, if all member variables are intended to be parameters, you don't even need to include an annotation. For this tutorial, however, we want to be explicit with our parameter definition and will be using annotations even if they aren't technically required.
+
+:::
+
+For our activity, we will make `rate` a `double` with a default value of `10.0` megabits per second and `duration` a `Duration` type built into Aerie with a default value of `1` hour. That translates to the following code:
+
+```java
+@Parameter
+public double rate = 10.0; // Mbps
+
+@Parameter
+public Duration duration = Duration.duration(1, Duration.HOURS);
+```
+
+Right now, if an activity of this type was added to a plan, an operator could alter the parameter defaults to any value allowed by the parameter's type. Let's say that due to buffer limitations of our camera, it can only collect data at a rate of `100.0` megabits per second, and we want to notify the operator that any rate above this range is invalid. We can do this with [parameter validations](https://nasa-ammos.github.io/aerie-docs/mission-modeling/activity-types/parameters/#validations) by adding a method to our class with a couple of annotations:
+
+```java
+@Validation("Collection rate is beyond buffer limit of 100.0 Mbps")
+@Validation.Subject("rate")
+public boolean validateCollectionRate() {
+  return rate <= 100.0;
+}
+```
+
+The `@Validation` annotation specifies the message to present to the operator when the validation fails. The `@Validation.Subject` annotation specifies the parameter(s) with which the validation is associated. Now, as you will see soon, when an operator specifies a data rate above `100.0`, Aerie will show a validation error and message in the UI.
+
+Next, we need to tell our activity how and when to effect change on the `RecordingRate` resource, which is done in an [Activity Effect Model](https://nasa-ammos.github.io/aerie-docs/mission-modeling/activity-types/effect-model/). Just like with validations, an effect model is built by adding a method to our class, but with a different annotation, `@ActivityType.EffectModel`. Unlike validations, there can only be one of these methods per activity and the method should accept the top-level mission model class as a parameter (which in our case is just `Mission`). Conventionally, the method name given to the effect model is `run()`.
+
+For our activity, we simply want to model data collection at a fixed rate specified by the `rate` parameter over the full duration of the activity. Within the `run()` method, we can add the follow code to get that behavior:
+
+```java
+DiscreteEffects.increase(model.dataModel.RecordingRate, this.rate);
+delay(duration);
+DiscreteEffects.decrease(model.dataModel.RecordingRate, this.rate);
+```
+
+Effects on resources are accomplished by using one of the many static methods available in the class associated with your resource type. In this case, `RecordingRate` is a discrete resource, and therefore we are using methods from the `DiscreteEffects` class. If you peruse the static methods in `DiscreteEffects`, you'll see methods like `set()`, `increase()`, `decrease()`, `consume()`, `restore()`,`using()`, etc. Since discrete resources can be of many primitive types (e.g. `Double`,`Boolean`), there are specific methods for each type. Most of these effects change the value of the resource at one time point instantaneously, but some, like `using()`, allow you to specify an [action](https://nasa-ammos.github.io/aerie-docs/mission-modeling/activity-types/effect-model/#actions) to run like `delay()`. Prior to executing the action, the resource changes just like other effects, but once the action is complete, the effect on the resource is reversed. These resource effects are sometimes called "renewable" in contrast to the other style of effects, which are often called "consumable".
+
+In our effect model for this activity, we are using the "consumable" effects `increase()` and `decrease()`, which as you would predict, increase and decrease the value of the `RecordingRate` by the `rate` parameter. The `run()` method is executed at the start of the activity, so the increase occurs right at the activity start time. We then perform the `delay()` action for the user-specified activity `duration`, which moves time forward within this activity before finally reversing the rate increase. Since there are no other actions after the rate decrease, we know we have reached the end of the activity.
+
+If we wanted to save a line of code, we could have the "renewable" effect `using()` to achieve the same result:
+
+```java
+DiscreteEffects.using(model.dataModel.RecordingRate, -this.rate, () -> delay(duration) );
+delay(duration);
+```
+
+:::info
+
+For the case where we use `using()`, you'll notice we have to use the `delay()` action twice. This is because the first action within `using()` is spawned, which allows the execution of the effect model to continue as the `using()` effect waits for the end of its `delay()` action. This allows you to have many `using()` effects, perhaps on different resources, running concurrently within an activity. The second `delay()` actually moves time forward for the activity.
+
+:::
+
+With our effect model in place, we are done coding up the `CollectData` activity and the final result should look something like this:
+
+```java
+package missionmodel;
+
+import gov.nasa.jpl.aerie.contrib.streamline.modeling.discrete.DiscreteEffects;
+import gov.nasa.jpl.aerie.merlin.framework.annotations.ActivityType;
+import gov.nasa.jpl.aerie.merlin.framework.annotations.Export.Parameter;
+import gov.nasa.jpl.aerie.merlin.framework.annotations.Export.Validation;
+
+import gov.nasa.jpl.aerie.merlin.protocol.types.Duration;
+
+import static gov.nasa.jpl.aerie.merlin.framework.ModelActions.delay;
+import static gov.nasa.jpl.aerie.merlin.protocol.types.Duration.SECONDS;
+
+@ActivityType("CollectData")
+public class CollectData {
+
+    @Parameter
+    public double rate = 10.0; // Mbps
+
+    @Parameter
+    public Duration duration = Duration.duration(1, Duration.HOURS);
+
+    @Validation("Collection rate is beyond buffer limit of 100.0 Mbps")
+    @Validation.Subject("rate")
+    public boolean validateCollectionRate() {
+      return rate <= 100.0;
+    }
+
+    @ActivityType.EffectModel
+    public void run(Mission model) {
+
+        /*
+         Collect data at fixed rate over duration of activity
+        */
+        // Approach 1 - Modify rate at start/end of activity
+        DiscreteEffects.increase(model.dataModel.RecordingRate, this.rate);
+        delay(duration);
+        DiscreteEffects.decrease(model.dataModel.RecordingRate, this.rate);
+
+    }
+}
+```
+
+The last thing we need to do before giving our model a test drive is add a line to the `package-info.java` file to help Aerie find our newly built activity type
+
+```java
+@WithActivityType(CollectData.class)
+```
+
+Ok! Now we are all set to give this a spin.

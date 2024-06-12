@@ -1,0 +1,60 @@
+import extensions from './assets/extensions-navbar.png';
+
+# Advanced - Extensions
+
+Extensions are external tools that can be invoked directly from inside of Aerie. When an Extension is called, the following values are passed along in the request body:
+
+- `gateway` - The URL for the current instance's Gateway server.
+- `hasura` - The URL for the current instance's Hasura server.
+- `planId` - The id of the plan the user is looking at.
+- `selectedActivityDirectiveId` - The id of the selected activity directive (if applicable).
+- `simulationDatasetId` - The id of the last run simulation (if applicable).
+
+```ts
+{
+  planId: number;
+  selectedActivityDirectiveId: number | null;
+  simulationDatasetId: number | null;
+  gateway: string;
+  hasura: string;
+}
+```
+
+Here is an example when the user has no directives selected:
+
+```json
+{
+  "planId": 47,
+  "selectedActivityDirectiveId": null,
+  "simulationDatasetId": 124,
+  "gateway": "http://aerie_gateway:9000",
+  "hasura": "http://hasura:8080/v1/graphql"
+}
+```
+
+Additionally, the user's current session information will be passed to the Extension via the `Authorization` and `x-hasura-role` headers.
+
+Extensions **must** return a response of the following form:
+
+- `message`: the message to be displayed as a notification inside of Aerie
+- `success`: a boolean indicating whether the Extension ran successfully
+- `url`: an optional link to a file or website. if provided, it will be opened in a new tab
+
+## Managing Extensions
+
+Extensions may only be managed via the [GraphQL API](/api/examples/advanced-extensions).
+
+## Using Extensions
+
+When looking at a plan in Aerie, all registered Extensions can be found under the Navbar entry between Scheduling and View.
+If there are no any extensions registered, this entry will be hidden.
+
+Hovering over extensions will bring up the list of registered Extensions.
+To run an extension, click on its entry in the list.
+
+<figure>
+  <img alt="Aerie Planning Navbar - Extensions" src={extensions} />
+  <figcaption>Figure 1: Aerie Planning Navbar - Extensions</figcaption>
+</figure>
+
+

@@ -1,7 +1,8 @@
 import apiPlayground from './assets/api-playground.png';
-import apiPlaygroundHeaders from './assets/api-playground-headers.png';
 import gatewayAuthLogin from './assets/gateway-auth-login.png';
 import hasuraConsoleLogin from './assets/hasura-console-login.png';
+import adminSecretPlayground from './assets/api-playground-admin-secret.mov';
+import preRequestScript from './assets/api-playground-pre-request-script.mov';
 
 # Introduction
 
@@ -71,7 +72,7 @@ To interact with the API you need to be authenticated. For each request Hasura r
 
 To get a token from the gateway UI you can visit [http://localhost:9000/#/Auth/post_auth_login](http://localhost:9000/#/Auth/post_auth_login), and enter your JPL username and password (change `localhost` do your deployment URL if you are running Aerie on a different domain).
 
-<figure align="center">
+<figure>
   <img alt="Aerie Gateway UI - Auth Login" src={gatewayAuthLogin} />
   <figcaption>Figure 1: Aerie Gateway UI - Auth Login</figcaption>
 </figure>
@@ -116,28 +117,135 @@ If you are using Aerie locally, or have the [admin secret](https://hasura.io/doc
 
 Since a GraphQL API has more underlying structure than a REST API, there are a range of methods by which a client application may choose to interact with the API. A simple usage could use the [curl](https://curl.se/) command line tool, whereas a full featured web application may integrate a more powerful client library like [Apollo Client](https://www.apollographql.com/docs/react/) or [Relay](https://relay.dev/) which automatically handle query building, batching and caching.
 
+<details>
+<summary>The Hasura Console</summary>
+
+Previously our recommendation was to use the Hasura Console to explore the Aerie API. As of Aerie `1.7.0` the Hasura Console requires the admin secret to access, which makes it unavailable to most for non-local use cases.
+If you have the admin secret you can still use the Hasura Console by supplying the secret on the login page.
+
+<figure>
+  <img alt="Aerie Hasura Console - Admin Login" src={hasuraConsoleLogin} />
+  <figcaption>Figure 4: Aerie Hasura Console - Admin Login</figcaption>
+</figure>
+</details>
+
 ### Playground
 
 Aerie provides an API playground via the [Altair](https://altairgraphql.dev/) GraphQL client. You can use the playground user interface to query the Aerie API directly. It is a great way to start exploring Aerie data and get familiar with GraphQL. If you are running Aerie locally you can view the playground (via the gateway server) at [http://localhost:9000/api-playground/](http://localhost:9000/api-playground/) (change the `localhost` domain as needed).
 
-<figure align="center">
+<figure>
   <img alt="Aerie API Playground - Altair" src={apiPlayground} />
   <figcaption>Figure 2: Aerie API Playground - Altair</figcaption>
 </figure>
 
-To use the API playground you need to set the proper authorization header (either `Authorization` or `x-hasura-admin-secret` - see the [Authentication section above](#authentication)). Here is an example on how to set either one in the playground:
+To use the API playground you need to set the proper authorization header (either `Authorization` or `x-hasura-admin-secret` - see the [Authentication section above](#authentication)).
 
-<figure align="center">
-  <img alt="Aerie API Playground - Altair Authorization Headers" src={apiPlaygroundHeaders} />
-  <figcaption>Figure 3: Aerie API Playground - Altair Authorization Headers</figcaption>
-</figure>
+#### Admin Secret
 
-Previously our recommendation was to use the Hasura Console to explore the Aerie API. As of Aerie `1.7.0` the Hasura Console requires the admin secret to access, which makes it unavailable to most for non-local use cases. If you have the admin secret you can still use the Hasura Console by supplying the secret on the login page.
+Access the Global Environment by clicking on "No Environment" -> "Environments..." in the top-right of the page.
+Set it to the following:
 
-<figure align="center">
-  <img alt="Aerie Hasura Console - Admin Login" src={hasuraConsoleLogin} />
-  <figcaption>Figure 4: Aerie Hasura Console - Admin Login</figcaption>
-</figure>
+```json
+{
+  "headers" :
+  {
+    "x-hasura-admin-secret": "<YOUR_ADMIN_SECRET>",
+    "x-hasura-user-id": "<YOUR_AERIE_USERNAME>",
+    "x-hasura-role": "viewer"
+  }
+}
+```
+
+<video controls>
+  <source src={adminSecretPlayground} />
+</video>
+
+#### Authorization
+
+If you do not know the admin secret for your venue, you can instead run a pre-request script to authorize yourself against the Gateway.
+
+<details closed>
+  <summary><b>For Aerie versions before v2.2.0</b></summary>
+
+1. Access the Global Environment by clicking on "No Environment" -> "Environments..." in the top-right of the page.
+Set it to the following:
+```json
+{
+  "headers" :
+  {
+    "Authorization": "Bearer {{user}}",
+    "x-hasura-role": "viewer"
+  }
+}
+```
+
+2. In the Query Window, click on Pre-request. Select Enable Pre-request script.
+
+
+3. Enter the following pre-request script:
+```js
+// Fetch a new token from the Gateway
+const res = await altair.helpers.request(
+  'POST',
+  '/auth/login', // AUTH ENDPOINT OF THE DEPLOYMENT
+  {
+    body: { "username": "<YOUR_AERIE_USERNAME>", "password": "<YOUR_AERIE_PASSWORD>"}, // CREDENTIALS TO LOG IN AS
+    headers: {"Content-Type": "application/json"}
+  });
+if(res.success) {
+  const token = res.token;
+  await altair.helpers.setEnvironment("user", token);
+} else {
+  altair.log(res);
+}
+```
+
+The Playground will now automatically fetch an updated token before each query.
+To learn more about pre-request scripts, visit [the Altair GQL docs](https://altairgraphql.dev/docs/features/prerequest-scripts.html).
+
+<video controls>
+  <source src={preRequestScript} />
+</video>
+
+</details>
+
+:::info Note
+If you find yourself asked to install the extension `altair-graphql-plugin-graphql-explorer`, allow this.
+This extension allows you to view and explore the GQL schema by opening the `GraphiQL Explorer` using the button midway down the left-side sidebar.
+The Explorer is useful for discovering and constructing available queries, mutations, and subscriptions.
+:::
+
+In the Query Window, click on "Pre-Request". Find this part of the script:
+
+```typescript
+const res = await altair.helpers.request(
+  'POST',
+  '/auth/login', // AUTH ENDPOINT OF THE DEPLOYMENT
+  {
+    body: { "username": "<YOUR_AERIE_USERNAME>", "password": "<YOUR_AERIE_PASSWORD>"}, // CREDENTIALS TO LOG IN AS
+    headers: {"Content-Type": "application/json"}
+  });
+```
+
+Replace `<YOUR_AERIE_USERNAME>` and `<YOUR_AERIE_PASSWORD>` with the username and password you use to sign in to Aerie.
+
+:::info Setting Your Role
+By default, you will make queries using the `viewer` role. If you want to use a different role,
+select `Set Headers` from the top of the left-side sidebar and update the header `x-hasura-role` to a different role you are permitted to use.
+
+To see the list of your permitted roles, use the following query:
+```gql
+{
+  users_and_roles {
+    username
+    hasura_allowed_roles
+  }
+}
+```
+
+After changing your role, you will need to press the `Reload Docs` button to the left of the `Send Request` button
+to update the list of available queries and mutations in the GraphiQL Explorer.
+:::
 
 ### Python
 
@@ -156,7 +264,7 @@ response = requests.post(
 print(json.dumps(response.json(), indent=2))
 ```
 
-If you have the admin secret you can just use it to make your request. Set the `x-hasura-admin-secret` header (default admin secret shown below):
+If you have the admin secret you can alternatively use it to make your request. Set the `x-hasura-admin-secret` header (default admin secret shown below):
 
 ```python
 headers={ 'x-hasura-admin-secret': 'aerie' }

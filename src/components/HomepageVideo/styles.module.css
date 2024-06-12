@@ -1,0 +1,27 @@
+.sectionHeader {
+  color: var(--ifm-color-secondary-darker);
+  text-align: center;
+  font-size: 1rem;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 120%; /* 1.8rem */
+  letter-spacing: 0.105rem;
+  justify-content: center;
+  text-transform: uppercase;
+  flex-grow: 1;
+}
+
+.videoSection {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  margin-left: 1rem;
+  margin-right: 1rem;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.section {
+  background-color: var(--ifm-hero-background-color);
+}

@@ -6,13 +6,13 @@ An **activity type** defines a simulated behavior that may be invoked by a plann
 Activity types may define **parameters**, which are filled with **arguments** by a planner and provided to the activity upon execution.
 Activity types may also define **validations** for the purpose of informing a planner when the parameters they have provided may be problematic.
 
-For example, here is a simple activity type from the FireSat template mission model:
+For example, here is a simple activity type from the examples in the template mission model:
 
 <RemoteCodeBlock
   language="java"
   showLineNumbers
-  title="Aerie Mission Model Template (FireSat) - GncChangeControlMode.java"
-  url="https://raw.githubusercontent.com/NASA-AMMOS/aerie-mission-model-template/main/src/main/java/firesat/activities/gnc/GncChangeControlMode.java"
+  title="Aerie Mission Model Template - CollectData.java"
+  url="https://raw.githubusercontent.com/NASA-AMMOS/aerie-mission-model-template/main/examples/CollectData.java"
 ></RemoteCodeBlock>
 
 Aerie automatically generates parameter serialization boilerplate for every activity type defined in the mission model's [package-info.java](../introduction.mdx#the-package-infojava-file).
@@ -23,7 +23,7 @@ Moreover, the generated Model base class provides helper methods for spawning ea
 In order for Aerie to detect an activity type, its class must be annotated with the `@ActivityType` tag. An activity type is declared with its name using the following annotation:
 
 ```java
-@ActivityType("GncChangeControlMode")
+@ActivityType("CollectData")
 ```
 
 By doing so, the Aerie annotation processor can discover all activity types declared in the mission model, and validate that activity type names are unique.

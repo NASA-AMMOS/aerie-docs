@@ -1,6 +1,6 @@
 # Introduction
 
-Aerie is a next-generation software framework for modeling spacecraft. It is developed by the [NASA Jet Propulsion Laboratory (JPL)](https://www.jpl.nasa.gov/), and is being used for planning and operating spacecraft missions like [Europa Clipper](https://europa.nasa.gov/).
+Aerie is an open source, extensible software system for planning, scheduling, and commanding space missions. Developed and maintained by NASA's [Advanced Multi-Mission Operation System (AMMOS)](https://ammos.nasa.gov/), it provides modeling and simulation capabilities that can be used for mission planning and analysis during project formulation all the way through operations, where it can be used to manage and validate spacecraft activity plans. Aerie is actively being used on flagship missions like [Europa Clipper](https://europa.nasa.gov/), but is equally suitable for smaller missions and constellations.
 
 Some of the main features of Aerie include:
 
@@ -12,6 +12,8 @@ Some of the main features of Aerie include:
 - An EDSL for defining sequences, and a fully-featured browser-based sequence editor
 - A GraphQL API so you can easily build tools on top of Aerie
 - A web-based [client application](https://github.com/NASA-AMMOS/aerie-ui)
+
+As a multi-tenant system, Aerie allows multiple distributed users to [collaborate](https://nasa-ammos.github.io/aerie-docs/planning/collaboration/introduction/) in real-time on a single plan or concurrently work on multiple plans for multiple missions. Additionally, Aerie's [service based architecture](https://nasa-ammos.github.io/aerie-docs/overview/software-design-document/#aerie-system-design) allows for efficient system deployment and scalability on the cloud.
 
 ## Fast Track ⏱️ {#fast-track}
 
@@ -36,5 +38,7 @@ Understand Aerie in **5 minutes** by trying it out!
    ```
 
 1. Visit [http://localhost/](http://localhost/) to view the [Aerie UI](https://github.com/NASA-AMMOS/aerie-ui).
+
+   Note that the fast track deployment is not configured to connect to an authentication and authorization provider, therefore any credentials are accepted.
 
 1. Head over to the planning documentation to learn how to [upload a mission model](../planning/upload-mission-model).

@@ -257,7 +257,7 @@ Also notice the `duration` is simply calculated as how many microseconds pass be
 
 ## Usage in Constraints
 
-After the external dataset is uploaded, constraints can access the included profiles just as if they were simulated profiles.
+After the external dataset is uploaded, constraints and scheduling can access the included profiles just as if they were simulated profiles.
 The key difference is that since external datasets are associated with plans and simulated datasets are associated with models, the constraint must be associated with the same plan to access the external profile.
 
 External profiles can contain gaps, and currently simulated profiles cannot. Gaps in profile transformations will be preserved; i.e. comparing the equality of two profiles with gaps will include the gaps, because the result of the operation is unknown. This means that windows can also have gaps, as windows are essentially boolean profiles. Ultimately the gaps are reflected in the constraint's violations as a warning, meaning the constraint _might_ be violated because the relevant profiles had unknown values.
@@ -282,3 +282,8 @@ export default (): Constraint => {
   return result;
 }
 ```
+
+### Particularities of usage in Scheduling
+Most of the above is valid for scheduling as well. However, there are 2 caveats:
+- The presence of gaps in profiles used to compute windows for scheduling is forbidden. As for constraints, you can use the `assignGaps` method to remove gaps from profiles. 
+- Only external datasets that are not associated to simulations can be used for scheduling. In other words, the external dataset must be associated only with the plan. 
