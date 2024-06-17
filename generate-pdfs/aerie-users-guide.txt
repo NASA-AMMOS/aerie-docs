@@ -24,4 +24,5 @@ https://nasa-ammos.github.io/aerie-docs/command-expansion/sequences/
 https://nasa-ammos.github.io/aerie-docs/command-expansion/run-expansion/
 https://nasa-ammos.github.io/aerie-docs/category/sequencing/
 https://nasa-ammos.github.io/aerie-docs/sequencing/editor/
+https://nasa-ammos.github.io/aerie-docs/sequencing/adaptation/
 https://nasa-ammos.github.io/aerie-docs/glossary/

@@ -220,6 +220,7 @@ const sidebars = {
       },
       items: [
         'sequencing/editor',
+        'sequencing/adaptation',
         {
           label: 'Seq JSON Schema',
           type: 'link',
