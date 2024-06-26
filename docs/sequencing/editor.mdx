@@ -43,27 +43,22 @@ Aerie editor allows authoring and viewing sequences in a user friendly format wh
 
 As explained earlier authoring a sequence simply means concatenating commands in the steps array. Example below illustrates how a simple sequence with a few commands and various time tags looks like.
 
-```ts
-export default () =>
-  Sequence.new({
-    seqId: '',
-    metadata: {},
-    steps: [
-      C.AVS_RESET_PCE,
-      C.BC_MANAGE_ACTIVE_BUS({ bus_side: 'BUS_A', ping_pong_enable_disable: 'DISABLE' }),
-      A('2024-123T00:00:00').EP_PPU_HEATER_SET({ cathode_heater_current_setpoint: 120, which_ppu: 'PPU1' }),
-      R('00:00:10').DP_PRIORITIZE({ dp_name: '/file/path', dp_priority: 23 }),
-    ],
-  });
+```
+R001T00:00:01 GROW_BANANA 1 60
+C PICK_BANANA
+
+C AVS_RESET_ECE
+C BC_MANAGE_ACTIVE_BUS "BUS_A" "DISABLE"
+A2024-123T00:00:00 PACKAGE_BANANA 0 ["lot_0" 1]
+R00:00:10 THROW_BANANA 10
 ```
 
-- Each command step must start with a time tag. Time tags supported in seqJSON are command complete ( `C.` ), absolute ( `A('2020-001T00:00:00')`), relative ( `R('00:00:00')` ), and epoch relative (`E('00:00:00')`). To understand how these time tags get executed on board, refer to your missions Sequencing FDD.
-- To view list of commands, type a time tag and a dot.
+- Each command step must start with a time tag. Time tags supported in seqJSON are command complete ( `C` ), absolute ( `A2020-001T00:00:00`), relative ( `R00:00:00` ), and epoch relative (`E00:00:00`). To understand how these time tags get executed on board, refer to your missions Sequencing FDD.
+- To view list of commands, type a time tag and a space.
 - To filter commands, start typing the first few letters of the command stem.
-- After selecting the command the parameters will be listed upon hovering the stem.
-- If command has arguments type opening and closing brackets as follows `({ })` , and then list all args comma separated in the `({ name: value, name:value })` format.
+- After selecting the command the parameters will be inside of the right "Selected Command" panel.
+- If command has arguments they will be deliniated with a space.
 - Editor can autocomplete argument names with the `control + Space` shortcut.
 - For the enumerated args, `control + Space` can be used to select one of the defined enum values.
-- All commands must be comma separated.
 - Errors will be linted with a red squiggly underline. Hovering over the error should provide explanation for the error as shown below.
 - Generate seqJSON will fail if you have errors in the sequence.

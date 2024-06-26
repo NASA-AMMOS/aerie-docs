@@ -1,0 +1,31 @@
+# Sequence Adaptation
+
+The sequence editor supports uploading a custom sequence adaptation through the Ditionaries page. This custom adaptation can overwrite various features inside of the editor including linting and autocomplete.
+
+The adaptation uses `globalThis` overrides and currently supports the following properties:
+
+```ts
+  globalThis.CONDITIONAL_KEYWORDS: { ELSE: string; ELSE_IF?: string[]; END_IF: string; IF: string[] } | undefined;
+  globalThis.LOOP_KEYWORDS:
+    | {
+        BREAK: string;
+        CONTINUE: string;
+        END_WHILE_LOOP: string;
+        WHILE_LOOP: string[];
+      }
+    | undefined;
+  globalThis.GLOBALS = [{ name: string, type: 'int' | 'flt' | 'str' | 'unit' }] | undefined;
+  globalThis.ARG_DELEGATOR: [stem: string]: {
+    [arg: string]:
+      | undefined
+      | ((
+          argDef: FswCommandArgument,
+          paramDictionaries: ParameterDictionary[],
+          channelDictionary: ChannelDictionary | null,
+          precedingArgValues: string[],
+        ) => FswCommandArgument | undefined);
+  } | undefined;
+  function TO_SEQ_JSON(seqJson: SeqJson, parameterDictionaries: ParameterDictionary[], channelDictionary: ChannelDictionary | null);
+  function FROM_SEQ_JSON(seqJson: SeqJson, parameterDictionaries: ParameterDictionary[], channelDictionary: ChannelDictionary | null);
+  function LINT(commandDictionary: CommandDictionary | null, view: EditorView, node: SyntaxNode);
+```
