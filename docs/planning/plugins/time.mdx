@@ -1,0 +1,66 @@
+# Time Plugin
+
+Time input and presentation in the Aerie UI can be customized by implementing a time plugin. Currently the time plugin is only used on the plans and individual plan page. This time plugin does not affect how time is stored in the database and instead converts times from the database format to the plugin format on the fly in the UI.
+
+Example use cases for the Time Plugin:
+
+- Displaying times in a particular timezone
+- Displaying and inputting times in a custom time such as LMST, SCLK, etc
+
+## Configuration
+
+- The Time Plugin must be named `time-plugin.js` and must be placed inside of the `static/resources` directory of the Aerie UI.
+- Set `PUBLIC_TIME_PLUGIN_ENABLED=true` in your runtime environment.
+
+## Time Plugin API
+
+The Time Plugin must return a `time` object from a `getPlugin` function with the following optional properties:
+
+| Property                | Type                                                                                                          | Description                                                                                                                                                                                                                                                                        |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `primary`               | <code>PluginTime</code>                                                                                       | See below for a definition of the `PluginTime` type.<br/> <i>Default: UTC DOY parsing and input</i>                                                                                                                                                                                |
+| `additional`            | <code>Optional<PluginTime, 'validate' \| 'parse' \| 'formatString' \| 'formatTick' \| 'formatShort'>[]</code> | Additional time formats that must supply at least the `format` and a `parse` functions. These additional time formats are used in the plan timeline secondary time displays as well as other secondary time displays in the plan page. <br/> <i>Default: User's local timezone</i> |
+| `enableDatePicker`      | <code>boolean</code>                                                                                          | If true, show a UTC date picker. Disable this when the plugin does not use a primary time of UTC. <br/> <i>Default: `true`</i>                                                                                                                                                     |
+| `getDefaultPlanEndDate` | <code>(start: Date) => Date \| null</code>                                                                    | Compute a plan end date given a plan start date<br/> <i>Default: Add one Earth day to the start date</i>                                                                                                                                                                           |
+| `ticks`                 | <code>Object</code>                                                                                           | See below for the properties of `ticks`                                                                                                                                                                                                                                            |
+| `ticks.getTicks`        | <code>(start: Date, stop: Date, count: number) => Date[]</code>                                               | Return an array of `Date` objects given a start `Date`, a stop `Date`, and a target count of ticks. This function allows for cleanly lining up ticks with the plugin's primary time system.<br/> <i>Default: UTC based time ticks</i>                                              |
+| `ticks.maxLabelWidth`   | <code>number</code>                                                                                           | The maximum width in pixels of any tick label. Used internally by the Aerie UI timeline to compute the number of ticks that should be displayed in the timeline. <br/> <i>Default: 130</i>                                                                                         |
+
+<br />
+
+The `PluginTime` type is defined by the following optional properties:
+
+| Property       | Type                                                                               | Description                                                                                                                         |
+| -------------- | ---------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `format`       | <code>(date: Date) => string \| null</code>                                        | Convert a `Date` to a human readable `string`. <br/> <i>Default: UTC DOY `YYYY-DDDThh:mm:ss.SSS`</i>                                |
+| `formatShort`  | <code>(date: Date) => string \| null</code>                                        | Convert a `Date` to a short human readable `string`. <br/> <i>Default: UTC DOY `YYYY-DDD`</i>                                       |
+| `formatString` | <code>string</code>                                                                | Format that users should adhere to for string date entry. <br/> <i>Default: `YYYY-DDDThh:mm:ss` </i>                                |
+| `formatTick`   | <code>(date: Date, durationMs: number, tickCount: number) => string \| null</code> | Format a timeline tick given a `Date`, tick window duration, and number of ticks. <br/> <i>Default: Dynamic UTC date formatting</i> |
+| `label`        | <code>string</code>                                                                | Label for the time format. <br/> <i>Default: UTC</i>                                                                                |
+| `parse`        | <code>(dateString: string) => Date \| null</code>                                  | Convert a string representation of a date to a `Date` object. <br/> <i>Default: Native Javascript `Date` parsing</i>                |
+| `validate`     | <code>(dateString: string) => string \| null</code>                                | Return an error string if the given date string is invalid, otherwise return null. <br/> <i>Default: UTC date string validation</i> |
+
+## Error handling
+
+The Time Plugin is responsible for gracefully failing when exceptions are encountered within the plugin. When an operation such as `parse` or `format` fails, the plugin should return `null` to indicate to the Aerie UI that an error occurred and that the date is invalid.
+
+## Example Plugins
+
+Below is a basic example that sets the additional time formats to a single format that displays the current UTC year. For additional plugin examples, please refer to the [aerie-ui-plugins](https://github.com/NASA-AMMOS/aerie-ui-plugin-examples) repository.
+
+```javascript
+// Time plugin example (time-plugin.js)
+export async function getPlugin() {
+  console.log('Plugin loaded');
+  return {
+    time: {
+      additional: [
+        {
+          format: (date: Date) => date.getUTCFullYear().toString(),
+          parse: (dateString: string) => new Date(string),
+        },
+      ],
+    },
+  };
+}
+```

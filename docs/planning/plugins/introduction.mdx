@@ -1,0 +1,21 @@
+# Advanced - UI Plugins
+
+The Aerie UI provides an client-side API for customizing various aspects of the UI. This customization is accomplished by supplying the UI with specifically named javascript files in the `static/resources` directory of the application and enabling the plugins using runtime environment variables. These plugins are run in the Aerie UI browser context. The relevant portions of the API specification can be found on specific plugin pages below or for the entire specification please reference the Aerie UI [plugins.ts](https://github.com/NASA-AMMOS/aerie-ui/) type file (TODO make a link once merged). Plugins may also load additional supporting files from the `static/resources` directory or from external sources. Please note that additional resource requests to `static/resources/*` should be referenced as `/resources/*` given the client side routing setup.
+
+Plugins must export an asynchronous function named `getPlugin` that returns a subset of the Plugin API.
+
+```javascript
+// Empty plugin example (<plugin-name>.js)
+export async function getPlugin() {
+  console.log('Plugin loaded');
+  return {
+    /* Plugin contents */
+  };
+}
+```
+
+## Supported Plugins
+
+| Plugin                         | Description                                         |
+| ------------------------------ | --------------------------------------------------- |
+| [Time](/planning/plugins/time) | Customize how time is presented and input in the UI |

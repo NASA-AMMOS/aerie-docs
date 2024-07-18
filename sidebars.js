@@ -158,6 +158,15 @@ const sidebars = {
         'planning/timeline-controls',
         'planning/advanced-incons',
         'planning/advanced-extensions',
+        {
+          type: 'category',
+          label: 'Advanced - UI Plugins',
+          link: {
+            id: 'planning/plugins/introduction',
+            type: 'doc',
+          },
+          items: ['planning/plugins/time'],
+        },
       ],
     },
     {
