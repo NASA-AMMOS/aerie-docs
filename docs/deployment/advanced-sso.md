@@ -188,4 +188,45 @@ export interface AuthAdapter {
 
 Advanced Aerie users can easily create their own e.g. `Auth0Adapter.ts` that implements this interface and runs a custom version of the previously defined algorithm, that will validate any existing SSO token cookies, and return a `ValidateResponse` that can be used downstream by Aerie UI.
 
-More docs to come as this custom implementation feature is fleshed out.
+### Important Considerations
+
+1. **Auth Logic**: Auth is entirely handed off to your custom auth adapter. This means your implementation of the `AuthAdapter` interface is responsible for:
+  - Extracting the SSO token from cookies
+  - Determining if it's valid (using your auth providers API)
+  - Calculating and returning a redirection URL to your auth providers login UI if the SSO token is invalid
+  - Calculating allowed and default roles for the user if the token is valid
+  - Creating and returning a JWT with these roles set
+
+  This flexibility means your implementation might not exactly follow the auth algorithms described above (e.g. default role priority list) unless your adapter implements those algorithms.
+
+2. **Helper Functions**: Several helper functions (listed below) are provided to assist in implementing custom auth adapters. See existing auth adapters (`CAMAuthAdapter.ts`) for example usage.
+
+  - `getUserRoles`
+  - `mapGroupsToRoles`
+  - `syncRolesToDB`
+  - `generateJwt`
+
+3. **`getUserRoles` behavior**: The `getUserRoles` helper function will use the database as the source of truth if an entry for the user exists. It will not look at the `default_role` passed in unless the user does not exist yet.
+
+4. **User Role Updates**: If using `AUTH_GROUP_ROLE_MAPPINGS`, your auth provider's group membership is the source of truth, so Aerie roles should be recalculated whenever the user logs in (in case their auth groups have changed since last login) and upserted into the Aerie DB. If `AUTH_GROUP_ROLE_MAPPINGS` is unset, roles need only be calculated from env vars once on initial login / user creation, since the Aerie DB is the source of truth for membership.
+
+In other words, if you're using `AUTH_GROUP_ROLE_MAPPINGS` you'll need to upsert to the database on every `validate` call, otherwise if you aren't using group => role mappings, you only need to insert to the DB once on user creation. The allowed roles in your generated token need to match what's in the DB, since Hasura checks auth by comparing current role in the JWT with allowed roles in the DB for that user.
+
+5. **Gateway Modifications**: When adding a new custom auth adapter, the Gateway's `switch (AUTH_TYPE)` statement in `src/main.ts` needs to be modified to recognize and instantiate your new auth adapter.
+
+6. **Logout Behavior**: Ensure that the logout functionality in the custom adapter properly clears any existing sessions or tokens with your auth provider.
+
+7. **Upstreaming**: If your auth adapter could be used by other Aerie deployments, consider upstreaming it to the Aerie Gateway repo for better maintenance.
+
+8. **SSO support only**: Token based auth is the only supported flow for custom auth adapters. Leverge your auth provider to handle username / password / 2fa / smartcard support, and then link . The Aerie `/login` page that directly accepts username + passwords for auth is philosophically deprecated, as we encourage SSO token based auth as the path forward.
+
+### Testing and Troubleshooting
+
+When implementing a custom auth adapter:
+
+1. Test the adapter thoroughly with various user scenarios and group memberships.
+2. If unexpected role assignments occur, check the DB for an entry under that user. Your adapter might be incorrectly pulling this information.
+3. Verify that the `AUTH_TYPE` env var is correctly set and recognized by the Gateway's entrypoint in `main.ts`.
+4. Ensure that after making changes, users fully log out and log back in to see the effects.
+
+For more detailed information or assistance with custom auth adapters, please refer to the Aerie development team.
