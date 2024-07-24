@@ -1,0 +1,41 @@
+import exportPlanScreenshot from './assets/export-plan.png';
+
+# Plan Import/Export
+
+Aerie has the ability to export plans into a JSON-based file format, and import plans from files using the same format.
+This allows you to save plans you've created in Aerie for backup or archival purposes, transfer plans between different Aerie
+deployments, or interface with other tools which may ingest or modify the plan file.
+
+Aerie plan files are mainly a way to persist **activities, tags, anchors, and arguments** from a plan.
+Note that the following data is not included in plan files:
+- Mission models - when importing, you will need to choose an existing mission model to associate with your plan
+- Views - saved separately from plans, you can use the Download View button to save your views
+- Resource profiles and other simulation results
+- Plan specifications for Constraints, Scheduling Goals and Conditions
+- Simulation Template - you can optionally associate a template when importing
+
+The format of these files is described by this Typescript type in the Aerie repository:
+
+https://github.com/NASA-AMMOS/aerie-gateway/pull/97/files#diff-aadcd2e92cdf1b17122b6fc65396f3e5603e14064d730a020b231cd30134704e
+
+Future releases of Aerie will include a JSON schema fully describing the format.
+
+## Exporting a plan
+
+To export an Aerie plan, first open it in Aerie, then open the "Plan Metadata" panel. Use the export button in the top
+right of the panel to export a `plan.json` file.
+
+<figure>
+  <img alt="Aerie UI - Export Plan from Plan Metadata panel" src={exportPlanScreenshot} />
+</figure>
+
+## Importing a plan
+
+On the Plans page, you can select an Aerie plan file to upload when creating a new plan. This will pre-populate
+the other fields from the plan file, but you will still need to select a mission model file to associate with your plan.
+
+There is currently no validation to check that the associated mission model is the same as the one used to create the
+plan originally. This allows you to test the same plans with different models, but you may experience errors during
+simulation or scheduling if the activities in the plan file don't match those in the model.
+
+

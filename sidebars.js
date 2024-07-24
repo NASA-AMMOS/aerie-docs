@@ -156,6 +156,7 @@ const sidebars = {
         'planning/ui-views',
         'planning/timeline-editing',
         'planning/timeline-controls',
+        'planning/plan-import-export',
         'planning/advanced-incons',
         'planning/advanced-extensions',
         {
