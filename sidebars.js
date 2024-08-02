@@ -330,6 +330,7 @@ const sidebars = {
     },
   ],
   upgradeGuides: [
+    'upgrade-guides/2-11-1-to-2-11-2',
     'upgrade-guides/2-11-0-to-2-11-1',
     'upgrade-guides/2-12-0-to-2-13-0',
     'upgrade-guides/2-11-0-to-2-12-0',
