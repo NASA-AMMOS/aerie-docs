@@ -1,6 +1,6 @@
 # Model Test Drive
 
-Within your IDE, compile the model (`./gradlew assemble` should do the trick) and make sure it built successfully by checking `build/lib` for a new `missionmodel.jar` file.
+Within your IDE, compile the model (`./gradlew :missionmodel:build --refresh-dependencies` should do the trick) and make sure it built successfully by checking `build/lib` for a new `missionmodel.jar` file.
 
 Follow [these instructions](https://ammos.nasa.gov/aerie-docs/planning/upload-mission-model/) to upload your `.jar` file, and give your model a name and version number (e.g. SSR Model version 1.0). Next, you can follow [these instructions](https://ammos.nasa.gov/aerie-docs/planning/create-plan-and-simulate/#instructions) to create a new plan. Pick the model you just compiled to build your plan off of and name your plan `Mission Plan 1` and give it a duration of `1 day`. Click "Create" and click on the newly created plan to open it, which should take you to a view with the plan timeline in the center view panel.
 
@@ -8,7 +8,7 @@ On the left panel, you should see your `CollectData` activity type, which you ca
 
 :::info
 
-When activity types are initially added to the plan, they are shown with a play button icon and don't have a duration. We call these "activity directives", and it is these activities that you are allowed to modify by changing parameters, timing, etc. Once a simulation has been performed, one or more activities will appear below the directive, which are the activity instances. These actually have a duration (based on their effect model) and are the result of the simulation run.
+When activity types are initially added to the plan, they are shown as a small rectangle, but they don't yet have a duration. We call these "activity directives", and it is these activities that you are allowed to modify by changing parameters, timing, etc. Once a simulation has been performed, one or more activities will appear, which are the activity instances. These actually have a duration (based on their effect model) and are the result of the simulation run.
 
 :::
 

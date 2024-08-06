@@ -1,6 +1,6 @@
 # Integral Method Comparison
 
-Now that we have explored multiple methods to implement integration in Aerie, let's compare all of the methods in the Aerie UI. To make things more interesting, use the 2nd approach to the `Polynomial` method so we can see how that approach enforces a data volume capacity. Compile the current version of the model (`./gradlew assemble`) and upload it into Aerie. Build a new `1 day` plan off of that model and call it "Mission Plan 3".
+Now that we have explored multiple methods to implement integration in Aerie, let's compare all of the methods in the Aerie UI. To make things more interesting, use the 2nd approach to the `Polynomial` method so we can see how that approach enforces a data volume capacity. Compile the current version of the model (`./gradlew :missionmodel:build --refresh-dependencies`) and upload it into Aerie. Build a new `1 day` plan off of that model and call it "Mission Plan 3".
 
 For this plan, throw a couple of `CollectData` activities near the beginning of the plan, create a `ChangeMagMode` activity after those activities in the first half of the plan and set that activity's parameter to `HIGH_RATE`. Throw one more `CollectData` and `ChangeMagMode` activity near the end of the plan to make sure we get a plan that goes over our data capacity threshold. With our simple plan built, go ahead and simulate the plan to see the resulting resource profiles.
 
