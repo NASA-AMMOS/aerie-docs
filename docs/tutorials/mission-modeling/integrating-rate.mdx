@@ -25,7 +25,11 @@ DiscreteEffects.increase(model.dataModel.SSR_Volume_Simple,this.rate*duration.ra
 
 This line will increase `SRR_Volume_Simple` at the end of the activity by `rate` times `duration` divided by our magic number to convert `Mb` to `Gb`. Note that the `duration` object has some helper functions like `ratioOver` to help you convert the `duration` type to a `double` value.
 
-There are a few notable issues with this approach. The first issue is that when a plan is simulated, the data volume of the SSR will only increase at the very end of the activity even though in reality, the volume is growing linearly in time throughout the duration of the activity. If your planners only need this level of fidelity to do their work, this may be ok. However, if your planners need a little more fidelity during the time span of the activity, you could spread out the data volume accumulation over many steps. That would look something like this in code,
+There are a few notable issues with this approach.
+The first issue is that when a plan is simulated, the data volume of the SSR will only increase at the very end of the activity even though in reality, the volume is growing linearly in time throughout the duration of the activity.
+If your planners only need this level of fidelity to do their work, this may be ok.
+However, if your planners need a little more fidelity during the time span of the activity, you could spread out the data volume accumulation over many steps.
+That would look something like this in code (for the purposes of this tutorial, there is no need to actually implement this example)
 
 ```java
 int numSteps = 20;
@@ -36,7 +40,9 @@ for (int i = 0; i < numSteps; i++) {
 }
 ```
 
-which would replace the `delay()` and the single data volume increase line from above. The resulting timeline for `SSR_Volume_Simple` would look like a stair step with the number of steps equal to `numSteps`. It's important to remember we are still using a `Discrete` resource, so the resource is stored as a constant, "step-function" profile in Aerie. We will show the use of a `Polynomial` resource in our final method to truly store and view data volume as a linear profile.
+which would replace the `delay()` and the single data volume increase line from above.
+The resulting timeline for `SSR_Volume_Simple` would look like a stair step with the number of steps equal to `numSteps`.
+It's important to remember we are still using a `Discrete` resource, so the resource is stored as a constant, "step-function" profile in Aerie. We will show the use of a `Polynomial` resource in our final method to truly store and view data volume as a linear profile.
 
 Another issue with this approach is that is does not transfer well to activities like `ChangeMagMode` that alter the `RecordingRate` and do not return the rate back to its original value at the end of the activity (i.e. activities whose effects on rate are not contained within the time span of the activity). In order to compute the magnetometer's contribution to the data volume in `ChangeMagMode`, we would need to multiply the `currentRate` by the duration since the last mode change, or if no mode change has occurred, the beginning of the plan. While this is possible by using a `Clock` resource to track time between mode changes, the `ChangeMagMode` activity would now requires additional context about the plan that would otherwise be unnecessary.
 
@@ -82,21 +88,25 @@ public void integrateSampledSSR() {
 
 As a programmer, you may be surprised to see an infinite `while` loop, but Aerie will shut down this task, effectively breaking the loop, once the simulation reaches the end of the plan. Within the loop, the first thing we do is `delay()` by our sampling interval and then retrieve the current value of `RecordingRate`. Finally, we sum up our rectangle by multiplying the current rate by the sampling interval. We could have easily chosen to use other numerical methods like the "trapezoid" rule by storing the previous recording rate in addition to the current rate, but what we did is sufficient for now.
 
-The final piece we need to build into our model to get this method to work is a simple `spawn` with the `Mission` class to our `integrateSampledSSR` method.
+The final piece we need to build into our model to get this method to work is a simple `spawn` within the `Mission` class constructor to our `integrateSampledSSR` method.
 
 ```java
 spawn(dataModel::integrateSampledSSR);
 ```
 
-The issues with this approach to integration are probably fairly apparent to you. First of all, this approach is truly an approximation, so the resulting volume may not be the actual volume if the sampled points don't align perfectly with the changes in `RecordingRate`. Secondly, the fact we are sampling at a fixed time interval means we could be computing many more time points than we actually need if the recording rate isn't changing between time points. If you were to try to scale up this approach, you might run into performance issues with your model where simulation takes much longer than it needs to.
+There are some notable issues to this approach for integration. First of all, this approach is truly an approximation, so the resulting volume may not be the actual volume if the sampled points don't align perfectly with the changes in `RecordingRate`. Secondly, the fact we are sampling at a fixed time interval means we could be computing many more time points than we actually need if the recording rate isn't changing between time points. If you were to try to scale up this approach, you might run into performance issues with your model where simulation takes much longer than it needs to.
 
 Despite these issues `daemon` tasks are a very effective tool in a modelers tool belt for describing "background" behavior of your system. Examples for a spacecraft model could include the computation of geometry, battery degradation over time, environmental effects, etc.
 
 ## Method 3 - Update volume upon change to rate
 
-If you are looking for an efficient, yet accurate way to compute data volume from `RecordingRate`, one method you could take is to set up trigger that calls a function whenever `RecordingRate` changes and then computes volume by multiplying the rate just before the latest change by the duration that has passed since the last change. Fortunately, there is a fairly easy way to do this in Aerie's modeling framework.
+If you are looking for an efficient, yet accurate way to compute data volume from `RecordingRate`, one method you could take is to set up trigger that calls a function whenever `RecordingRate` changes and then computes volume by multiplying the rate just before the latest change by the duration that has passed since the last change.
+Fortunately, there is a fairly easy way to do this in Aerie's modeling framework.
 
-Let's begin by creating one more discrete `MutableResource` called `SSR_Volume_UponRateChange` in our `DataModel` class (refer back to previous instances in this tutorial for how to declare and define one of these). In addition to our volume resource, we are also going to need a `Clock` resource to help us track the time between changes to `RecordingRate`. Since this resource is more of a "helper" resource and doesn't need to be exposed to our planners, we'll make it `private` and not register it to the UI. Declaring and defining a `Clock` resource is not much different than declaring a `Discrete` except you don't have to specify a primitive type. The declaration looks like this
+Let's begin by creating one more discrete `MutableResource` called `SSR_Volume_UponRateChange` in our `DataModel` class (refer back to previous instances in this tutorial for how to declare and define one of these).
+In addition to our volume resource, we are also going to need a `Clock` resource to help us track the time between changes to `RecordingRate`.
+Since this resource is more of a "helper" resource and doesn't need to be exposed to our planners, we'll make it `private` and not register it to the UI.
+Declaring and defining a `Clock` resource is not much different than declaring a `Discrete` except you don't have to specify a primitive type. The declaration looks like this
 
 ```java
 private MutableResource<Clock> TimeSinceLastRateChange;
@@ -107,6 +117,13 @@ and the definition in the constructor looks like this
 ```java
 TimeSinceLastRateChange = resource(Clock.clock(Duration.ZERO));
 ```
+
+:::tip
+The right Clock definition can be referenced with the following import statement at the top of `DataModel.java`
+```java
+import gov.nasa.jpl.aerie.contrib.streamline.modeling.clocks.Clock;
+```
+:::
 
 This will start a "stopwatch" right at the start of the plan so we can track the time between the start of the plan and the first time `RecordingRate` is changed. We'll also need one more member variable of type `Double`, which we'll call `previousRate` to keep track of the previous value of `RecordingRate` for us.
 
@@ -187,3 +204,4 @@ The second and third arguments of `clampedIntegrate()` are the min and max bound
 - underflow – The rate of underflow when the integral hits its lower bound. You can integrate this to get cumulative underflow.
 
 As expected, the `integral()` resource is mapped to `SSR_Volume_Polynomial` to complete its definition.
+To make things more interesting for our upcoming comparison of integration methods, use the "clamped" approach above so we can see how that approach enforces a data volume capacity.

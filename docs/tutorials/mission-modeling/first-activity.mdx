@@ -46,14 +46,19 @@ public boolean validateCollectionRate() {
 
 The `@Validation` annotation specifies the message to present to the operator when the validation fails. The `@Validation.Subject` annotation specifies the parameter(s) with which the validation is associated. Now, as you will see soon, when an operator specifies a data rate above `100.0`, Aerie will show a validation error and message in the UI.
 
-Next, we need to tell our activity how and when to effect change on the `RecordingRate` resource, which is done in an [Activity Effect Model](https://nasa-ammos.github.io/aerie-docs/mission-modeling/activity-types/effect-model/). Just like with validations, an effect model is built by adding a method to our class, but with a different annotation, `@ActivityType.EffectModel`. Unlike validations, there can only be one of these methods per activity and the method should accept the top-level mission model class as a parameter (which in our case is just `Mission`). Conventionally, the method name given to the effect model is `run()`.
+Next, we need to tell our activity how and when to effect change on the `RecordingRate` resource, which is done in an [Activity Effect Model](https://nasa-ammos.github.io/aerie-docs/mission-modeling/activity-types/effect-model/).
+Just like with validations, an effect model is built by adding a method to our class, but with a different annotation, `@ActivityType.EffectModel`.
+Unlike validations, there can only be one of these methods per activity and the method should accept the top-level mission model class as a parameter (which in our case is just `Mission`).
+Conventionally, the method name given to the effect model is `run()`.
 
 For our activity, we simply want to model data collection at a fixed rate specified by the `rate` parameter over the full duration of the activity. Within the `run()` method, we can add the follow code to get that behavior:
 
 ```java
-DiscreteEffects.increase(model.dataModel.RecordingRate, this.rate);
-delay(duration);
-DiscreteEffects.decrease(model.dataModel.RecordingRate, this.rate);
+public void run(Mission model) {
+  DiscreteEffects.increase(model.dataModel.RecordingRate, this.rate);
+  delay(duration);
+  DiscreteEffects.decrease(model.dataModel.RecordingRate, this.rate);
+}
 ```
 
 Effects on resources are accomplished by using one of the many static methods available in the class associated with your resource type. In this case, `RecordingRate` is a discrete resource, and therefore we are using methods from the `DiscreteEffects` class. If you peruse the static methods in `DiscreteEffects`, you'll see methods like `set()`, `increase()`, `decrease()`, `consume()`, `restore()`,`using()`, etc. Since discrete resources can be of many primitive types (e.g. `Double`,`Boolean`), there are specific methods for each type. Most of these effects change the value of the resource at one time point instantaneously, but some, like `using()`, allow you to specify an [action](https://nasa-ammos.github.io/aerie-docs/mission-modeling/activity-types/effect-model/#actions) to run like `delay()`. Prior to executing the action, the resource changes just like other effects, but once the action is complete, the effect on the resource is reversed. These resource effects are sometimes called "renewable" in contrast to the other style of effects, which are often called "consumable".
