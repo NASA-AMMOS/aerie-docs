@@ -1,0 +1,145 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Sampling and Caching
+
+As a consequence of the lazy evaluation paradigm used by all timelines, each timeline is recomputed from scratch
+every time `.collect()` is called on it. If you are dealing with small amounts of data and inexpensive operations, this
+probably isn't a practical concern. If not, you might need to cache the timeline to improve performance.
+
+This is very simple, just call `.cache(...)` on your timeline. It has exactly the same semantics as `.collect(...)`.
+Timelines are not cached by default because if you're manipulating enough data for performance to be a concern,
+storing a cache for each intermediate timeline might use too much memory.
+
+If you explicitly call `.collect()` many times on the same timeline, it will be easy to spot the performance penalty;
+but sometimes a collect call is hidden inside another operation. Let's take the code below and see how that could happen:
+
+<Tabs groupId="lang">
+<TabItem value="kt" label="Kotlin">
+
+```kotlin
+val n1 = plan.resource("int_resource_1", Numbers.deserialize())
+val n2 = plan.resource("int_resource_2", Numbers.deserialize())
+
+// Construct a very expensive profile that we should only evaluate once.
+val superExpensiveProfile = n1.map2Values(n2) { l, r, _ -> ackermann(l, r) }
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java
+final var n1 = plan.resource("int_resource_1", Numbers.deserialize());
+final var n2 = plan.resource("int_resource_2", Numbers.deserialize());
+
+// Construct a very expensive profile that we should only evaluate once.
+final var expensiveProfile = n1.map2Values(n2, (l, r, _) -> ackermann(l, r));
+```
+
+</TabItem>
+</Tabs>
+
+
+## Sampling
+
+Let's say I wanted to sample the value of `expensiveProfile` at a bunch of different points, rather than using
+the whole profile. You can just call `expensiveProfile.sample(myTime)`, but be careful because `sample` just delegates
+to `.collect(Interval.at(myTime))` and unwraps the segment. If you only wanted to sample once, this is great, because
+it avoids evaluating `expensiveProfile` for most of the plan, only calculating the one segment you need.
+
+But if you call `.sample` many times, especially if you call it on the same segment multiple times, it will recalculate
+many more times than you need. So before you do any sampling, call `cache`:
+
+<Tabs groupId="lang">
+<TabItem value="kt" label="Kotlin">
+
+```kotlin
+// Say we only care about the first day of the plan.
+val interval = Duration.days(0) .. duration.days(1)
+
+// Cache the first day
+expensiveProfile.cache(interval)
+
+// Sample every 10 minutes for the first day
+for (time in interval step Duration.minutes(10)) {
+  val sample = expensiveProfile.sample(time)
+  // do something with the sample
+}
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java
+// Say we only care about the first day of the plan.
+val interval = Interval.between(Duration.days(0), duration.days(1));
+
+// Cache the first day
+expensiveProfile.cache(interval);
+
+// Sample every 10 minutes for the first day
+for (final var time: interval.step(Duration.minutes(10))) {
+  final var sample = expensiveProfile.sample(time);
+  // do something with the sample
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Timeline reuse
+
+What if `expensiveProfile` isn't the final product, and needs to be used in the construction of multiple other timelines?
+In that case, any time those downstream timelines are collected, `expensiveProfile` will be recomputed too. We can avoid
+this by caching it on whatever interval we are going to need it for.
+
+<Tabs groupId="lang">
+<TabItem value="kt" label="Kotlin">
+
+```kotlin
+// Two intermediate profiles that both depend on `expensiveProfile`
+val intermediate1 = expensiveProfile + 1
+val intermediate2 = expensiveProfile * 2
+
+// Final result profile that depends on both intermediate profiles,
+// and thus transitively depends on `expensiveProfile` twice.
+val result = derived1 / derived2
+
+// If we called `result.collect()` here, expensiveProfile would be
+// computed twice.
+
+// Cache the whole profile
+expensiveProfile.cache()
+
+// Now we can collect without wasted computation
+/* do something with */ result.collect()
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java
+// Two intermediate profiles that both depend on `expensiveProfile`
+final var intermediate1 = expensiveProfile.plus(1);
+final var intermediate2 = expensiveProfile.times(2);
+
+// Final result profile that depends on both intermediate profiles,
+// and thus transitively depends on `expensiveProfile` twice.
+final var result = derived1.div(derived2);
+
+// If we called `result.collect()` here, expensiveProfile would be
+// computed twice.
+
+// Cache the whole profile
+expensiveProfile.cache();
+
+// Now we can collect without wasted computation
+/* do something with */ result.collect();
+```
+
+</TabItem>
+</Tabs>
+
+When writing procedural constraints, keep in mind that you return a `Violations` timeline which is then collected
+by the driver *outside* your constraint code. So if your result depends on a timeline multiple times, that timeline will
+be computed multiple times unless it is cached, even though you didn't call `.collect()` yourself.

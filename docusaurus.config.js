@@ -109,7 +109,7 @@ const config = {
         },
       },
       prism: {
-        additionalLanguages: ['graphql', 'java'],
+        additionalLanguages: ['graphql', 'java', 'kotlin'],
         darkTheme: darkCodeTheme,
         theme: lightCodeTheme,
       },

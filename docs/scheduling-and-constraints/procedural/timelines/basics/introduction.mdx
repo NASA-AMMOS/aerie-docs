@@ -1,0 +1,62 @@
+# Basics
+
+Timelines are used to represent all time-distributed information about a plan and simulation. They can represent resource
+profiles, activities, and more, and come with operations for performing uniform global transformations easily.
+If you need more fine-grained control, you can create your own operations, or unwrap the timeline entirely and work
+with the underlying payload objects.
+
+The short explanation of a timeline is a lazy bounded list of time-distributed objects. The long
+explanation is the rest of this page.
+
+## Durations
+
+In procedural constraints/scheduling, absolute times are represented as a relative `Duration` object, centered on
+the start of the plan. So, if your plan starts at midnight on January 1st, and you want to create an activity at noon
+on January 2nd, you could refer to that using `Duration.hours(36)`. Alternatively, you can convert an absolute-time `java.time.Instant` to
+durations and back using `plan.toRelative` and `plan.toAbsolute`, where `plan` is provided to you in the constraint or
+goal interface. Durations have a resolution of microseconds and can represent any time you could reasonably want for the
+next 100,000 years. They can of course be negative.
+
+Duration constructors are provided for common units up to days, where a day is defined as 24 hours exactly, and have
+no time zone information. Other timekeeping systems are possible but not directly supported, so you will need to
+perform the conversions yourself.
+
+# Intervals
+
+`Interval`s are absolute time ranges, with start and end points represented by `Duration`s. They can include or exclude
+their extremes, which is often used to represent non-overlapping segments of resource profiles. For example, the intervals
+`Interval.between(hours(0), hours(1))` and `between(hours(1), hours(2))` both contain the point at 1 hour, but
+`betweenClosedOpen(hours(0), hours(1))` and `between(hours(1), hours(2))` meet perfectly without overlap.
+
+Intervals can be single points (i.e. `Interval.at(Duration.days(1))`), or even empty (`Interal.EMPTY`). Empty intervals
+are any that end before they start. They are all equivalently empty, but are not equal, and some operations that assume
+the interval is not empty may behave differently on unequal empty intervals.
+
+## Interval-Like Objects
+
+Intervals are used to represent when each object in a timeline happens. Timelines do this by requiring that their payload
+objects implement the `IntervalLike` interface. Good examples are profile `Segment`s, activity `Instance`s, and of course
+`Interval` itself. Any class that represents data that happens at a specific time or range of times can be made to implement
+`IntervalLike`, and can be used to make a timeline.
+
+## Collecting
+
+Timelines are lazy, meaning that when you perform an operation on them, the operation isn't actually evaluated until you
+try to access the result. This is usually done with the `collect` method, which a returns a list of your payload objects.
+`collect` is usually called with an interval specifying the bounds on which it should be evaluated, so that unused results
+aren't calculated. The operations are expected to return results contained in the bounds even they could return more
+with no extra cost.
+
+Any time you want to stop using timelines and directly work with the underlying data, you call `tl.collect(bounds)`
+(or just `tl.collect()` for unbounded results).
+
+By default, objects that straddle the start or end of the bounds are truncated to fit inside it. You can change this
+by calling `collect` with a `CollectOptions` object as argument, and set `truncateMarginal` to `false`.
+As in, `ti.collect(new CollectOptions(bounds, false))`. This will preserve the intervals of anything that is only partially
+inside the bounds.
+
+## Iterating
+
+All timeline objects implement [`Iterable`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-iterable/),
+allowing them to be used in a for loop. Keep in mind that this calls `.collect()`, which completely evaluates the timeline
+into a list; it doesn't enable any proper stream-style programming.

@@ -1,0 +1,75 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Parameters & Invocations
+
+Goals and constraints can be given arguments, much like activities can; they actually use the exact same system.
+This allows you to configure a goal that needs to be reused in slightly different ways across multiple plans, or
+even multiple times in the same plan.
+
+## Parameters
+
+:::tip
+
+For now, only Java records are supported for parameterization.
+
+:::
+
+For example, we can take the example from the [scheduling](../scheduling) page, and parameterize it so that it doesn't
+unconditionally recur every hour, and instead takes the period as input:
+
+<Tabs groupId="lang">
+<TabItem value="kt" label="Kotlin">
+
+```kt
+Kotlin parameter mapping is not yet supported :(
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java
+@SchedulingProcedure
+public record RecurringMyActivity(Duration period) implements Goal {
+  @Override
+  public void run(EditablePlan plan) {
+    // This produces a Booleans profile that is true at the instant of a MyActivity directive.
+    final var existingActivities = plan.directives("MyActivity").active().cache();
+
+    for (final var time: plan.totalBounds().step(period)) {
+      if (!existingActivities.sample(time)) plan.create(
+        "MyActivity",
+        new DirectiveStart.Absolute(time),
+        Map.of()
+      );
+    }
+  }
+}
+```
+</TabItem>
+</Tabs>
+
+After you add the goal to your plan's scheduling specification, you'll see the goal invocation with a `period` parameter
+to be filled in.
+
+import parameterizedGoal from './assets/parameterized-goal.png';
+
+<figure>
+  <img alt="Aerie Scheduling - Parameterized Goal" src={parameterizedGoal} />
+  <figcaption>Figure 1: Aerie Scheduling - Parameterized Goal</figcaption>
+</figure>
+
+## Invocations
+
+You can invoke the same goal multiple times in the same specification. This is useful for very specific, targeted goals;
+so the above goal isn't a very practical example of multiple invocations, but that won't stop us. You can right-click on
+the invocation and select "Duplicate invocation":
+
+import duplicateInvocation from './assets/duplicate-invocation.png';
+
+<figure>
+  <img alt="Aerie Scheduling - Duplicate Invocation" src={duplicateInvocation} />
+  <figcaption>Figure 2: Aerie Scheduling - Duplicate Invocation</figcaption>
+</figure>
+
+You can then create another invocation of the same goal, but likely with different parameters.

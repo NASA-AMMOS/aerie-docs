@@ -1,35 +1,11 @@
-# Run Scheduling
+# Execution
 
-## Scheduling Specification
+## Constraints
 
-After you have created one or several goals, you will see them in the scheduling pane of the plan in Aerie UI.
+Constraints can be checked inside the main plan view by opening the `Constraints` pane and clicking the checklist icon
+in the top right of the pane. Alternatively, you can hover over `Constraints` in the top bar and click "Check Constraints".
 
-The Aerie scheduler accepts a list of goals, and tries to satisfy them one by one by adding activities to your plan. We refer to this list of goals as a **scheduling specification**. Aerie creates one scheduling specification per plan. A goal's priority is a number reflecting that goal's position in the scheduling specification. The first goal will always have priority `0`, and the n-th goal will always have priority `n - 1`. Within a scheduling specification, a scheduling goal can be toggled enabled or disabled. A disabled scheduling goal will be excluded from scheduling execution. The priority ordering of the scheduling goals remains unchanged whether a goal is enabled or disabled.
-
-import schedulingSpecification from './assets/scheduling-specification.png';
-
-<figure>
-  <img alt="Aerie UI - Scheduling Specification" src={schedulingSpecification} />
-  <figcaption>Figure 1: Aerie UI Scheduling Specification</figcaption>
-</figure>
-
-In this image, you can see a specification with three goals. Goal 1 has priority `0`, and goal 3 has priority `2`. You can modify the priorities directly by typing numbers or use the arrows. You can disable a goal by toggling it off with the checkbox.
-
-:::caution
-
-You must use priorities in the `[0, n-1]` range, `n` being the number of goals.
-
-:::
-
-:::caution
-
-A given goal may be a part of zero or one specification - goals may not be shared between multiple specifications. If you need to do this, make a copy of the goal.
-
-There may be at most one specification at a time associated with a given plan.
-
-:::
-
-## Running the Scheduler
+## Scheduling
 
 To run the scheduler, click on the play button:
 
@@ -71,7 +47,7 @@ import schedulingSuccess from './assets/scheduling-success.png';
 - `174` means that there are `174` activity directives that contribute to the satisfaction of the goal
 - `+3` means that 3 new activities have been inserted in the plan to satisfied the goal during the last scheduling run
 
-## Running a Scheduling Analysis
+### Running a Scheduling Analysis
 
 The scheduler has an analysis mode that will evaluate the satisfaction of goals but will not place any new activities. To run the scheduler in analysis mode, click on the "analysis" button:
 

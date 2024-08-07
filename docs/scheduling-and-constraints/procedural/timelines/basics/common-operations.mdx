@@ -1,0 +1,156 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Common Operations
+
+Since all timelines are just lazily-evaluated lists, there are a few low-level operations that are common to all timelines
+(or all profiles) that you'll recognize from functional programming.
+
+## Filters
+
+There are three related families of filter-like operations available on all timelines: `filter`, `highlight`, and `isolate`,
+and their derivatives. They all take a predicate, and objects not satisfying that predicate will not be included in the
+output. But, the three operations do different things with the satisfying objects.
+
+### Basic Filtering
+
+The `.filter(predicate)` method is the simplest, and does what you'd expect: it keeps objects that satisfy the predicate,
+drops those that don't, and returns a new timeline of the same type. To repeat an example from before, you can use this
+to only consider activities with a certain argument:
+
+<Tabs groupId="lang">
+<TabItem value="kt" label="Kotlin">
+
+```kotlin
+plan.directives("MyActivity")
+  .filter {
+    it.inner // this accesses the inner AnyDirective object
+      .arguments.get("arg").asInt().get() == 3
+  }
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java
+plan.directives("MyActivity")
+  .filter(
+    false,
+    $ -> $.inner // this accesses the inner AnyDirective object
+      .arguments.get("arg").asInt().get() == 3
+  )
+```
+
+</TabItem>
+</Tabs>
+
+You can filter objects by their duration with `filterByDuration`, `filterLongerThan`, and `filterShorterThan`.
+These functions, through the magic of `CollectOptions.truncateMarginal`, are able to filter based on the full extent of
+the object even if part of it lays outside the collection bounds (see [Collecting](../introduction#Collecting)).
+
+Lastly, you can use `.filterByWindows(...)` to select only objects that coincide with the intervals in a `Windows` object.
+This is useful when a constraint or goal needs to only apply to a certain subset of the plan, such as only during a
+given mission phase.
+
+### Highlighting
+
+Highlighting returns a `Windows` object instead of whatever timeline type you started with. This is meant to show the
+intervals of the plan where the predicate is true, when you don't care about the actual objects that satisfied the predicate.
+This method always loses information; if you want to keep the satisfying object around, use `filter` or `isolate`.
+
+Profiles provide a shorthand `.highlightEqualTo(value)` method, which does exactly what you think.
+
+Highlighting is often used to iterate through the regions when a certain condition is met (to repeat another example):
+
+<Tabs groupId="lang">
+<TabItem value="kt" label="Kotlin">
+
+```kotlin
+val myResource = plan.resource("my_resource", Real.deserialize())
+for (interval in myResource.highlightEqualTo(3)) {
+  // Do something with the interval
+  // `interval` is JUST an interval, the original segment has been lost.
+}
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java
+final var myResource = plan.resource("my_resource", Real.deserialize());
+for (final var interval: myResource.highlightEqualTo(3)) {
+  // Do something with the interval
+  // `interval` is JUST an interval, the original segment has been lost.
+}
+```
+
+</TabItem>
+</Tabs>
+
+### Isolating
+
+Isolating returns a `Universal` timeline. This type hasn't been mentioned yet, since it's a more advanced topic,
+but a `Universal` timeline can store any interval-like object with no specializations.
+
+Much like an activity timeline,
+`Universal` timeline objects do not coalesce if they overlap; this is why the operation is called "isolate". When applied
+to a profile, where the segments interact if they overlap by either coalescing or overwriting, the satisfying segments
+in the result become non-interacting.
+This is the basis of [Parallel Profiles](../../advanced/parallel-profiles), and is an advanced concept that most goals
+and constraints will not need.
+
+Like `highlight`, `isolate` has shorthand for `isolateEqualTo` on profiles.
+
+## Mapping
+
+All timelines have a `.unsafeMap` method, which allows you to transform each object individually in any way you want.
+You can use this to transform it to a new object of the same type, or convert it to a new type and store it in a different
+timeline type.
+
+It is unlikely that you'll need to directly use `unsafeMap`, since there are lots of more specific operations that delegate
+to it, like:
+- `unsafeMapIntervals`, which only allows you to transform the object's interval
+- `shift`, which uniformly shifts the entire timeline forward or backward in time
+- `mapValues` for profiles, which only allow you transform the segment's value
+- many unary operations on profiles, like `.not()` for booleans, `.negate()` for numeric profiles, etc.
+
+### Why "unsafe"?
+
+The main contract that all timelines satisfy is that when you call `collect(bounds)`, the results returned are contained
+inside the `bounds` interval. More specific timelines like profiles have additional requirements (like being sorted and
+non-overlapping), but all timeline collection results must be contained within the bounds. But for performance reasons,
+this requirement is usually not checked or enforced, and is only satisfied through sound algorithmic guarantees.
+
+`unsafeMap`, and some methods that delegate to it, allow you to change the objects' intervals to whatever you want,
+and potentially return a list that violates any or all of the above requirements. They are use-at-your-own-risk.
+
+## Binary Operations
+
+There are two generic methods provided for binary operations between two timelines, one for all timelines, and one specifically
+for profiles.
+
+### `unsafeMap2`
+
+`unsafeMap2` and its derivatives can be applied between any two timelines, even if they are different types. It's pretty simple:
+it searches for every pairing of objects in the operands that have overlapping intervals, and calls a binary function
+that you provide to create a new object in the result.
+
+It calls your binary function on every overlapping pair; meaning that if one object in the left operand overlaps with
+two objects in the right operand, the function will be called with the left object twice.
+
+A variant called `map2Values` exists just for profiles, and allows you to just worry about the values in the profile segments,
+as long as you don't care about treating gaps specially.
+
+### `map2OptionalValues`
+
+If you do need to treat profile gaps specially, you can use `map2OptionalValues`. This method will call your binary function
+whenever two segments in the operands overlap, *and* whenever a segment in one operand exists over a gap in the other. When
+one operand has a gap, the value provided to your operation will be `null`. It does not call your function when both profiles
+have a gap.
+
+You can also use the `NullBinaryOperation` interface's static helper methods to create your operation with some common patterns.
+
+## Inspection
+
+The `.inspect` method is for when you want to observe the intermediate state of a stack of operations, for debugging, logging, or
+other side effects. Keep in mind that like all operations, it doesn't run until `.collect` is called.

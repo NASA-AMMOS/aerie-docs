@@ -1,0 +1,27 @@
+# Getting Started
+
+Currently only scheduling procedures are supported, not constraint procedures.
+
+## Create a project from the template
+
+We have created a template repository for your mission model and scheduling procedures [here](https://github.com/NASA-AMMOS/aerie-mission-model-template).
+If you don't already have a mission model project, you can just copy that template and follow the instructions.
+If you do, you can follow these steps to add a place for your procedures:
+
+1. Move your mission model code into a gradle subproject if it isn't already.
+2. Create a `scheduling` subproject.
+3. Copy the `build.gradle` from the `scheduling` subproject of the [mission model template repo](https://github.com/NASA-AMMOS/aerie-mission-model-template).
+4. You can now create procedures in a java package in the `scheduling` subproject, as long as the package path ends in `procedures`.
+   (i.e. `src/main/java/myorg/mymission/procedures`)
+
+## Compiling
+
+It is a two-part process to build your scheduling jars.
+1. Run `./gradlew :scheduling:compileJava` (or any command that delegates to it, such as `:scheduling:build` or a top-level `build`).
+2. Run `./gradlew :scheduling:buildAllSchedulingProcedureJars`. This produces the jar artifacts for each procedure.
+
+There should now be one jar for each scheduling procedure, at `scheduling/build/libs/<OriginalSourceCodeFileName>.jar`.
+
+## Creating a Goal
+
+See the examples in the mission model template repo, or see [the scheduling page](../scheduling) in this section.

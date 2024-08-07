@@ -41,7 +41,7 @@ const FeatureList = [
     ),
   },
   {
-    title: 'Low-code scheduling and rule checking',
+    title: 'Flexible scheduling and rule checking',
     Img: require('@site/static/img/cards/aerie-feature-rule-checking-light.png').default,
     ImgDark: require('@site/static/img/cards/aerie-feature-rule-checking-dark.png').default,
     size: 'col--8',

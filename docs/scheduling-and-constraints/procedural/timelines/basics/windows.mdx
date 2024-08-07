@@ -1,0 +1,40 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Windows
+
+`Windows` is a unique type of timeline that contains no values on each `Interval`; it is just a timeline of plain
+intervals.
+
+Originally named after the concept of "Windows of Opportunity", `Windows` essentially represents a subset of the planning
+horizon. Like a profile, the intervals are automatically coalesced if they overlap.
+
+`Windows` are usually created through the `.highlight` method or its derivatives. Its then common to either call `.collect` or
+use it in a for-each loop (which calls `.collect` under the hood). For example, to iterate through the windows where the `my_resource` resource equals
+`5`, you can do this:
+
+<Tabs groupId="lang">
+<TabItem value="kt" label="Kotlin">
+
+```kotlin
+val myResource = plan.resource("my_resource", Real.deserialize())
+for (interval in myResource.highlightEqualTo(3)) {
+  // do something with the interval
+}
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java
+final var myResource = plan.resource("my_resource", Real.deserialize());
+for (final var interval: myResource.highlightEqualTo(3)) {
+  // do something with the interval
+}
+```
+
+</TabItem>
+</Tabs>
+
+You can also use a `Windows` object to filter another timeline, so that it only returns results contained in the windows.
+This and the `highlight` method are explained in the [Common Operations](../common-operations) page.

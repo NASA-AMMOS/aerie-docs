@@ -1,0 +1,43 @@
+# Scheduling & Constraints
+
+Aerie provides related frameworks for defining constraints and scheduling new activities in the plan, and two implementations
+of those frameworks: one for arbitrary procedures that run on the JVM, and a legacy system based on a declarative Typescript eDSL
+(embedded Domain-Specific Language). Both frameworks are documented here, but new users are encouraged to focus on
+creating JVM procedures. The declarative eDSL is significantly less capable, and the difference in capabilities is only expected to
+grow.
+
+## Constraints
+
+Constraints represent what is nominal for a plan or mission model, and when executed, the UI will display "violations"
+whenever the plan or model is off-nominal. They don't alter the behavior of the simulation engine or scheduler; they
+just serve as a warning, indicating that some requirement - perhaps a flight rule - was broken.
+
+## Scheduling
+
+The scheduler allows users to automate the creation of new activities, to remove some cognitive load from planners. A
+scheduling specification contains a list of goals and rules with a priority order; during a scheduling run, they are
+executed one at a time, starting from a priority of 0 and increasing from there.
+
+### Procedural Goals
+
+Procedural goals directly edit the plan, creating new activities at definite (grounded) times. They
+can simulate potential changes to the plan, but aren't required to. In fact, a scheduling specification composed entirely
+of procedures might run in its entirety without performing any simulations, potentially at the cost of optimality or even
+soundness.
+
+### eDSL Goals
+
+eDSL goals are more declarative, in that they don't allow you to directly create grounded activities; instead they allow
+you to describe a pattern of activities that should be present in the plan. If the pattern isn't found, the goal tries to
+create it for you. Currently eDSL goals are simpler to write than procedural goals, for patterns that they can represent.
+Many goals are more complex than can be represented in the eDSL, and will have to be written as a procedure.
+
+### Global Conditions
+
+Global scheduling conditions (or sometimes just "conditions") are supplemental pieces of code that define when scheduling
+goals can and cannot place activities. They are incorporated into the solver when attempting to resolve conflicts as
+a substitute for constraints. This is because it is too difficult to respect constraints during scheduling; constraints
+only indicate that something went wrong, not what caused it or how to fix it. So in cases when the scheduler keeps violating
+constraints, users can create a condition as a heuristic to help it satisfy the constraint.
+
+Conditions will be accessible to scheduling rules, but will be non-binding.

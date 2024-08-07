@@ -1,0 +1,13 @@
+# Timelines
+
+Timelines are a fundamental data structure for representing and manipulating the plan and simulation results, and they are
+used everywhere in all types of procedural peripheral code. They can represent a wide variety of objects, such as
+activity instances and directives, resource profiles, abstract regions of the plan, and more.
+
+:::tip
+
+The most important feature of timelines is that you don't have to use them if you don't want to. At any time in your code,
+you can unwrap a timeline using the `.collect(...)` function, which will return a list of your time-distributed objects
+for you to work with manually.
+
+:::
