@@ -2,12 +2,20 @@
 
 We will begin building our SSR model by creating a single resource, `RecordingRate`, to track the rate at which data is being written to the SSR over time. As a reminder, a **Resource** is any measurable quantity whose behavior we want to track over the course of a plan. Then, we will create a simple activity, `CollectData`, that updates the `RecordingRate` by a user-specified rate for a user-specified duration. This activity is intended to represent an on-board camera taking images and writing data to the spacecraft SSR.
 
-Although we could define the `RecordingRate` resource directly in the pre-provided top-level `Mission` class, we'd like to keep that class as simple as possible and delegate most of model's behavior definition to other, more focused classes. With this in mind, let's create a new class within the `missionmodel` package called `DataModel`, which we will eventually instantiate within the `Mission` class.
+Although we could define the `RecordingRate` resource directly in the pre-provided top-level `Mission` class, we'd like to keep that class as simple as possible and delegate most of model's behavior definition to other, more focused classes.
+With this in mind, let's create a new file in `missionmodel/main/java/missionmodel` directory called `DataModel.java` with an empty class definition (we will eventually instantiate this new class within the `Mission` class, but that isn't necessary now).
 
-In the `DataModel` class, declare the `RecordingRate` resource with the following line of code:
+In the `DataModel` class, declare the `RecordingRate` resource by adding a single line to the `DataModel` class you just made:
 
 ```java
-public MutableResource<Discrete<Double>> RecordingRate; // Megabits/s
+package missionmodel;
+
+import gov.nasa.jpl.aerie.contrib.streamline.core.MutableResource;
+import gov.nasa.jpl.aerie.contrib.streamline.modeling.discrete.Discrete;
+
+public class DataModel {
+  public MutableResource<Discrete<Double>> RecordingRate; // Megabits/s
+}
 ```
 
 :::tip
@@ -38,15 +46,20 @@ Polynomial resources currently cannot be rendered in the Aerie UI and must be tr
 
 Looking back at our resource declaration, you can see that `RecordingRate` is a `MutableResource` (we will emit effects on this resource in our first activity) of the type `Discrete<Double>`, so the value of the resource will stay constant until the next time we compute effects on it.
 
-Next, we must define and initialize our `RecordingRate` resource, which we can do in a class constructor that takes one parameter we'll called `registrar` of type `Registrar`. You can think of the `Registrar` class as your link to what will ultimately get exposed in the UI and in a second we will use this class to register `RecordingRate`. But first, let's add the following line to the constructor we just made to fully define our resource.
+Next, we must define and initialize our `RecordingRate` resource, which we can do in a class constructor that takes one parameter we'll called `registrar` of type `Registrar`.
+You can think of the `Registrar` class as your link to what will ultimately get exposed in the UI and in a second we will use this class to register `RecordingRate`.
+But first, let's add the following to create the constructor and fully define our resource.
 
 ```java
-RecordingRate = resource(discrete(0.0));
+public DataModel(Registrar registrar) {
+  RecordingRate = resource(discrete(0.0));
+}
 ```
 
 Both the `MutableResource` and `Discrete` classes have static helper functions for initializing resources of their type. If you included those functions via `import static` statements, you get the simple line above. The `discrete()` function expects an initial value for the resource, which we have specified as `0.0`.
 
-The last thing to do is to register `RecordingRate` to the UI so we can view the resource as a timeline along with our activity plan. This is accomplished with the following line of code:
+The last thing to do is to register `RecordingRate` to the UI so we can view the resource as a timeline along with our activity plan.
+This is accomplished with the following line of code after the resource definition:
 
 ```java
 registrar.discrete("RecordingRate", RecordingRate, new DoubleValueMapper());

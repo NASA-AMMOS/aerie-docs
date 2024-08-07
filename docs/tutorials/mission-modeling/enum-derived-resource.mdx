@@ -45,12 +45,23 @@ Another resource we can add is one to track the numerical value of the data coll
 public Resource<Discrete<Double>> MagDataRate; // bps
 ```
 
-When we go to define this resource in the constructor, we need to tell the resource to get its value by mapping the `MagDataMode` to its corresponding rate. A special static method in the `DiscreteResourceMonad` class called `map()` allows us to define a function that operates on the value of a resource to get a derived resource value. In this case, that function is simply the getter function we added to the `MagDataCollectionMode`. The resulting definition and registration code for `MagDataRate` then becomes
+When we go to define this resource in the constructor, we need to tell the resource to get its value by mapping the `MagDataMode` to its corresponding rate.
+A special static method in the `DiscreteResourceMonad` class called `map()` allows us to define a function that operates on the value of a resource to get a derived resource value.
+In this case, that function is simply the getter function we added to the `MagDataCollectionMode`. The resulting definition and registration code for `MagDataRate` then becomes
 
 ```java
 MagDataRate = map(MagDataMode, MagDataCollectionMode::getDataRate);
 registrar.discrete("MagDataRate", MagDataRate, new DoubleValueMapper());
 ```
+
+:::tip
+
+If your IDE is struggling to find the `map()` function, the associated import statement is
+```java
+import static gov.nasa.jpl.aerie.contrib.streamline.modeling.discrete.monads.DiscreteResourceMonad.map;
+```
+
+:::
 
 :::info
 

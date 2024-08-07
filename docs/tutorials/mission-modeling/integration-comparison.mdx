@@ -1,6 +1,8 @@
 # Integral Method Comparison
 
-Now that we have explored multiple methods to implement integration in Aerie, let's compare all of the methods in the Aerie UI. To make things more interesting, use the 2nd approach to the `Polynomial` method so we can see how that approach enforces a data volume capacity. Compile the current version of the model (`./gradlew :missionmodel:build --refresh-dependencies`) and upload it into Aerie. Build a new `1 day` plan off of that model and call it "Mission Plan 3".
+Now that we have explored multiple methods to implement integration in Aerie, let's compare all of the methods in the Aerie UI.
+Compile the current version of the model (`./gradlew :missionmodel:build --refresh-dependencies`) and upload it into Aerie.
+Build a new `1 day` plan off of that model and call it "Mission Plan 3".
 
 For this plan, throw a couple of `CollectData` activities near the beginning of the plan, create a `ChangeMagMode` activity after those activities in the first half of the plan and set that activity's parameter to `HIGH_RATE`. Throw one more `CollectData` and `ChangeMagMode` activity near the end of the plan to make sure we get a plan that goes over our data capacity threshold. With our simple plan built, go ahead and simulate the plan to see the resulting resource profiles.
 
@@ -17,7 +19,7 @@ If you do that, you'll get a timeline view that looks something like the screens
 
 Looking at `SSR_Volume_Simple`, you'll see that data volume increases at the end of each `CollectData` activity, and for the first two activities, the result at the end of the activity is consistent with the other volumes. You may recall that we did not implement a data volume integration for the `ChangeMagMode` activity for `SSR_Volume_Simple` (although we could have with some work), so as soon as one of those activities is introduced into our plan, our volume is no longer valid.
 
-`SSR_Volume_Sampled` has a nice looking profile when zoomed out at the expense of computing many points, which you can see if you zoom into a shorter time span. If you zoom far enough, you can see the stair-step associated with computation of each sampled point. If we were to change our sampling interval to something larger, we would lose some accuracy in our volume calculation if the activity start/end times aren't aligned with are sample points.
+`SSR_Volume_Sampled` has a nice looking profile when zoomed out at the expense of computing many points, which you can see if you zoom into a shorter time span. If you zoom far enough, you can see the stair-step associated with computation of each sampled point. If we were to change our sampling interval to something larger, we would lose some accuracy in our volume calculation if the activity start/end times aren't aligned with our sample points.
 
 `SSR_Volume_UponRateChange` has much less points, but you can see that it produces the same volume as our `SSR_Volume_Polynomial` resource at the time points it computes until we go above our maximum capacity. `SSR_Volume_Polynomial` has same computed points as `SSR_Volume_UponRateChange`, but has linear profile segments in between points. It also has an additional point once it reaches the capacity threshold, and then it remains at that threshold for the remainder of the plan (we don't have any downlinks or we would see the volume decrease).
 
