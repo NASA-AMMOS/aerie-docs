@@ -163,7 +163,7 @@ Each directive has the following shape:
 This query returns a set of effective arguments given a set of required (and overridden) arguments.
 
 ```graphql
-query GetEffectiveArgs($modelId: ID!, $activityType: String!, $arguments: ActivityArguments!) {
+query GetEffectiveArgs($modelId: Int!, $activityType: String!, $arguments: ActivityArguments!) {
   getActivityEffectiveArguments(
     missionModelId: $modelId
     activityTypeName: $activityType

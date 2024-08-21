@@ -28,7 +28,7 @@ The `getModelEffectiveArguments` returns the same structure as [`getActivityEffe
 a set of effective arguments given a set of required (and overridden) arguments.
 
 ```graphql
-query getModelEffectiveArgs($modelId: ID!, $arguments: ModelArguments!) {
+query getModelEffectiveArgs($modelId: Int!, $arguments: ModelArguments!) {
   getModelEffectiveArguments(missionModelId: $modelId, modelArguments: $arguments) {
     arguments
     errors
