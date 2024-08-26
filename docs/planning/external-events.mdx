@@ -1,0 +1,553 @@
+import derivationExampleFull from './assets/derivation_example_full.png';
+import derivationMotivation from './assets/derivation_motivation.png';
+import derivationGroupMotivation from './assets/derivation_group_motivation.png';
+import derivationGroupMotivation2 from './assets/derivation_group_motivation_ii.png';
+import externalEventsOnTimeline from './assets/external_events_on_timeline.png';
+import externalEventsTable from './assets/external_events_table.png';
+import externalEventsWithResourcesAndActivities from './assets/external_events_before.png';
+import externalEventLayerOptions from './assets/external_event_options.png';
+import externalSourceOrdering from './assets/ordering_external_sources.png';
+import externalSourceManager from './assets/external_source_manager_intro.png';
+import externalSourceManagerCreateDerivationGroup from './assets/create_derivation_group.png';
+import externalSourceManagerCreateExternalEventType from './assets/create_external_event_type.png';
+import externalSourceManagerCreateExternalSourceType from './assets/create_external_source_type.png';
+import externalSourceManagerCreateGroupsAndTypesButton from './assets/create_groups_and_types_button.png';
+import externalSourceManagerUpload from './assets/external_source_manager_upload.png';
+import externalSourceTable from './assets/external_sources_table.png';
+import externalSourceInspected from './assets/inspected_source.png';
+import planExternalSourceView from './assets/plan_external_source_full_view.png';
+import planExternalSourcesPanel from './assets/plan_external_sources_panel.png';
+import planDerivationGroupModal from './assets/manage_derivation_group_modal.png';
+import planSelectedExternalEvent from './assets/plan_selected_external_event.png';
+import timelineEditorFull from './assets/timeline_and_editor_full.png';
+
+# External Events
+
+
+An **External Event** is temporal data used to inform a mission planner's decision making process. By nature, these events are *external* to Aerie itself and represent temporal occurrences that are immutable in nature.
+
+Examples of External Events include:
+* Ground station contacts
+* Orbital events
+* Weather forecasts
+
+In this document, we will discuss what External Events are, what their containing entities (External Sources) are, their grouping mechanisms (Derivation Groups), as well as how they manifest within Aerie.
+
+## Concepts
+
+### Data Constructs
+With External Events (and External Sources) come several constructs.
+
+#### External Events
+External Events represent temporal occurrences outside of the locus of control of the modelled spacecraft(s). See [External Events](#external-events-2) below for more information.
+
+#### External Sources
+External Sources are containers for External Events and the primary way that users interact with External Events. To get External Events into Aerie, an External Source must be uploaded that contains the event definitions inside. See [External Sources](#external-sources-1) below for more information.
+
+#### External Event Types
+External Event Types define the *typing* of each External Event. This typing typically groups External Events on the basis of the data they represent. For example, an External Event may be of the type `Ground Station Contact`, `Solar Flare`, or `Weather Forecast`.
+
+#### External Source Types
+External Source Types define the *typing* of each External Source. This typing typically groups External Sources on the basis of the data they contain. For example, you may have an External Source Type of `Weather Report` to represent all your weather reports, and inside each of the `Weather Report`-typed sources you can expect to find External Events that share a common External Event Type that appears in all `Weather Report`-typed sources (ex: Temperature).
+
+#### Derivation Groups
+Derivation Groups are collections of External Sources that can be associated with plans. Within a Derivation Group, the collective External Events from it's member External Sources are used to create a *derived* set of events for the Derivation Group. See [Derivation](#derivation) below for more information.
+
+#### Derivation Group & Plan Associations
+Derivation Groups can be *linked* to a plan (or plans) which allows their derived events to be utilized within the plan for visualization, planning, and scheduling. See [UI Usage](#ui-usage) below for more information on use within the UI.
+
+### External Events
+An **External Event** is a construct that represents the occurrence of something outside of what is modeled in the mission model. They could be events that are close to the spacecraft and directly affect behavior on it, like a Ground Contact event that might affect when communications happen, or they could be much more remote, like a constellation event. The main concept with External Events is that they are immutable events that occur at some point in time (either instantaneously, or for some set duration) and can/will impact mission planning. Functionally, these are at the interstice between external datasets and activities, in that they manifest on the timeline as activities (discrete blocks of time), but they themselves do not affect the mission model or invoke any actions similar to external datasets.
+
+<figure>
+  <img alt="Figure 1: External Events - Timeline view" src={externalEventsOnTimeline} />
+  <figcaption><i>Figure 1: External Events - Timeline view</i></figcaption>
+</figure>
+
+#### Why?
+The need for these became apparent after an exploration of External Events implemented as activities and as resources. To mimic the same construct as a resource, we would need to parse the external data and then place it on the timeline as a discrete resource, which given the fact that there are gaps between events and there can also be simultaneous events proved extremely unwieldy and awkward. While activities were a more natural representation, we still required an intermediary of a resource to schedule these activities based off of an ingested file, as it isn't possible to schedule activities exclusively following information in a file.
+
+<figure>
+  <img alt="Figure 2: External Events - External Events with resources and activities" src={externalEventsWithResourcesAndActivities} />
+  <figcaption><i>Figure 2: External Events - External Events with resources and activities</i></figcaption>
+</figure>
+
+*Note: Currently, External Events cannot be used within the planning process for generating activities, constraints, or other interactions with other data in Aerie. However, this is the planned scope of uses for External Events.*
+
+### External Sources
+**External Sources** represent a collection of External Events. When we upload External Events, we can only do so by uploading them in an External Source.
+
+These sources are to be defined in `JSON`, following a general format that will be discussed below. Any data a user wishes to turn into an External Source/External Events should be converted to the `JSON` format to allow ingest within Aerie.
+
+*Note: There is currently no well-defined, official `JSON` schema for External Source input, however there are required fields which will be mentioned below, and any non-known fields included will be ignored during ingest. Additionally, no tool currently exists to provide the generic translation to the `JSON` format, however this is a feature planned for a future release.*
+
+#### Schema
+There are two parts to each External Source: 1) a `source` header and 2) a collection of `events`:
+```json
+{
+    "source": {
+        // fields
+    },
+    "events": [
+        // events
+    ]
+}
+```
+
+##### Source
+
+The `source` field includes the following fields:
+
+* `key`
+  * Unique identifier for the External Source
+  * Uniqueness must hold across the **Derivation Group** that it is a a part of
+  * Typically a filename or combination of details about the source itself (i.e., an external version number, spacecraft identifier, etc.)
+  * **Example**: `ExampleExternalSource:example-external-source.json`
+
+* `type`
+  * Used to classify the External Source, and categorize for grouping/filtering within the UI & Derivation Groups (see [External Source Types](#external-source-types) for more information)
+  * **Example**: `ExampleSourceType`
+
+* `valid_at`
+  * Similar to a version number, though it describes at exactly what real-world time a file becomes *valid*
+  * Can be sorted and ordered like a version number, but additionally provides extreme detail about when it can/should be utilized which plays a key role in [derivation](#derivation)
+  * **Example**: `2022-001T00:00:00Z`
+
+* `period`
+  * Specifies the exact range of simulation/plan time that this external applies over.
+    * Multiple External Sources of the same External Source Type may cover the same `period`, which is where `valid_at` comes into play - see [derivation](#derivation) for more information
+    * Composed of a combination of `start_time` and either `end_time` *or* `duration`
+  * **Example**
+    ```json
+      ...,
+      "period": {
+        "start_time": "2022-001T00:00:00Z",
+        "end_time": "2022-008T00:00:00Z"
+      },
+      ...
+    ```
+
+##### Events
+
+Events are represented as a set of objects contained in a list, and each event has the following fields:
+
+* `key`
+  * Unique identifier for the External Event
+    * Uniqueness is required in the External Source, but **not** across different External Sources. For more information, see [derivation](#derivation)
+  * Currently has no restrictions or requirements, though those can be optionally imposed by users - see [Formal JSON Schema](#formal-json-schema) for more information
+  * **Example**: `ExampleEvent:1/sc/sc1:1:X/1`
+
+* `event_type`
+  * Used to classify the External Event, and categorize for grouping/filtering within the UI & Derivation Groups (see [External Event Types](#external-event-types) for more information)
+  * **Example**: `GroundContact`
+
+* `start_time`
+  * Specifies the start time of the External Event within simulation/plan time
+  * **Example**: `2022-001T00:00:00Z`
+
+* `duration`
+  * Specifies how long the External Event lasts in simulation/plan time (represented in `HH:MM:SS`)
+  * This value may be 0 to represent an instantaneous event (ex: time of sunrise/sunset)
+  * **Example**: `00:30:00`
+
+##### Full External Source Example
+
+The following is a full example of a valid, `JSON` representation of an External Source that can be ingested by Aerie.
+
+The example represents a week-long weather forecast where each event is the report for a specific day.
+
+```json
+{
+    "source": {
+        "key": "WeatherForecast2024001_2024008.json",
+        "source_type": "WeatherForecast",
+        "valid_at": "2024-01-00T00:00:00Z",
+        "period": {
+            "start_time": "2024-001T00:00:00Z",
+            "end_time": "2024-008T00:00:00Z"
+        }
+    },
+    "events": [
+        {
+            "key": "Weather/Day/001",
+            "event_type": "WeatherReport",
+            "start_time": "2024-001T00:00:00Z",
+            "duration": "24:00:00"
+        },
+        {
+            "key": "Weather/Day/002",
+            "event_type": "WeatherReport",
+            "start_time": "2024-002T00:00:00Z",
+            "duration": "24:00:00"
+        },
+        {
+            "key": "Weather/Day/003",
+            "event_type": "WeatherReport",
+            "start_time": "2024-003T00:00:00Z",
+            "duration": "24:00:00"
+        },
+        {
+            "key": "Weather/Day/004",
+            "event_type": "WeatherReport",
+            "start_time": "2024-004T00:00:00Z",
+            "duration": "24:00:00"
+        },
+        {
+            "key": "Weather/Day/005",
+            "event_type": "WeatherReport",
+            "start_time": "2024-005T00:00:00Z",
+            "duration": "24:00:00"
+        },
+        {
+            "key": "Weather/Day/006",
+            "event_type": "WeatherReport",
+            "start_time": "2024-006T00:00:00Z",
+            "duration": "24:00:00"
+        },
+        {
+            "key": "Weather/Day/007",
+            "event_type": "WeatherReport",
+            "start_time": "2024-007T00:00:00Z",
+            "duration": "24:00:00"
+        },
+    ]
+}
+```
+
+*Note: Currently, External Sources only accept a `start_time` and an `end_time`, whereas External Events accept only a `start_time` and a `duration`. This may change in the future (i.e. External Events may accept a start time and an end time as well, for example). This is largely due to simplicity in implementation.*
+
+### Derivation
+
+Derivation was an operation conceived for the reconciliation of overlapping External Sources. The problem at hand was that it is entirely possible for sources to be generated at later points in time, that cover slightly different windows on plan time than their predecessors.
+
+<figure>
+  <img alt="Figure 3: A diagram illustrating a motivating case for derivation" src={derivationMotivation} />
+  <figcaption>
+    <i>Figure 3: A diagram illustrating a motivating case for derivation. Which events should be present?</i>
+  </figcaption>
+</figure>
+
+If this is the case, some reconciliation scheme is needed to determine which External Events from these External Sources are valid and should be visible on the timeline.
+
+#### Reconciliation Mechanism
+
+To begin this discussion, we should first talk about when External Sources apply.
+
+External Sources, as discussed earlier, have within them a `valid_at` field, which was described as a more particular form of a version number. With this, we know we can impose an ordering of External Sources. Given that ordering, figuring out when each External Source actually applies is as simple as determining, for a given time (or slot of time), what the most recently valid External Source is. For example, the following set of 4 External Sources would be applicable in the following order. Note that one of the External Sources, `B`, is valid twice, as it is the most recently valid External Source for a given slot of time:
+
+<figure>
+  <img alt="Figure 4: A diagram illustrating how External Sources are reconciled against each other in terms of the time slots they occupy" src={externalSourceOrdering} />
+  <figcaption>
+    <i>Figure 4: A diagram illustrating how External Sources are reconciled against each other in terms of the time slots they occupy</i>
+  </figcaption>
+</figure>
+
+Given this, we can now discuss how to derive External Events from a Derivation Group of External Sources. There are 4 rules (though the first two are effectively cases of each other):
+
+1. _An External Event superseded by nothing will be present in the final, derived result._
+
+  The logic behind this is that this External Event has no future data that might challenge its validity, so it reasonably would trickle down as an event in a final result.
+
+2. _An External Event partially superseded by a later External Source, but whose start time occurs before the start of said External Source(s), will be present in the final, derived result._
+
+  The logic behind this is similar. This External Event, at its start, has no future data that might challenge its validity. Because its start is still considered valid, we accept the event in its entirety to the final, derived result, as no future External Source that could overlap with this External Event could place an External Event that applies to the time that this External Event starts at. If it did, we have a case of rule 3.
+
+3. _An External Event whose start is superseded by another External Source, even if its end occurs after the end of said External Source, will be replaced by the contents of that External Source (whether they are blank spaces, or other events)._
+
+  The logic here is simply that we now have more recent data, so we can safely do a complete replacement. Should an External Event be replaced despite ending after the original source, we can still justify this as the updated External Source - if it had need for such an External Event - would have included it.
+
+4. _An External Event who shares an ID with an External Event in a later External Source will always be replaced._
+
+  By introducing naming, we can allow replacement.
+
+#### Derivation Example
+A diagram illustrating each of the derivation cases follows:
+
+<figure>
+  <img alt="Figure 5: An example illustrating each derivation case" src={derivationExampleFull} />
+  <figcaption>
+    <i>Figure 5: An example illustrating each derivation case</i>
+  </figcaption>
+</figure>
+
+The following explains what is happening to each External Event in the example:
+
+* **External Source A**
+
+  * **2:D**
+    * Status: _Excluded_
+    * Rules
+      * **3**: Even though its end is after end of External Source B, the start is subsumed. In any case, it is wholly subsumed by External Source C.
+      * **4**: Replaced by key in External Source C (regardless of the fact that the new event has a different type).
+
+  * **7:C**
+    * Status: _Excluded_
+    * Rules
+      * **3**: Even though its end is after end of External Source B, the start is subsumed.
+
+  * **8:B**
+    * Status: **Included**
+    * Rules
+      * **1**: This External Event is subsumed by nothing.
+
+* **External Source B**
+
+  * **1:A**
+    * Status: **Included**
+    * Rules
+      * **1**: This External Event is subsumed by nothing.
+
+  * **2:A**
+    * Status: _Excluded_
+    * Rules
+      * **3**: Completely subsumed by External Source D.
+      * **4**: replaced by key in External Source C (regardless of the fact that the new event has a different type).
+
+  * **3:B**
+    * Status: **Included**
+    * Rules
+      * **2**: Starts before any other External Source, despite end being subsumed.
+
+  * **4:B**
+    * Status: _Excluded_
+    * Rules
+      * **3**: Completely subsumed by later External Source.
+
+* **External Source C**
+
+  * **5:C**
+    * Status: **Included**
+    * Rules
+      * **1**: This External Event is subsumed by nothing.
+
+  * **6:C**
+    * Status: **Included**
+    * Rules
+      * **1**: This External Event is subsumed by nothing.
+
+  * **2:B**
+    * Status: **Included**
+    * Rules
+      * **1**: This External Event is subsumed by nothing.
+      * **4**: Also most recent occurrence by key name, so this is the only one that persists
+
+* **External Source D**
+
+  * **9:C**
+    * Status: **Included**
+    * Rules
+      * **1**: This External Event is subsumed by nothing.
+
+#### Derivation Groups
+
+The final question remaining is the '**who**' - **who** is this derivation operation run against? One possible candidate for this could be the External Source Type. External Events that share an External Source Type include External Events of the same types, and will likely overlap in key namespace as well. This is a nearly ideal solution except in the case of contingencies.
+
+Imagine we have 4 sources of the same source type. Two of these relate to an ideal contingency, and two of these relate to a degenerate contingency:
+
+1) **Ideal**
+
+  * `DSN_Contact_Ideal_2026001007.json`
+  * `DSN_Contact_Ideal_2026003010.json`
+
+2) **Degenerate**
+
+  * `DSN_Contact_Degen_2026001007.json`
+  * `DSN_Contact_Degen_202603010.json`
+
+If we were to derive solely based on External Source Type, we would effectively be stacking **all** of these sources against each other to produce **one** result:
+
+<figure>
+  <img alt="Figure 6: A diagram illustrating the unwanted conflation of two sets of sources" src={derivationGroupMotivation} />
+  <figcaption><i>Figure 6: A diagram illustrating the unwanted conflation of two sets of sources</i></figcaption>
+</figure>
+
+Given that these are different cases (despite sharing a source type) it would be useful to have different groups under which derivation is possible. This way, we don't conflate sources just for sharing a source type:
+
+<figure>
+  <img alt="Figure 7: A diagram illustrating the prevented conflation of two sets of sources" src={derivationGroupMotivation2} />
+  <figcaption><i>Figure 7: A diagram illustrating the prevented conflation of two sets of sources</i></figcaption>
+</figure>
+
+As such, we now define the notion of a **Derivation Group**. A Derivation Group defines a subgroup within an External Source Type, of External Sources to derive against each other. Derivation Groups are what we associate with plans (as opposed to individual, un-derived External Sources, or entire External Source Types).
+
+## UI Usage
+External Events show up in the UI in two main places - an External Source Manager, and in plans (both in panels and timelines). Our discussion of UI features will therefore be divided along which page the features appear on.
+
+Note: There is also a [tutorial section](../../tutorials/external-events/introduction) that walks through the content of this section in a step-by-step fashion, albeit with less detail.
+
+### External Source Manager
+The External Source Manager page handles the uploading & inspection of External Sources, as well as the creation and management of Derivation Groups.
+
+<figure>
+  <img alt="Figure 8: External Source Manager" src={externalSourceManager} />
+  <figcaption><i>Figure 8: External Source Manager</i></figcaption>
+</figure>
+
+#### Creating External Source Types, External Event Types, and Derivation Groups
+Within the External Source Manager, the user is able to create new External Source Types, External Event Types, and Derivation Groups. While this is currently **not required** (and these structures will be automatically created if they don't exist on source upload), it is planned to be the main way of creating these types in the future as each will require a strict schema to generate.
+
+To create one of these types, click the `Create New Groups or Types` button in the top-right:
+
+<figure>
+  <img alt="Figure 8: Create Groups and Types button" src={externalSourceManagerCreateGroupsAndTypesButton} />
+  <figcaption><i>Figure 8: Create Groups and Types button</i></figcaption>
+</figure>
+
+Once the modal has been opened there is a set of tabs - select the tab for the data type you'd like to create:
+
+##### Creating a Derivation Group
+Creating a Derivation Group requires both a name for the group, and a source type to link it with.
+
+<figure>
+  <img alt="Figure 8: Create a Derivation Group" src={externalSourceManagerCreateDerivationGroup} />
+  <figcaption><i>Figure 8: Create a Derivation Group</i></figcaption>
+</figure>
+
+##### Creating an External Source Type
+Creating an External Source Type just requires a name for the type.
+
+<figure>
+  <img alt="Figure 8: Create an External Source Type" src={externalSourceManagerCreateExternalSourceType} />
+  <figcaption><i>Figure 8: Create an External Source Type</i></figcaption>
+</figure>
+
+##### Creating an External Event Type
+Creating an External Event Type just requires a name for the type.
+
+<figure>
+  <img alt="Figure 8: Create an External Event Type" src={externalSourceManagerCreateExternalEventType} />
+  <figcaption><i>Figure 8: Create an External Event Type</i></figcaption>
+</figure>
+#### Uploading an External Source
+The main view allows users to upload External Sources. Most of these fields autofill and are immutable once parsed - except the Derivation Group which will be autofilled in the style of `external_source_type Default`, but can be edited by the user before upload.
+
+<figure>
+  <img alt="Figure 9: Uploading an External Source" src={externalSourceManagerUpload} />
+  <figcaption><i>Figure 9: Uploading an External Source</i></figcaption>
+</figure>
+
+#### Inspecting an External Source
+After uploading an External Source, it will show up in the table on the upper-right pane. This table can be filtered by External Source Type as well as sorted by each of the columns - note the default multi-sorting on the columns `Source Type`, `Derivation Group`, and `Valid At`, which is meant to present the sources in the easiest-to-read manner (grouping by their common types & Derivation Groups, then ordering by their `Valid At` times).
+
+<figure>
+  <img alt="Figure 10: External Source Table" src={externalSourceTable} />
+  <figcaption><i>Figure 10: External Source Table</i></figcaption>
+</figure>
+
+Selecting a source allows for the inspection of the source, which is essentially an in-Aerie rendering of what's included under `source` in the uploaded `JSON` (as discussed earlier). It is here, as well as in the table, that deletion can be performed. Note that for deletion to work, an External Source must not be associated with any existing plan (that is the Derivation Group it is a part of must be dissociated from all plans before deletions become legal). Aside from that, there is currently no system of ownership, meaning admins and users alike, as long as External Sources satisfy the aforementioned condition, can delete at will. Viewers, however, cannot.
+
+It should also be noted that all this inspection takes place outside the context of a plan, so that External Sources & their events can be viewed without having to open and associate the External Source(s) to a plan.
+
+<figure>
+  <img alt="Figure 11: Inspected External Source" src={externalSourceInspected} />
+  <figcaption><i>Figure 11: Inspected External Source</i></figcaption>
+</figure>
+
+Finally, it is also possible to inspect each source's contained events as a table. This is useful, as Derivation Groups on plan timelines only show what has been derived, meaning anything that has been selected against won't appear. This page is therefore the absolute truth to see everything that is included, derived-out or not, with a given External Source.
+
+<figure>
+  <img alt="Figure 12: External Events Table" src={externalEventsTable} />
+  <figcaption><i>Figure 12: External Events Table</i></figcaption>
+</figure>
+
+### Plan
+Once an External Source has been uploaded, it can be viewed and interacted with in the context of a plan
+
+<figure>
+  <img alt="Figure 13: Overview of the plan view containing External Event information" src={planExternalSourceView} />
+  <figcaption><i>Figure 13: Overview of the plan view containing External Event information</i></figcaption>
+</figure>
+
+#### Derivation Group Management Modal
+This panel, modelled after the Scheduling Goals panel, is where users (administrators or plan collaborators) can choose to associate different Derivation Groups with their plan.
+
+There are currently two levels to linking a Derivation Group to a plan: **association** and **enabling**. Association is handled here, via the _Manage Derivation Groups_ button. This presents a modal where users can expand different Derivation Groups to view the associated sources and select whether or not they would like to associate said Derivation Group with their plan.
+
+<figure>
+  <img alt="Figure 14: Derivation Group Modal" src={planDerivationGroupModal} />
+  <figcaption><i>Figure 14: Derivation Group Modal</i></figcaption>
+</figure>
+
+**Association** simply means that the plan is *aware* of the existence of the Derivation Group, and is the gatekeeper for whether it is visible in the External Sources panel. In this panel lies the second level to linking, which is enabling. **Enabling** simply dictates whether a Derivation Group (even if the filters in the *Timeline Editor* select for it) is *visible* on the timeline. Disabling hides all events associated with the group completely, whereas enabling does the opposite. It does not, however, dissociate the plan and Derivation Group. This is simply a visibility attribute and is actually persisted as part of the view (and even persists after Derivation Group dissociation/reassociation, meaning if a Derivation Group is dissociated and then re-associated, its "enabled" setting stays the same).
+
+This view also provides users with a list of recently uploaded and deleted sources and their respective External Source Type and Derivation Group. This warning persists acknowledged with the `Dismiss` button. If a Derivation Group is added and then deleted soon after without this card being acknowledged, it will show in neither the uploaded or deleted lists, as the system infers the user was never aware of its existence and as such is silent about its appearance and disappearance.
+
+Enabled|Disabled
+:-------------------------:|:-------------------------:
+![Enabled.](./assets/external_events_derivation_group_enabled.png)  |  ![Disabled.](./assets/external_events_derivation_group_disabled.png)
+
+<figure>
+  <img alt="Figure 15: External Sources Panel" src={planExternalSourcesPanel} />
+  <figcaption><i>Figure 15: External Sources Panel</i></figcaption>
+</figure>
+
+#### Timeline
+The timeline shows any events from Derivation Groups that are associated with the plan, enabled in the current view, and are filtered for in the timeline editor. Having covered the first two, we can now discuss the editor and its effects on the timeline.
+
+<figure>
+  <img alt="Figure 16: Timeline & Layer Editor" src={timelineEditorFull} />
+  <figcaption><i>Figure 16: Timeline & Layer Editor</i></figcaption>
+</figure>
+
+The layer of the timeline is modelled after the activity layer, as it provides a good and easily readable representation of discrete-time occurrences. Layers share the layer options also provided to activity layers, as well as implementing a 'Group By' option specifically for external events. The 'Group By' mechanic allows the user to have external events either grouped by their external source (within the derivation group), or their event types.
+
+'Group By' External Source|'Group By' External Event Type
+:-------------------------:|:-------------------------:
+![External Source](./assets/external_events_group_by_source.png)  |  ![External Event Type](./assets/external_events_group_by_event_type.png)
+
+<figure>
+  <img alt="Figure 17: External Event Layer Options" src={externalEventLayerOptions} />
+  <figcaption><i>Figure 17: External Event Layer Options</i></figcaption>
+</figure>
+
+#### Tables and Inspection
+This is a brief overview of the remaining panels that have been added to plans. It is possible to either mouse over External Events for additional detail or to select them in the timeline, which selects them in a table view beneath the timeline as well as details them in the right pane. This looks as follows:
+
+<figure>
+  <img alt="Figure 18: The selected External Event view and a table of External Events, working in tandem" src={planSelectedExternalEvent} />
+  <figcaption><i>Figure 18: The selected External Event view and a table of External Events, working in tandem</i></figcaption>
+</figure>
+
+#### A Note on Views
+As a final note on the frontend, it is worth briefly detailing what parts of the plan page additionally get persisted when a view is saved:
+- _Derivation Group enablement_ - whether a Derivation Group is enabled or not in the External Sources panel,
+- _External Event Type filters_ - the External Event Type filters selected in the timeline editor,
+- _External Event options_ - the options in the timeline editor filter.
+
+## What Remains
+Here, we discuss briefly everything that is not currently implemented but that we do plan to in the future.
+
+### Formal JSON Schema
+We currently lack a formal schema uploaded External Sources and their contained External Events. The extent of our schema is just that we ask users to include the fields described in [External Sources](#external-sources), and that any additionally defined fields will be ignored.
+
+Prior to starting work in the UI, some work on a schema was done. However, it was ultimately ruled that making something restrictive like a schema might be smarter after having done some work on External Events, as it is entirely possible to spend a lot of time on a schema beforehand only to discard or rework a fair amount of it as we progress with development. At this point, we are a lot more confident in what fields should definitely be present in a [JSON Schema](https://json-schema.org/learn/getting-started-step-by-step), which means that creating a definition should be a lot more feasible in a future batch of work.
+
+These Schemae would likely be a part of the mission model themselves; seeing as defining what activities and resources are allowable for a mission plan are part of a mission model, so too would be definitions of allowable External Source Types and External Event Types.
+
+This raises the question of how External Source Types and External Event Types should be handled in a Schema. The idea we are currently floating is a multilayered Schema - one that is common to all sources (and events), which essentially details the fields listed in [External Sources](#external-sources), as those show in any External Source regardless of type. The second layer would constrain for an External Source's `metadata` field (to be included in a future update) and for an External Event's `metadata` field (to be included in a future update). Different External Source Types and External Event Types should have different allowable `metadata`, and as such defining a subschema for these fields becomes necessary to restrict and add uniformity to what should be included in that field given the type. It is these subschemae that we suggest should be part of a mission model. Exactly how this definition is to be created, how these layers are to be reconciled, and how to integrate them with the concept of a mission model is yet to be decided.
+
+### Ownership/Roles
+
+Our current solution to a lack of clear ownership/roles around External Sources is as follows:
+- any user and any administrator can add External Sources,
+- as there is no ownership yet, any user and any administrator can delete External Sources as long as the Derivation Group they are a part of is not associated with any plans, and
+- associations between plans and Derivation Groups can be handled by any administrator or a user that is collaborating on that plan.
+
+It might make sense to add ownership, i.e. a given user owns an External Source and therefore has privileges to delete it (much like how plans are implemented, except External Sources cannot be edited), but as it would primarily be used for deletion functionality but would introduce a lot of complexity for this simple problem, it was sidelined entirely.
+
+That being said, as we move forward with more features relating to External Events, more nuance may come to the problem of ownership and roles. Once plans start actually depending on these plans, the rules surrounding ownership and permissions may need to change or be entirely rethought. Ultimately, we need something that justifies the implementation of such a scheme in that it provides more than the status quo.
+
+### Scheduling/Constraints
+
+This is the biggest "coming-next" feature, but also the least explored. It is planned to be part of the next batch of work relating to External Events. We would like External Events to get the same visibility that activities and resources get in the scheduling and constraints EDSLs and engines. Ideally, we could define a scheduling goal (or constraint), like the following:
+
+```
+export default () =>
+  Goal.CoexistenceGoal({
+    forEach: ExternalEventExpression.ofType(ExternalEventTypes.Eclipse),
+    activityTemplate: ActivityTemplates.SolarDisable({ rate: 0.5 }),
+    startsAt: TimingConstraint.singleton(WindowProperty.START)
+  });
+```
+
+which might be how one could write a scheduling goal to place an activity disabling a solar panel whenever an eclipse occurred.
