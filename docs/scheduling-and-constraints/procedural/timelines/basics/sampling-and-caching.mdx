@@ -18,8 +18,8 @@ but sometimes a collect call is hidden inside another operation. Let's take the 
 <TabItem value="kt" label="Kotlin">
 
 ```kotlin
-val n1 = plan.resource("int_resource_1", Numbers.deserialize())
-val n2 = plan.resource("int_resource_2", Numbers.deserialize())
+val n1 = plan.resource("int_resource_1", Numbers.deserializer())
+val n2 = plan.resource("int_resource_2", Numbers.deserializer())
 
 // Construct a very expensive profile that we should only evaluate once.
 val superExpensiveProfile = n1.map2Values(n2) { l, r, _ -> ackermann(l, r) }
@@ -29,8 +29,8 @@ val superExpensiveProfile = n1.map2Values(n2) { l, r, _ -> ackermann(l, r) }
 <TabItem value="java" label="Java">
 
 ```java
-final var n1 = plan.resource("int_resource_1", Numbers.deserialize());
-final var n2 = plan.resource("int_resource_2", Numbers.deserialize());
+final var n1 = plan.resource("int_resource_1", Numbers.deserializer());
+final var n2 = plan.resource("int_resource_2", Numbers.deserializer());
 
 // Construct a very expensive profile that we should only evaluate once.
 final var expensiveProfile = n1.map2Values(n2, (l, r, _) -> ackermann(l, r));

@@ -22,7 +22,7 @@ just return it. They can be created with some provided static constructor functi
 @ConstraintProcedure
 class BatteryAboveZero: Constraint {
   override fun run(plan: Plan, simResults: SimulationResults) = Violations.inside(
-    plan.resource("/battery_soc", Real.deserialize()).lessThan(0).highlightTrue()
+    plan.resource("/battery_soc", Real.deserializer()).lessThan(0).highlightTrue()
   )
 }
 ```
@@ -37,7 +37,7 @@ public class BatterAboveZero implements Constraint {
   @Override
   public Violations run(@NotNull Plan plan, @NotNull SimulationResults simResults) {
     return Violations.inside(
-      plan.resource("/battery_soc", Real.deserialize()).lessThan(0).highlightTrue()
+      plan.resource("/battery_soc", Real.deserializer()).lessThan(0).highlightTrue()
     );
   }
 }
@@ -69,7 +69,7 @@ For example, to violate whenever `MyActivity` occurs when `/my/resource < 0`, yo
 @ConstraintProcedure
 class MyConstraint: GeneratorConstraint() {
   override fun generate(plan: Plan, simResults: SimulationResults) {
-    val myResource = simResults.resource("/my/resource", Real.deserialize()).cache()
+    val myResource = simResults.resource("/my/resource", Real.deserializer()).cache()
     for (activity in plan.directives("MyActivity")) {
       if (myResource.sample(activity.startTime) < 0)
         violate(Violation(activity.interval))
@@ -86,7 +86,7 @@ class MyConstraint: GeneratorConstraint() {
 public class MyConstraint extends GeneratorConstraint {
   @Override
   public void generate(@NotNull Plan plan, @NotNull SimulationResults simResults) {
-    final var myResource = simResults.resource("/my/resource", Real.deserialize()).cache();
+    final var myResource = simResults.resource("/my/resource", Real.deserializer()).cache();
     for (final var activity: plan.directives("MyActivity")) {
       if (myResource.sample(activity.startTime) < 0)
         violate(Violation(activity.interval));
@@ -107,7 +107,7 @@ normally.
 @ConstraintProcedure
 class BatteryAboveZero: GeneratorConstraint() {
   override fun generate(plan: Plan, simResults: SimulationResults) {
-    simResults.resource("/battery_soc", Real.deserialize())
+    simResults.resource("/battery_soc", Real.deserializer())
       .greaterThan(0)
 
       // Only works in a generator constraint!
@@ -135,7 +135,7 @@ class MyConstraint: GeneratorConstraint() {
   override fun message() = "MyActivity cannot start when /my/resource < 0"
 
   override fun generate(plan: Plan, simResults: SimulationResults) {
-    val myResource = simResults.resource("/my/resource", Real.deserialize()).cache()
+    val myResource = simResults.resource("/my/resource", Real.deserializer()).cache()
     for (activity in plan.directives("MyActivity")) {
       if (myResource.sample(activity.startTime) < 0)
         violate(Violation(activity.interval))
@@ -157,7 +157,7 @@ public class MyConstraint extends GeneratorConstraint {
 
   @Override
   public void generate(@NotNull Plan plan, @NotNull SimulationResults simResults) {
-    final var myResource = simResults.resource("/my/resource", Real.deserialize()).cache();
+    final var myResource = simResults.resource("/my/resource", Real.deserializer()).cache();
     for (final var activity: plan.directives("MyActivity")) {
       if (myResource.sample(activity.startTime) < 0)
         violate(Violation(activity.interval));

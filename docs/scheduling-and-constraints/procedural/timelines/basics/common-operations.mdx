@@ -66,7 +66,7 @@ Highlighting is often used to iterate through the regions when a certain conditi
 <TabItem value="kt" label="Kotlin">
 
 ```kotlin
-val myResource = plan.resource("my_resource", Real.deserialize())
+val myResource = plan.resource("my_resource", Real.deserializer())
 for (interval in myResource.highlightEqualTo(3)) {
   // Do something with the interval
   // `interval` is JUST an interval, the original segment has been lost.
@@ -77,7 +77,7 @@ for (interval in myResource.highlightEqualTo(3)) {
 <TabItem value="java" label="Java">
 
 ```java
-final var myResource = plan.resource("my_resource", Real.deserialize());
+final var myResource = plan.resource("my_resource", Real.deserializer());
 for (final var interval: myResource.highlightEqualTo(3)) {
   // Do something with the interval
   // `interval` is JUST an interval, the original segment has been lost.

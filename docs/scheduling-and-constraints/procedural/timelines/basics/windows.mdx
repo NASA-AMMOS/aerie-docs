@@ -17,7 +17,7 @@ use it in a for-each loop (which calls `.collect` under the hood). For example, 
 <TabItem value="kt" label="Kotlin">
 
 ```kotlin
-val myResource = plan.resource("my_resource", Real.deserialize())
+val myResource = plan.resource("my_resource", Real.deserializer())
 for (interval in myResource.highlightEqualTo(3)) {
   // do something with the interval
 }
@@ -27,7 +27,7 @@ for (interval in myResource.highlightEqualTo(3)) {
 <TabItem value="java" label="Java">
 
 ```java
-final var myResource = plan.resource("my_resource", Real.deserialize());
+final var myResource = plan.resource("my_resource", Real.deserializer());
 for (final var interval: myResource.highlightEqualTo(3)) {
   // do something with the interval
 }

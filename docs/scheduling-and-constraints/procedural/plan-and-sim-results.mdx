@@ -53,11 +53,11 @@ You can query instances the same way as directives, using `simResults.instances(
 
 You can query resources with `simResults.resource("/my/resource", <deserializer>)`. Unlike activities, there is no option
 to use a default deserializer; you must pick one, because it determines the profile type. Each profile type provides a
-deserializer for you to use, so for example, you can get a string resource with `simResults.resource("/my/string", Strings.deserialize())`.
+deserializer for you to use, so for example, you can get a string resource with `simResults.resource("/my/string", Strings.deserializer())`.
 
 If you made your own data structure for your resource (say, `V`), you'll probably want to use the `Constants` profile.
 But unfortunately you have to do any deserialization yourself. If you don't want to, you can just use `.resource("/my/object", Constants::new)`,
-but this will return `Constants<SerializedValue>`. To do proper deserialization, call `Constants.deserialize`:
+but this will return `Constants<SerializedValue>`. To do proper deserialization, call `Constants.deserializer`:
 
 <Tabs groupId="lang">
 <TabItem value="kt" label="Kotlin">
@@ -67,7 +67,7 @@ but this will return `Constants<SerializedValue>`. To do proper deserialization,
 data class Point2(x: Double, y: Double) {}
 
 //           note the use of . instead of :: here!    v
-val myResource = plan.resource("/my/object", Constants.deserialize {
+val myResource = plan.resource("/my/object", Constants.deserializer {
   val fields = it.asMap().get()
   Point2(fields.get("x").asReal().get(), fields.get("y").asReal().get())
 })
@@ -81,7 +81,7 @@ val myResource = plan.resource("/my/object", Constants.deserialize {
 record Point2(double x, double y) {}
 
 //           note the use of . instead of :: here!          v
-final var myResource = plan.resource("/my/object", Constants.deserialize($ -> {
+final var myResource = plan.resource("/my/object", Constants.deserializer($ -> {
   final var fields = it.asMap().get();
   return new Point2(fields.get("x").asReal().get(), fields.get("y").asReal().get());
 }));
