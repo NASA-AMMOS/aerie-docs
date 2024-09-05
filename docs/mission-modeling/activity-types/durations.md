@@ -1,6 +1,6 @@
 # Duration Types
 
-The [Aerie scheduler](../../../scheduling/introduction) places activities in a plan to try to achieve scheduling goals, and to do that it must know the activity's duration. Since an activity's effect model is a black box, without more information the scheduler has to simulate the activity to see how long it lasts. This can be very expensive and best to avoid if possible. Satisfying temporal constraints associated with the scheduling of an activity (e.g. "activity A must end before activity B") may lead to multiple simulations to compute duration, and thus require even more computation time.
+The [Aerie scheduler](../../scheduling-and-constraints/declarative/scheduling/introduction.mdx) places activities in a plan to try to achieve scheduling goals, and to do that it must know the activity's duration. Since an activity's effect model is a black box, without more information the scheduler has to simulate the activity to see how long it lasts. This can be very expensive and best to avoid if possible. Satisfying temporal constraints associated with the scheduling of an activity (e.g. "activity A must end before activity B") may lead to multiple simulations to compute duration, and thus require even more computation time.
 
 However, it is possible to provide information about how the duration of an activity is determined to help the scheduler. The duration of an activity can be one of the following:
 

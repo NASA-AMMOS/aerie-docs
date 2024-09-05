@@ -4,7 +4,7 @@ This document describes different scheduling goals available in Aerie and how to
 
 :::caution
 
-Activities with [uncontrollable durations](../../mission-modeling/activity-types/parameters#duration-types) have been found to behave somewhat unpredictably in terms of when they are placed.
+Activities with [uncontrollable durations](../../../../mission-modeling/activity-types/parameters#duration-types) have been found to behave somewhat unpredictably in terms of when they are placed.
 This has to do with how temporal constraints interact with the unpredictability of the durations.
 Finding when an activity will start while subject to temporal constraint involves search.
 
@@ -256,7 +256,7 @@ Behavior: The activity finder is being used to match against any existing PeelBa
 
 :::caution
 
-If the end is unconstrained while the activity has an [uncontrollable duration](../../mission-modeling/activity-types/parameters#duration-types), the scheduler may fail to place the activity.
+If the end is unconstrained while the activity has an [uncontrollable duration](../../../../mission-modeling/activity-types/parameters#duration-types), the scheduler may fail to place the activity.
 To work around this, add an `endsWithin` constraint that encompasses your expectation for the duration of the activity - this will help the scheduler narrow the search space.
 
 :::
