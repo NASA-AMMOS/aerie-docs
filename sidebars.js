@@ -323,7 +323,7 @@ const sidebars = {
       },
       items: [
         {
-          label: 'Constraints',
+          label: 'Constraints eDSL Backend',
           type: 'link',
           href: 'https://nasa-ammos.github.io/aerie/javadoc/constraints/',
         },
