@@ -4,14 +4,12 @@
 
 The recommended setup is to store goals/rules/conditions/constraints (hereafter called "peripheral code")
 in one or more repositories outside Aerie, and uploading
-them either through the UI or the unofficial [Aerie CLI](https://github.com/NASA-AMMOS/aerie-cli).
+them through the UI.
 
-For example, after creating a new goal as described in the following pages, you can upload it with the CLI using
-`aerie-cli goals new <path/to/MyGoal.jar>`. A new goal will be created in Aerie with a default name of `MyGoal`.
-See `aerie-cli goals new --help` for more details, such as automatically
-associating it with a model or plan. To update a goal afterward, you can run `aerie-cli goals update <path/to/MyGoal.jar>`,
-assuming that the default name was not changed. The same works for Typescript eDSL declarations, and similar workflows
-will be implemented for constraints and conditions soon.
+For example, after creating a new goal as described in the following pages, you can upload it with the UI by selecting
+`New` on the `Scheduling` option in main top-left dropdown. Or, you can upload it with an automatic association with your
+plan by opening the `Scheduling Goals` pane in your plan, and navigating to `Manage Goals -> New`. Here you have the
+option to either upload a JAR file, or copy-paste a typescript eDSL file.
 
 ## Model and Plan Association
 
@@ -27,8 +25,6 @@ on your constraint and select `Save`. Now any new plans made with this model wil
 Peripherals that don't apply to all plans for a model can be associated with individual plans too. In the main plan view,
 navigate to the `Scheduling Goals` or `Constraints` pane, then click `Manage`. Click the checkbox for your peripheral and
 select `Save`.
-
-Additionally, the Aerie CLI provides options when creating a new goal to associate it with a given model ID or plan ID.
 
 ## Version Locking
 
