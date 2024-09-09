@@ -219,10 +219,9 @@ const sidebars = {
                     type: 'doc'
                   },
                   items: [
-                    'scheduling-and-constraints/procedural/timelines/advanced/parallel-profiles',
-                    'scheduling-and-constraints/procedural/timelines/advanced/custom-operations',
-                    'scheduling-and-constraints/procedural/timelines/advanced/custom-timelines'
-
+                    // 'scheduling-and-constraints/procedural/timelines/advanced/parallel-profiles',
+                    // 'scheduling-and-constraints/procedural/timelines/advanced/custom-operations',
+                    // 'scheduling-and-constraints/procedural/timelines/advanced/custom-timelines'
                   ]
                 }
               ]
@@ -231,7 +230,7 @@ const sidebars = {
             'scheduling-and-constraints/procedural/constraints',
             'scheduling-and-constraints/procedural/scheduling',
             'scheduling-and-constraints/procedural/parameters-and-invocations',
-            'scheduling-and-constraints/procedural/running-externally'
+            // 'scheduling-and-constraints/procedural/running-externally'
           ]
         },
         {
