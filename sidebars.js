@@ -393,6 +393,11 @@ const sidebars = {
           href: 'https://nasa-ammos.github.io/aerie/javadoc/parsing-utilities/',
         },
         {
+          label: 'Procedural APIs',
+          type: 'link',
+          href: 'https://nasa-ammos.github.io/aerie/procedural-apis',
+        },
+        {
           label: 'Scheduler Driver',
           type: 'link',
           href: 'https://nasa-ammos.github.io/aerie/javadoc/scheduler-driver/',
