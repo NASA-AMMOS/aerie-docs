@@ -35,7 +35,7 @@ This is an alphabetized glossary of common term definitions used throughout the 
 
 1. **Constraint Checking** - A downstream analysis of a simulation dataset that evaluates a set of constraints and returns time windows of violation.
 
-1. **Constraint** - An expression built up with the [Aerie constraints](../constraints/introduction) eDSL, which evaluates to a set of windows during which the condition(s) defined by the expression is true or false. Aerie supports various constraint types such as safe ranges for resources or necessary pre-conditions for safe execution of activities. Aerie constraints is a mechanism to represent and check many flight rule types.
+1. **Constraint** - An expression built up with the [Aerie constraints](../scheduling-and-constraints/declarative/constraints/introduction) eDSL, which evaluates to a set of windows during which the condition(s) defined by the expression is true or false. Aerie supports various constraint types such as safe ranges for resources or necessary pre-conditions for safe execution of activities. Aerie constraints is a mechanism to represent and check many flight rule types.
 
 ## D
 

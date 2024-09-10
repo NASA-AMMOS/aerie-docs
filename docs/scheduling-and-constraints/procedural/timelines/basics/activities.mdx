@@ -1,0 +1,51 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Activities
+
+Activity timelines are the most common type of timeline that allow the objects to overlap. In most plans, activities
+of the same type won't overlap with each other, but you should never assume this in your code unless you have some
+algorithmic guarantee.
+
+There are two types of activity timelines: `Directives` and `Instances`. `Directives` are essentially the definition of
+the plan before simulation, and `Instances` are the results of simulation. They both contain the arguments that you gave
+them. `Directives` are instantaneous, since they haven't been simulated yet, but `Instance` objects have a duration.
+
+## `AnyDirective` and `AnyInstance`
+
+The activity timelines accept user-definable representations of the arguments, in their generic argument (i.e.
+`Directives<MyDirectiveType>`). In the future, we will implement support for linking to the mission model and directly
+using its activity types, but for now the only representations we provide are the `AnyDirective` and `AnyInstance` types.
+
+These representations give you flexibility at the cost of ergonomics. They store the arguments as `Map<String, SerializedValue>`
+(you can read about `SerializedValue` [here](/mission-modeling/activity-mappers/#what-is-a-serializedvalue)), which can be
+used for any activity type.
+
+For example, to get a timeline of `MyActivity`'s, where the `arg` argument is equal to `3`, you can do the following.
+(Filtering and querying from the plan are explained more later)
+
+<Tabs groupId="lang">
+<TabItem value="kt" label="Kotlin">
+
+```kotlin
+plan.directives("MyActivity")
+  .filter {
+    it.inner // this accesses the inner AnyDirective object
+      .arguments.get("arg").asInt().get() == 3
+  }
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java
+plan.directives("MyActivity")
+  .filter(
+    false,
+    $ -> $.inner // this accesses the inner AnyDirective object
+      .arguments.get("arg").asInt().get() == 3
+  )
+```
+
+</TabItem>
+</Tabs>

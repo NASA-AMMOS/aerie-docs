@@ -8,7 +8,7 @@ Profiles represent functions over time to a specific type, and usually come from
 
 Real profiles are for integers and floating point numbers, and provide methods for some basic math operations like addition and derivatives. Discrete profiles are for everything else, like strings or objects.
 
-Profiles can have _gaps_, or intervals where the value is unknown. This comes up most often when dealing with [external datasets](../../planning/external-datasets). In most cases it is best to apply a default value to a profile's gaps ASAP using the `profile.assignGaps(defaultValue)` method.
+Profiles can have _gaps_, or intervals where the value is unknown. This comes up most often when dealing with [external datasets](../../../../planning/external-datasets). In most cases it is best to apply a default value to a profile's gaps ASAP using the `profile.assignGaps(defaultValue)` method.
 
 ## Windows
 
@@ -32,4 +32,4 @@ Not all constraints are based solely off of a `Windows` object. The main excepti
 
 ## Mental Model for Evaluation
 
-A constraint doesn't directly query simulation data, or directly return violations. Instead, your constraint code defines an expression to be interpreted by Aerie. The exact implementation details don’t matter for constraint authors, but for this reason you cannot directly inspect a profile's values or a plan's activities. This is also why there are no plans to support querying external profiles directly from a web request or filesystem access inside the constraint code. For that, see the [external dataset documentation](../../planning/external-datasets).
+A constraint doesn't directly query simulation data, or directly return violations. Instead, your constraint code defines an expression to be interpreted by Aerie. The exact implementation details don’t matter for constraint authors, but for this reason you cannot directly inspect a profile's values or a plan's activities. This is also why there are no plans to support querying external profiles directly from a web request or filesystem access inside the constraint code. For that, see the [external dataset documentation](../../../../planning/external-datasets).

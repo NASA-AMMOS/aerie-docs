@@ -1,0 +1,77 @@
+# Profiles
+
+Profile are one of the main specializations of timelines; they represent a value changing over time. They can be used for
+resources in simulation results, activity arguments, or really any function over time.
+
+## Segments
+
+The `Segment<V>` class is the payload object used by all profiles, and it just associates a value of any type `V` to an
+`Interval`.
+
+Segments in a profile are guaranteed to be ordered and non-overlapping. If you try to create a profile with overlapping
+segments, the later segments will overwrite the earlier segments, and the earlier segments will be truncated.
+
+## Coalescing
+
+When two adjacent segments in a profile have the same value, they are automatically "coalesced", meaning they are replaced
+with a single segment that spans both of them. So if an operation on a boolean profile produces `true` on both the intervals
+`[0hr, 1hr)` and `[1hr, 2hr]`, the final result will instead contain `true` on a single segment from `[0hr, 2hr]`.
+
+## Gaps
+
+Resource profiles from simulation will be defined at all times, but this isn't a requirement for all profiles. If a profile
+doesn't have a segment on a particular interval, that is called a "gap". The meaning of a gap often depends on context;
+it could be undefined, unknown, or even `null` depending on what the profile represents.
+
+However, since `null` is used to represent a gap during binary operations, you should not use actual explicit
+`null`s inside your segments. Many operations will silently delete those segments (turning them into gaps) anyway.
+
+Some operations will throw an error if they encounter a gap. In these cases, you can use `profile.assignGaps(...)` to
+fill those gaps in, where `...` is either a value of the type `V`, or another profile of `V`s. For example,
+`myBooleanProfile.assignGaps(false)` will fill in all gaps in the profile with `false`.
+
+## Profile Types
+
+There is no high-level `Profile` type; there are only specialized versions that need to know some information about the
+data. This is because some basic operations like equality checks are impossible to define without knowing if the segments
+represent piecewise-constant values or something more complex.
+
+### Constants
+
+If your profile is piecewise-constant, you can use `Constants<V>`. If you've created your own class to represent the data,
+chances are you'll use `Constants`. This profile type will give you basic functionality such as equality checks, change
+detection, and sampling, top of the higher level operations shared by all timelines.
+
+### Booleans
+
+`Booleans` is a further specialization of `Constants<Boolean>` that gives boolean operations like `.not()`, `.and(Booleans)`, etc.
+It is often produced by comparison operations on other profiles.
+
+Earlier versions of Aerie have conflated the concept of a boolean profile with Windows of Opportunity. In the timeline
+library they are distinctly different concepts, although you can convert between them fairly easily. (See `Windows`).
+
+### Strings
+
+`Strings` is a similar specialization of `Constants<String>`, but doesn't give many extra operations except for
+case-insensitive equality checks. Its main utility is as a parser, so you don't have to interact with `SerializedValue`
+when querying resources from simulation results.
+
+### Numbers
+
+`Numbers<N>` is for piecewise-constant numeric profiles, where `N` is a subclass of `Number`, as in `Integer`, `Long`, etc.
+You can perform basic arithmetical operations, like negation, addition/subtraction, multiplication/division, and exponentiation.
+Unlike `Real` (see below), `Numbers` allows you to keep all precision of the data, as long as it does not vary continuously.
+
+Additionally, you can use different numeric type for different segments if you want. `Numbers<Number>` would allow you
+to use an `Integer` in one segment and a `Double` in another, if you wanted.
+
+Unfortunately, as a limitation of the JVM's type system, the result of all binary operations between `Numbers` profiles
+is always `Numbers<Number>`. As in, when you add two `Numbers<Integer>` profiles together, all the resulting segments
+will contain an `Integer`, but they will be upcasted to `Number`. You haven't lost any precision, only type information.
+
+### Real
+
+`Real` allows you to represent piecewise-linear numeric profiles in double precision only. You can think of it as a
+`Numbers<Double>` profile that includes a rate-of-change in each segment. Binary operations between `Numbers` and `Real`
+profiles are supported, but unfortunately the `Numbers` profile will first be converted to doubles if necessary, which
+might lose precision.

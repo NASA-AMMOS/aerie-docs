@@ -1,0 +1,203 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Scheduling
+
+Procedural scheduling goals are very similar to procedural constraints, except that where constraints report problems,
+goals fix them. You do that by implement the `Goal` interface and interacting with the provided `EditablePlan` object.
+
+## `EditablePlan`
+
+The `EditablePlan` gives you the same interface as [`Plan`](../plan-and-sim-results), but also allows you to add new
+activities. You do this with `plan.create(...)`. You can either provide the minimal amount of information (type,
+arguments, and start time), or provide a `NewDirective` object that is a little more configurable.
+
+The `create` function will tentatively add your directive to the plan in an uncommitted state, and return an
+`ActivityDirectiveId` object for the activity you just added. This way you can anchor another activity to the one you
+just created.
+
+:::warning
+
+Activity directive IDs are only accurate for activities that already exist in the plan. For newly created activities,
+`plan.create` returns an estimated placeholder ID, which will almost certainly change when it is uploaded to the database.
+So if your goal has any other side effects, do not rely on the accuracy of these IDs.
+
+:::
+
+If you then call `plan.directives(...)`, you'll see the activity you just created now included in the plan, but you're not
+quite done. These new activities are in an uncommitted state, and you must either call `plan.commit()` or `plan.rollback()`
+before the goal returns. `rollback` will reset the plan to the last time you called `commit`, or to the beginning of the goal.
+We use this system so you can add some activities to the plan, test it out with simulation, and then choose to keep them or not
+depending on the simulation results.
+
+## Simulation
+
+To try out your changes, you can call `simResults = plan.simulate()`. This will simulate the whole plan from start to finish.
+This returns the same `SimulationResults` object used in constraints.
+
+:::tip
+
+If you run simulation multiple times, you might have multiple `SimulationResults` objects floating around; it is up to
+you to keep those straight and manage that state. Most goals that simulate will just have a single mutable `simResults`
+variable that you update with each simulation, ensuring that the old results are lost and won't mess up your state.
+
+:::
+
+You can configure the simulation by passing a `SimulateOptions` object into `plan.simulate(...)`. Currently, the only
+option is to set when the simulation will pause. If you pause partway through the plan, then make a change *after* the
+pause time, if you simulate again it will attempt to pick up where it left off rather than start over.
+
+### Stale sim results
+
+Some goals will want to get simulation results cheaply without simulating, at the risk of unsoundness. You can do this
+by calling `plan.latestResults()` instead of `.simulate()`. This will return whatever was simulated last, even if it
+didn't simulate the whole plan, even if modifications were made later. There may be mismatches between the plan state
+and what was actually simulated; it is up to you to either accept this risk, or check its accuracy.
+
+It is possible for `latestResults` to return `null`, if the plan has never been simulated. So it is recommended to start
+such goals with:
+
+<Tabs groupId="lang">
+<TabItem value="kt" label="Kotlin">
+
+```kotlin
+val simResults = plan.latestResults() ?: plan.simulate()
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java
+var simResults = plan.latestResults();
+if (simResults == null) simResults = plan.simulate();
+```
+
+</TabItem>
+</Tabs>
+
+### Simulate After
+
+All goals have a flag stored outside the goal definition called "Simulate After". If enabled, a new simulation will
+be run when the goal finishes. This exists to enable some simulation control in eDSL goals, but is applicable to *all*
+goals because procedural and eDSL goal may need to be interleaved in a scheduling specification.
+
+:::warning
+
+Even if you write a procedural goal that does not simulate and uses stale results, simulation may still be run after
+your goal anyway if the "Simulate After" flag is checked in the UI.
+
+:::
+
+Additionally, if "Simulate After" is enabled on the last goal in the spec, the scheduler will simulate one last time
+and upload those results to the database. If not, it will just upload the latest stale results.
+
+## Idempotency
+
+Most scheduling goals will be written to detect a problem in the plan that can be solved by adding activities, and
+then add them. But it's important to keep in mind that you have to actually *check* for the problem. For example,
+if I want a `MyActivity` directive at every hour on the plan, I could easily write it like this:
+
+<Tabs groupId="lang">
+<TabItem value="kt" label="Kotlin">
+
+```kt
+@SchedulingProcedure
+class MyActivityEveryHour: Goal {
+  override fun run(plan: EditablePlan) {
+    for (time in plan.totalBounds() step Duration.HOUR) {
+      plan.create(
+        "MyActivity",
+        DirectiveStart.Absolute(time),
+        mapOf() // assuming it takes no arguments
+      )
+    }
+  }
+}
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java
+@SchedulingProcedure
+public class MyActivityEveryHour implements Goal {
+  @Override
+  public void run(EditablePlan plan) {
+    for (final var time: plan.totalBounds().step(Duration.HOUR)) {
+      plan.create(
+        "MyActivity",
+        new DirectiveStart.Absolute(time),
+        Map.of()
+      );
+    }
+  }
+}
+```
+
+</TabItem>
+</Tabs>
+
+This is essentially quick-and-dirty procedural version of the eDSL's Recurrence Goal.
+
+However, *every* time this goal is run, it will unconditionally create a new series of activities, so you'd have to be careful
+to disable the goal from your scheduling spec afterward, or otherwise ensure that scheduling will only ever be run once.
+This is not a requirement that most missions can impose on operations.
+
+So instead, you have to first check if the goal is already satisfied. A rudimentary version of this could look like:
+
+<Tabs groupId="lang">
+<TabItem value="kt" label="Kotlin">
+
+```kt
+@SchedulingProcedure
+class MyActivityEveryHour: Goal {
+  override fun run(plan: EditablePlan) {
+    // This produces a Booleans profile that is true at the instant of a MyActivity directive.
+    val existingActivities = plan.directives("MyActivity").active().cache()
+
+    for (time in plan.totalBounds() step Duration.HOUR) {
+      if (!existingActivities.sample(time)) plan.create(
+        "MyActivity",
+        DirectiveStart.Absolute(time),
+        mapOf() // assuming it takes no arguments
+      )
+    }
+  }
+}
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java
+@SchedulingProcedure
+public class MyActivityEveryHour implements Goal {
+  @Override
+  public void run(EditablePlan plan) {
+    // This produces a Booleans profile that is true at the instant of a MyActivity directive.
+    final var existingActivities = plan.directives("MyActivity").active().cache();
+
+    for (final var time: plan.totalBounds().step(Duration.HOUR)) {
+      if (!existingActivities.sample(time)) plan.create(
+        "MyActivity",
+        new DirectiveStart.Absolute(time),
+        Map.of()
+      );
+    }
+  }
+}
+```
+
+</TabItem>
+</Tabs>
+
+This will check only for `MyActivity` directives that happen at the exact time it wants to place a new one. This is better
+than nothing, but still not very smart. If a planner manually inserted a `MyActivity` at a time that didn't exactly line
+up, this check would ignore it.
+
+Maybe you would want the goal to ensure that there is *at most* one hour between activities, reacting to existing activities
+by detecting directives that don't land exactly on the hour and proceeding to a hour after that directive. This is
+a pretty common pattern that can be accomplished with a while loop, repeatedly popping off the first directive in the list
+of existing `MyActivity`s, and is for now left as an exercise for the user.
+
+In the future we plan to provide helper functions that accomplish common patterns like this.

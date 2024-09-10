@@ -172,40 +172,115 @@ const sidebars = {
     },
     {
       type: 'category',
-      label: 'Constraints',
+      label: 'Scheduling & Constraints',
       link: {
-        id: 'constraints/introduction',
-        type: 'doc',
+        id: 'scheduling-and-constraints/introduction',
+        type: 'doc'
       },
       items: [
-        'constraints/concepts',
-        'constraints/examples',
+        'scheduling-and-constraints/management',
         {
-          label: 'EDSL Docs',
-          type: 'link',
-          href: 'https://nasa-ammos.github.io/aerie/constraints-edsl-api/',
+          type: 'category',
+          label: 'Procedural',
+          link: {
+            id: 'scheduling-and-constraints/procedural/introduction',
+            type: 'doc'
+          },
+          items: [
+            'scheduling-and-constraints/procedural/getting-started',
+            {
+              type: 'category',
+              label: 'Timelines',
+              link: {
+                id: 'scheduling-and-constraints/procedural/timelines/introduction',
+                type: 'doc'
+              },
+              items: [
+                {
+                  type: 'category',
+                  label: "Basics",
+                  link: {
+                    id: 'scheduling-and-constraints/procedural/timelines/basics/introduction',
+                    type: 'doc'
+                  },
+                  items: [
+                    'scheduling-and-constraints/procedural/timelines/basics/profiles',
+                    'scheduling-and-constraints/procedural/timelines/basics/sampling-and-caching',
+                    'scheduling-and-constraints/procedural/timelines/basics/activities',
+                    'scheduling-and-constraints/procedural/timelines/basics/windows',
+                    'scheduling-and-constraints/procedural/timelines/basics/common-operations'
+                  ]
+                },
+                {
+                  type: 'category',
+                  label: "Advanced",
+                  link: {
+                    id: 'scheduling-and-constraints/procedural/timelines/advanced/introduction',
+                    type: 'doc'
+                  },
+                  items: [
+                    // 'scheduling-and-constraints/procedural/timelines/advanced/parallel-profiles',
+                    // 'scheduling-and-constraints/procedural/timelines/advanced/custom-operations',
+                    // 'scheduling-and-constraints/procedural/timelines/advanced/custom-timelines'
+                  ]
+                }
+              ]
+            },
+            'scheduling-and-constraints/procedural/plan-and-sim-results',
+            'scheduling-and-constraints/procedural/constraints',
+            'scheduling-and-constraints/procedural/scheduling',
+            'scheduling-and-constraints/procedural/parameters-and-invocations',
+            // 'scheduling-and-constraints/procedural/running-externally'
+          ]
         },
-      ],
-    },
-    {
-      type: 'category',
-      label: 'Scheduling',
-      link: {
-        id: 'scheduling/introduction',
-        type: 'doc',
-      },
-      items: [
-        'scheduling/goals',
-        'scheduling/run-scheduling',
-        'scheduling/global-conditions',
-        'scheduling/modelling-temporal-relations',
-        'scheduling/temporal-subset',
         {
-          label: 'EDSL Docs',
-          type: 'link',
-          href: 'https://nasa-ammos.github.io/aerie/scheduling-edsl-api/modules/Scheduling_eDSL.html',
+          type: 'category',
+          label: 'Declarative',
+          link: {
+            id: 'scheduling-and-constraints/declarative/introduction',
+            type: 'doc'
+          },
+          items: [
+            {
+              type: 'category',
+              label: 'Constraints',
+              link: {
+                id: 'scheduling-and-constraints/declarative/constraints/introduction',
+                type: 'doc',
+              },
+              items: [
+                'scheduling-and-constraints/declarative/constraints/concepts',
+                'scheduling-and-constraints/declarative/constraints/examples',
+                {
+                  label: 'EDSL Docs',
+                  type: 'link',
+                  href: 'https://nasa-ammos.github.io/aerie/constraints-edsl-api/',
+                },
+              ],
+            },
+            {
+              type: 'category',
+              label: 'Scheduling',
+              link: {
+                id: 'scheduling-and-constraints/declarative/scheduling/introduction',
+                type: 'doc',
+              },
+              items: [
+                'scheduling-and-constraints/declarative/scheduling/goals',
+                'scheduling-and-constraints/declarative/scheduling/global-conditions',
+                'scheduling-and-constraints/declarative/scheduling/modelling-temporal-relations',
+                'scheduling-and-constraints/declarative/scheduling/temporal-subset',
+                {
+                  label: 'EDSL Docs',
+                  type: 'link',
+                  href: 'https://nasa-ammos.github.io/aerie/scheduling-edsl-api/modules/Scheduling_eDSL.html',
+                },
+              ],
+            },
+          ]
         },
-      ],
+        'scheduling-and-constraints/execution'
+      ]
     },
     {
       type: 'category',
@@ -247,7 +322,7 @@ const sidebars = {
       },
       items: [
         {
-          label: 'Constraints',
+          label: 'Constraints eDSL Backend',
           type: 'link',
           href: 'https://nasa-ammos.github.io/aerie/javadoc/constraints/',
         },
@@ -315,6 +390,11 @@ const sidebars = {
           label: 'Parsing Utilities',
           type: 'link',
           href: 'https://nasa-ammos.github.io/aerie/javadoc/parsing-utilities/',
+        },
+        {
+          label: 'Procedural APIs',
+          type: 'link',
+          href: 'https://nasa-ammos.github.io/aerie/procedural-apis',
         },
         {
           label: 'Scheduler Driver',

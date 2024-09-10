@@ -1,0 +1,37 @@
+# Management
+
+## Creating and Updating
+
+The recommended setup is to store goals/rules/conditions/constraints (hereafter called "peripheral code")
+in one or more repositories outside Aerie, and uploading
+them through the UI.
+
+For example, after creating a new goal as described in the following pages, you can upload it with the UI by selecting
+`New` on the `Scheduling` option in main top-left dropdown. Or, you can upload it with an automatic association with your
+plan by opening the `Scheduling Goals` pane in your plan, and navigating to `Manage Goals -> New`. Here you have the
+option to either upload a JAR file, or copy-paste a typescript eDSL file.
+
+## Model and Plan Association
+
+In Aerie, peripherals live independently of plans and models, and can be associated with
+any number of plans and models, or none at all. Each model and plan has a scheduling specification and a constraints
+specification, which is simply a list of peripherals to run during the scheduling or constraints actions, respectively.
+
+Model specifications are never run directly, and instead populate the default spec for any plans created from that model.
+So if a particular constraint is widely applicable to all plans made from a particular model, you can associate it with
+the model by navigating to `Models -> <select your model> -> Edit details ... -> Constraints -> Library`. Click the checkbox
+on your constraint and select `Save`. Now any new plans made with this model will include your constraint in its specification.
+
+Peripherals that don't apply to all plans for a model can be associated with individual plans too. In the main plan view,
+navigate to the `Scheduling Goals` or `Constraints` pane, then click `Manage`. Click the checkbox for your peripheral and
+select `Save`.
+
+## Version Locking
+
+Peripheral associations can be locked to a specific revision, on either the model or plan specification. In the specification,
+you can change `Always use latest` to a revision number of your choice.
+
+## Deleting
+
+Peripherals can be deleted in the UI by navigating to the `Scheduling` or `Constraints` view in the top left, and deleting
+them there. This action can't be done if the peripheral is being used by a plan or model.

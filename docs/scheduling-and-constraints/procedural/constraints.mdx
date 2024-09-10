@@ -1,0 +1,170 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Constraints
+
+:::warning
+
+Procedural constraints aren't supported yet, although the interfaces are fully implemented. You should be able to run
+a constraint locally using the procedural-remote package, but they can't yet be integrated with Aerie.
+
+:::
+
+It's finally time to write a useful piece of code! Constraints are simple. They take a `Plan` and `SimulationResults`,
+and return a `Violations` timeline. Violations are a new type of timeline specific to constraints, that store `Violation`
+objects. You won't usually need to perform additional operations after creating a `Violations` timeline; usually you'll
+just return it. They can be created with some provided static constructor functions. For example:
+
+<Tabs groupId="lang">
+<TabItem value="kt" label="Kotlin">
+
+```kotlin
+@ConstraintProcedure
+class BatteryAboveZero: Constraint {
+  override fun run(plan: Plan, simResults: SimulationResults) = Violations.inside(
+    plan.resource("/battery_soc", Real.deserializer()).lessThan(0).highlightTrue()
+  )
+}
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java
+@ConstraintProcedure
+public class BatterAboveZero implements Constraint {
+  @NotNull
+  @Override
+  public Violations run(@NotNull Plan plan, @NotNull SimulationResults simResults) {
+    return Violations.inside(
+      plan.resource("/battery_soc", Real.deserializer()).lessThan(0).highlightTrue()
+    );
+  }
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Generator Constraints
+
+For more complex constraints, it may be tedious to try to represent all the violations in a single `Violations` timeline,
+and easier to create violations more iteratively. In this case, you could simply add to a list of violations, then
+create a timeline at the end with `new Violations(violationsList)`, or you could use some helper functions provided by
+the `GeneratorConstraint` abstract class instead.
+
+:::tip
+
+Because of Kotlin's [extension function concept](https://kotlinlang.org/docs/extensions.html),
+the `GeneratorConstraint` class's ergonomics are much more helpful in Kotlin, and only provides a marginal benefit in Java.
+
+:::
+
+For example, to violate whenever `MyActivity` occurs when `/my/resource < 0`, you could do the following:
+
+<Tabs groupId="lang">
+<TabItem value="kt" label="Kotlin">
+
+```kotlin
+@ConstraintProcedure
+class MyConstraint: GeneratorConstraint() {
+  override fun generate(plan: Plan, simResults: SimulationResults) {
+    val myResource = simResults.resource("/my/resource", Real.deserializer()).cache()
+    for (activity in plan.directives("MyActivity")) {
+      if (myResource.sample(activity.startTime) < 0)
+        violate(Violation(activity.interval))
+    }
+  }
+}
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java
+@ConstraintProcedure
+public class MyConstraint extends GeneratorConstraint {
+  @Override
+  public void generate(@NotNull Plan plan, @NotNull SimulationResults simResults) {
+    final var myResource = simResults.resource("/my/resource", Real.deserializer()).cache();
+    for (final var activity: plan.directives("MyActivity")) {
+      if (myResource.sample(activity.startTime) < 0)
+        violate(Violation(activity.interval));
+    }
+  }
+}
+```
+
+</TabItem>
+</Tabs>
+
+Additionally, the `GeneratorConstraint` class provides some nice extension functions (all beginning with `violate...`)
+that you can apply to your timelines, which convert them into violations and automatically submit them. This only works
+as shown in Kotlin. You can call these functions in Java, but the syntax isn't any more ergonomic than just calling `violate(...)`
+normally.
+
+```kotlin
+@ConstraintProcedure
+class BatteryAboveZero: GeneratorConstraint() {
+  override fun generate(plan: Plan, simResults: SimulationResults) {
+    simResults.resource("/battery_soc", Real.deserializer())
+      .greaterThan(0)
+
+      // Only works in a generator constraint!
+      // Only works in Kotlin!
+      .violateOn(false)
+  }
+}
+```
+
+## Violation Messages
+
+The `Violation` class contains a `message` field, which will display to the user in the UI. It is `null` by default,
+but you have two ways to change it.
+
+If you want to set different messages for each violation, you can create the `Violation` objects yourself and then pass
+each one individually to `violate(...)` in a generator constraint. Or, if you want to set the same message for all
+violations, you can override the `message()` function in the `Constraint` interface. To repeat a previous example:
+
+<Tabs groupId="lang">
+<TabItem value="kt" label="Kotlin">
+
+```kotlin
+@ConstraintProcedure
+class MyConstraint: GeneratorConstraint() {
+  override fun message() = "MyActivity cannot start when /my/resource < 0"
+
+  override fun generate(plan: Plan, simResults: SimulationResults) {
+    val myResource = simResults.resource("/my/resource", Real.deserializer()).cache()
+    for (activity in plan.directives("MyActivity")) {
+      if (myResource.sample(activity.startTime) < 0)
+        violate(Violation(activity.interval))
+    }
+  }
+}
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java
+@ConstraintProcedure
+public class MyConstraint extends GeneratorConstraint {
+  @Override
+  public String message() {
+    return "MyActivity cannot start when /my/resource < 0";
+  }
+
+  @Override
+  public void generate(@NotNull Plan plan, @NotNull SimulationResults simResults) {
+    final var myResource = simResults.resource("/my/resource", Real.deserializer()).cache();
+    for (final var activity: plan.directives("MyActivity")) {
+      if (myResource.sample(activity.startTime) < 0)
+        violate(Violation(activity.interval));
+    }
+  }
+}
+```
+
+</TabItem>
+</Tabs>

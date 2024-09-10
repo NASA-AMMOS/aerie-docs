@@ -1,0 +1,91 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# The Plan & Simulation Results
+
+The two main interfaces you'll query data from are `Plan` and `SimulationResults`. In constraints, they are provided as
+separate objects, they are combined into one object called `EditablePlan`.
+
+## `Plan`
+
+The plan object contains information that defines the plan. It also provides utility functions for converting between
+java `Instant` objects and our `Duration` objects, which are relative to the start of the plan.
+
+The `plan.totalBounds()` method gives an interval that defines the extent of the plan. The whole plan might not be simulated,
+but the plan bounds won't change.
+
+### Directives
+
+The `plan.directives(...)` methods allow you to get the activity directive timelines that define the plan.
+`directives()` and `directives(type: String)` get a timeline of all directives or of just a specific activity type respectively;
+and it returns them as the generic `AnyDirective` representation. If you want to use a custom representation `A`, you can call
+`directives(type: String, deserializer: (SerializedValue) -> A)` and provide your own deserializer.
+
+All directives contain an `id: ActivityDirectiveId` field, which can be used to identify a directive. These are used to
+define anchored activities; the anchored activity will contain the id of the activity it anchors to. In constraints,
+these ids will be the same value stored in the database, and will remain accurate after the constraint run is finished.
+But in scheduling, we can only guarantee the accuracy of the id for *existing* activities; any activities you create are
+given a temporary id which may change when the scheduling run ends.
+
+Some anchored activities can't have a grounded start time, because they might be anchored to the end of an activity with
+an unknown duration. But we still have to provide an estimated start time for it to be a valid object in the timeline,
+so we assume the duration of the anchor target is `0`.
+
+The directives are always up-to-date, even if the simulation results aren't.
+
+## Simulation Results
+
+The `SimulationResults` object contains the activity instances and resource profiles of a simulation run.
+
+### Instances
+
+Activity instances are the simulated version of a directive; they have a duration, a definite grounded start time
+(in the case of anchored activities), and any computed attributes the activity defines, in addition to all the data
+stored in the directive.
+
+All instances have an `id: ActivityInstanceId` field, which usually, but not always matches the id of the corresponding
+directive. For clarity, it also includes a `directiveId: ActivityDirectiveId?` field which *might be null*, because some
+instances are spawned from other activities and don't have a corresponding directive.
+
+You can query instances the same way as directives, using `simResults.instances(...)`.
+
+### Resources
+
+You can query resources with `simResults.resource("/my/resource", <deserializer>)`. Unlike activities, there is no option
+to use a default deserializer; you must pick one, because it determines the profile type. Each profile type provides a
+deserializer for you to use, so for example, you can get a string resource with `simResults.resource("/my/string", Strings.deserializer())`.
+
+If you made your own data structure for your resource (say, `V`), you'll probably want to use the `Constants` profile.
+But unfortunately you have to do any deserialization yourself. If you don't want to, you can just use `.resource("/my/object", Constants::new)`,
+but this will return `Constants<SerializedValue>`. To do proper deserialization, call `Constants.deserializer`:
+
+<Tabs groupId="lang">
+<TabItem value="kt" label="Kotlin">
+
+```kotlin
+// Segment payload we will deserialize into.
+data class Point2(x: Double, y: Double) {}
+
+//           note the use of . instead of :: here!    v
+val myResource = plan.resource("/my/object", Constants.deserializer {
+  val fields = it.asMap().get()
+  Point2(fields.get("x").asReal().get(), fields.get("y").asReal().get())
+})
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java
+// Segment payload we will deserialize into.
+record Point2(double x, double y) {}
+
+//           note the use of . instead of :: here!          v
+final var myResource = plan.resource("/my/object", Constants.deserializer($ -> {
+  final var fields = it.asMap().get();
+  return new Point2(fields.get("x").asReal().get(), fields.get("y").asReal().get());
+}));
+```
+
+</TabItem>
+</Tabs>
