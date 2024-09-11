@@ -413,6 +413,16 @@ const sidebars = {
         },
       ],
     },
+    {
+      type: 'category',
+      label: 'Aerie Ecosystem',
+      link: {
+        type: 'generated-index',
+      },
+      items: [
+        'ecosystem/repositories/repos-introduction'
+      ],
+    },
     'glossary',
     {
       label: 'Keyboard Shortcuts',
