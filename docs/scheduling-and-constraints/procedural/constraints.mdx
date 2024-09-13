@@ -120,11 +120,14 @@ class BatteryAboveZero: GeneratorConstraint() {
 ## Violation Messages
 
 The `Violation` class contains a `message` field, which will display to the user in the UI. It is `null` by default,
-but you have two ways to change it.
+but you have a few ways to change it.
 
-If you want to set different messages for each violation, you can create the `Violation` objects yourself and then pass
-each one individually to `violate(...)` in a generator constraint. Or, if you want to set the same message for all
-violations, you can override the `message()` function in the `Constraint` interface. To repeat a previous example:
+If you're creating a `Violations` timeline, you can call `violations.withDefaultMessage(message)`, which sets the message
+for those in the result that don't already have one.
+
+If you're writing a generator constraint, you can pass it as the last argument to any `violate` call, as in
+`violate(listOfViolations, messageForThisBatch)`. Or you can set a constraint-wide default by overriding the
+`defaultMessage` method:
 
 <Tabs groupId="lang">
 <TabItem value="kt" label="Kotlin">
@@ -132,7 +135,7 @@ violations, you can override the `message()` function in the `Constraint` interf
 ```kotlin
 @ConstraintProcedure
 class MyConstraint: GeneratorConstraint() {
-  override fun message() = "MyActivity cannot start when /my/resource < 0"
+  override fun defaultMessage() = "MyActivity cannot start when /my/resource < 0"
 
   override fun generate(plan: Plan, simResults: SimulationResults) {
     val myResource = simResults.resource("/my/resource", Real.deserializer()).cache()
@@ -151,7 +154,7 @@ class MyConstraint: GeneratorConstraint() {
 @ConstraintProcedure
 public class MyConstraint extends GeneratorConstraint {
   @Override
-  public String message() {
+  public String defaultMessage() {
     return "MyActivity cannot start when /my/resource < 0";
   }
 
@@ -168,3 +171,5 @@ public class MyConstraint extends GeneratorConstraint {
 
 </TabItem>
 </Tabs>
+
+The order of precedence is: individual violation messages > batch violation messages > default message.
