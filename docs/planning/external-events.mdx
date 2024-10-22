@@ -51,7 +51,7 @@ External Event Types define the *typing* of each External Event. This typing gro
 External Source Types define the *typing* of each External Source. This typing groups External Sources on the basis of the data they contain. For example, you may have an External Source Type of `Weather Report` to represent all your weather reports, and inside each of the `Weather Report`-typed sources you can expect to find External Events that share a common External Event Type that appears in all `Weather Report`-typed sources (ex: Temperature).
 
 #### Derivation Groups
-Derivation Groups are collections of External Sources that can be associated with plans. Within a Derivation Group, the collective External Events from it's member External Sources are used to create a *derived* set of events for the Derivation Group. See [Derivation](#derivation) below for more information.
+Derivation Groups are collections of External Sources that can be associated with plans. Within a Derivation Group, the collective External Events from its member External Sources are used to create a *derived* set of events for the Derivation Group. See [Derivation](#derivation) below for more information.
 
 #### Derivation Group & Plan Associations
 Derivation Groups can be *linked* to a plan (or plans) which allows their derived events to be utilized within the plan for visualization, planning, and scheduling. See [UI Usage](#ui-usage) below for more information on use within the UI.
@@ -74,7 +74,7 @@ The need for these became apparent after an exploration of External Events imple
 
 :::info Note
 
-Currently, External Events cannot be used within the planning process for generating activities, constraints, or other interactions with other data in Aerie. However, this is the planned scope of uses for External Events.
+Currently, External Events are *not* accessible to the automated scheduler for purposes of generating activities based on events, satisfying constraints, or other interactions with other data in Aerie. However, this is in the planned scope for External Events, and future releases will add these capabilities
 
 :::
 
@@ -122,7 +122,7 @@ The `source` field includes the following fields:
   * **Example**: `2022-001T00:00:00Z`
 
 * `period`
-  * Specifies the exact range of simulation/plan time that this external applies over.
+  * Specifies the exact range of simulation/plan time over which this external source applies.
     * Multiple External Sources of the same External Source Type may cover the same `period`, which is where `valid_at` comes into play - see [derivation](#derivation) for more information
     * Composed of a combination of `start_time` and either `end_time` *or* `duration`
   * **Example**
@@ -141,7 +141,7 @@ Events are represented as a set of objects contained in a list, and each event h
 
 * `key`
   * Unique identifier for the External Event
-    * Uniqueness is required in the External Source, but **not** across different External Sources. For more information, see [derivation](#derivation)
+    * Uniqueness is required within the External Source, but **not** across different External Sources. For more information, see [derivation](#derivation)
   * Currently has no restrictions or requirements, though those can be optionally imposed by users - see [Formal JSON Schema](#formal-json-schema) for more information
   * **Example**: `ExampleEvent:1/sc/sc1:1:X/1`
 
@@ -229,7 +229,7 @@ Currently, External Sources only accept a `start_time` and an `end_time`, wherea
 
 ### Derivation
 
-Derivation was an operation conceived for the reconciliation of overlapping External Sources. The problem at hand was that it is entirely possible for sources to be generated at later points in time, that cover slightly different windows on plan time than their predecessors.
+Derivation was an operation conceived for the reconciliation of overlapping External Sources. The problem at hand was that it is entirely possible for sources to be generated at later points in time, that cover slightly different windows of plan time than their predecessors.
 
 <figure>
   <img alt="Figure 3: A diagram illustrating a motivating case for derivation" src={derivationMotivation} />
@@ -267,7 +267,7 @@ Given this, we can now discuss how to derive External Events from a Derivation G
 
   The logic here is simply that we now have more recent data, so we can safely do a complete replacement. Should an External Event be replaced despite ending after the original source, we can still justify this as the updated External Source - if it had need for such an External Event - would have included it.
 
-4. _An External Event who shares an ID with an External Event in a later External Source will always be replaced._
+4. _An External Event that shares an ID with an External Event in a later External Source will always be replaced._
 
   By introducing naming, we can allow replacement.
 
@@ -351,7 +351,7 @@ The following explains what is happening to each External Event in the example:
 
 #### Derivation Groups
 
-The final question remaining is the '**who**' - **who** is this derivation operation run against? One possible candidate for this could be the External Source Type. External Events that share an External Source Type include External Events of the same types, and will likely overlap in key namespace as well. This is a nearly ideal solution except in the case of contingencies.
+The final question remaining is: **what set of external sources** will this derivation operation be run against? One possible candidate for this could be the External Source Type. External Events that share an External Source Type include External Events of the same types, and will likely overlap in key namespace as well. This is a nearly ideal solution except in the case of contingencies.
 
 Imagine we have 4 sources of the same source type. Two of these relate to an ideal contingency, and two of these relate to a degenerate contingency:
 
@@ -433,6 +433,7 @@ Creating an External Event Type just requires a name for the type.
   <img alt="Figure 8: Create an External Event Type" src={externalSourceManagerCreateExternalEventType} />
   <figcaption><i>Figure 8: Create an External Event Type</i></figcaption>
 </figure>
+
 #### Uploading an External Source
 The main view allows users to upload External Sources. Most of these fields autofill and are immutable once parsed - except the Derivation Group which will be autofilled in the style of `external_source_type Default`, but can be edited by the user before upload.
 
@@ -466,15 +467,16 @@ Finally, it is also possible to inspect each source's contained events as a tabl
 </figure>
 
 ### Plan
-Once an External Source has been uploaded, it can be viewed and interacted with in the context of a plan
+Once an External Source has been uploaded, it can be viewed and interacted with in the context of a plan.
 
 <figure>
   <img alt="Figure 13: Overview of the plan view containing External Event information" src={planExternalSourceView} />
   <figcaption><i>Figure 13: Overview of the plan view containing External Event information</i></figcaption>
 </figure>
 
-#### Derivation Group Management Modal
-This panel, modelled after the Scheduling Goals panel, is where users (administrators or plan collaborators) can choose to associate different Derivation Groups with their plan.
+To begin working with external sources in the plan, the left side panel should be set to the "External Sources" option. This panel is where users (administrators or plan collaborators) can associate different Derivation Groups with the plan.
+
+#### Derivation Group Management
 
 There are currently two levels to linking a Derivation Group to a plan: **association** and **enabling**. Association is handled here, via the _Manage Derivation Groups_ button. This presents a modal where users can expand different Derivation Groups to view the associated sources and select whether or not they would like to associate said Derivation Group with their plan.
 
@@ -485,7 +487,7 @@ There are currently two levels to linking a Derivation Group to a plan: **associ
 
 **Association** simply means that the plan is *aware* of the existence of the Derivation Group, and is the gatekeeper for whether it is visible in the External Sources panel. In this panel lies the second level to linking, which is enabling. **Enabling** simply dictates whether a Derivation Group (even if the filters in the *Timeline Editor* select for it) is *visible* on the timeline. Disabling hides all events associated with the group completely, whereas enabling does the opposite. It does not, however, dissociate the plan and Derivation Group. This is simply a visibility attribute and is actually persisted as part of the view (and even persists after Derivation Group dissociation/reassociation, meaning if a Derivation Group is dissociated and then re-associated, its "enabled" setting stays the same).
 
-This view also provides users with a list of recently uploaded and deleted sources and their respective External Source Type and Derivation Group. This warning persists acknowledged with the `Dismiss` button. If a Derivation Group is added and then deleted soon after without this card being acknowledged, it will show in neither the uploaded or deleted lists, as the system infers the user was never aware of its existence and as such is silent about its appearance and disappearance.
+Once a Derivation Group has been associated with the plan, new external event sources may be added to it (or deleted from it), causing the derivation process to automatically re-run, and affecting the events which are shown on the plan timeline. For this reason, this panel also provides users with a notification of recently added and deleted sources which affect this plan, and their respective External Source Type and Derivation Group. This notification persists until acknowledged with the `Dismiss` button.
 
 Enabled|Disabled
 :-------------------------:|:-------------------------:
@@ -504,7 +506,7 @@ The timeline shows any events from Derivation Groups that are associated with th
   <figcaption><i>Figure 16: Timeline & Layer Editor</i></figcaption>
 </figure>
 
-The layer of the timeline is modelled after the activity layer, as it provides a good and easily readable representation of discrete-time occurrences. Layers share the layer options also provided to activity layers, as well as implementing a 'Group By' option specifically for external events. The 'Group By' mechanic allows the user to have external events either grouped by their external source (within the derivation group), or their event types.
+The layer of the timeline is modelled after the activity layer, as it provides an easily readable representation of discrete-time occurrences. Layers share the layer options also provided to activity layers, as well as implementing a 'Group By' option specifically for external events. The 'Group By' mechanic allows the user to have external events either grouped by their external source (within the derivation group), or their event types.
 
 'Group By' External Source|'Group By' External Event Type
 :-------------------------:|:-------------------------:
@@ -516,7 +518,7 @@ The layer of the timeline is modelled after the activity layer, as it provides a
 </figure>
 
 #### Tables and Inspection
-This is a brief overview of the remaining panels that have been added to plans. It is possible to either mouse over External Events for additional detail or to select them in the timeline, which selects them in a table view beneath the timeline as well as details them in the right pane. This looks as follows:
+The screenshot below shows a brief overview of the remaining panels that have been added to plans. It is possible to either mouse over External Events for additional detail or to select them in the timeline, which selects them in a table view beneath the timeline as well as details them in the right pane. This looks as follows:
 
 <figure>
   <img alt="Figure 18: The selected External Event view and a table of External Events, working in tandem" src={planSelectedExternalEvent} />
