@@ -45,10 +45,10 @@ External Events represent temporal occurrences outside of the locus of control o
 External Sources are containers for External Events and the primary way that users interact with External Events. To get External Events into Aerie, an External Source must be uploaded that contains the event definitions inside. See [External Sources](#external-sources-1) below for more information.
 
 #### External Event Types
-External Event Types define the *typing* of each External Event. This typing typically groups External Events on the basis of the data they represent. For example, an External Event may be of the type `Ground Station Contact`, `Solar Flare`, or `Weather Forecast`.
+External Event Types define the *typing* of each External Event. This typing groups External Events on the basis of the data they represent. For example, an External Event may be of the type `Ground Station Contact`, `Solar Flare`, or `Weather Forecast`.
 
 #### External Source Types
-External Source Types define the *typing* of each External Source. This typing typically groups External Sources on the basis of the data they contain. For example, you may have an External Source Type of `Weather Report` to represent all your weather reports, and inside each of the `Weather Report`-typed sources you can expect to find External Events that share a common External Event Type that appears in all `Weather Report`-typed sources (ex: Temperature).
+External Source Types define the *typing* of each External Source. This typing groups External Sources on the basis of the data they contain. For example, you may have an External Source Type of `Weather Report` to represent all your weather reports, and inside each of the `Weather Report`-typed sources you can expect to find External Events that share a common External Event Type that appears in all `Weather Report`-typed sources (ex: Temperature).
 
 #### Derivation Groups
 Derivation Groups are collections of External Sources that can be associated with plans. Within a Derivation Group, the collective External Events from it's member External Sources are used to create a *derived* set of events for the Derivation Group. See [Derivation](#derivation) below for more information.
@@ -72,14 +72,22 @@ The need for these became apparent after an exploration of External Events imple
   <figcaption><i>Figure 2: External Events - External Events with resources and activities</i></figcaption>
 </figure>
 
-*Note: Currently, External Events cannot be used within the planning process for generating activities, constraints, or other interactions with other data in Aerie. However, this is the planned scope of uses for External Events.*
+:::info Note
+
+Currently, External Events cannot be used within the planning process for generating activities, constraints, or other interactions with other data in Aerie. However, this is the planned scope of uses for External Events.
+
+:::
 
 ### External Sources
 **External Sources** represent a collection of External Events. When we upload External Events, we can only do so by uploading them in an External Source.
 
 These sources are to be defined in `JSON`, following a general format that will be discussed below. Any data a user wishes to turn into an External Source/External Events should be converted to the `JSON` format to allow ingest within Aerie.
 
-*Note: There is currently no well-defined, official `JSON` schema for External Source input, however there are required fields which will be mentioned below, and any non-known fields included will be ignored during ingest. Additionally, no tool currently exists to provide the generic translation to the `JSON` format, however this is a feature planned for a future release.*
+:::info Note
+
+There is currently no well-defined, official `JSON` schema for External Source input, however there are required fields which will be mentioned below, and any non-known fields included will be ignored during ingest. Additionally, no tool currently exists to provide the generic translation to the `JSON` format, however this is a feature planned for a future release.
+
+:::
 
 #### Schema
 There are two parts to each External Source: 1) a `source` header and 2) a collection of `events`:
@@ -213,8 +221,11 @@ The example represents a week-long weather forecast where each event is the repo
     ]
 }
 ```
+:::info Note
 
-*Note: Currently, External Sources only accept a `start_time` and an `end_time`, whereas External Events accept only a `start_time` and a `duration`. This may change in the future (i.e. External Events may accept a start time and an end time as well, for example). This is largely due to simplicity in implementation.*
+Currently, External Sources only accept a `start_time` and an `end_time`, whereas External Events accept only a `start_time` and a `duration`. This may change in the future (i.e. External Events may accept a start time and an end time as well, for example). This is largely due to simplicity in implementation.
+
+:::
 
 ### Derivation
 
@@ -373,7 +384,11 @@ As such, we now define the notion of a **Derivation Group**. A Derivation Group 
 ## UI Usage
 External Events show up in the UI in two main places - an External Source Manager, and in plans (both in panels and timelines). Our discussion of UI features will therefore be divided along which page the features appear on.
 
-Note: There is also a [tutorial section](../../tutorials/external-events/introduction) that walks through the content of this section in a step-by-step fashion, albeit with less detail.
+:::info Note
+
+There is also a [tutorial section](../../tutorials/external-events/introduction) that walks through the content of this section in a step-by-step fashion, albeit with less detail.
+
+:::
 
 ### External Source Manager
 The External Source Manager page handles the uploading & inspection of External Sources, as well as the creation and management of Derivation Groups.
