@@ -26,7 +26,7 @@ Once there, create a new plan with the following parameters:
 
 <figure>
   <img alt="The example plan's parameters" src={externalEventsTutorialPlanParameters} />
-  <figcaption><i><b>Note</b>: The <b>start</b> and <b>end</b> times are important here as this is the bounds that our example External Events will be visible within!</i></figcaption>
+  <figcaption><i><b>Note</b>: The <b>start</b> and <b>end</b> times are important here, as they are bounds that contain all the external events in the sources we uploaded!</i></figcaption>
 </figure>
 
 To create this plan, make sure that there exists _some_ mission model that can be associated with the plan. The exact model is, at present, entirely unimportant as it has no bearing on External Events functionality. The mission model used here, arbitrarily, is that of Aerie's mission model template.
@@ -37,20 +37,13 @@ After the plan has been created, select the plan on the table to the right, and 
   <img alt="The plans page showing an empty timeline" src={externalEventsTutorialPlanSpecificIntroPage} />
 </figure>
 
-By default, a row for External Events is **not** created by default, unless the plan already had at least one derivation group linked to it prior to opening the plan page. After we associate our derivation group to this plan, we will make our own External Events row to see our new events on the timeline!
-
 Select the `External Sources` tab on the left, and you should see the following:
 
 <figure>
-  <img alt="External Sources pane with no associations, but showing a card with 'new' External Sources" src={externalEventsTutorialExternalSourcesEmpty} />
+  <img alt="External Sources pane with no associations" src={externalEventsTutorialExternalSourcesEmpty} />
 </figure>
 
-This panel tells us two things:
-
-1. Our two newly uploaded external sources are available for use within Aerie, through their derivation group 'DemoType Default'. This card will always show you new sources you have not seen, or sources that have been deleted.
-2. No derivation groups are currently linked to our plan, and so the external events we uploaded before are currently not integrated with this plan!
-
-The *'new files have been uploaded'* card can be dismissed. in the next section we will learn how to associate our first derivation group to this plan.
+This panel tells us that there are no derivation groups currently linked to our plan, meaning the external events we uploaded before are not yet associated with it.
 
 ## Associating the Derivation Group
 There are currently no Derivation Groups associated with this plan! While we should have one created, there aren't any that this plan is aware of. To change this, we need to click `Manage Derivation Groups`, to open the Derivation Group management modal.
@@ -89,14 +82,14 @@ First, switch to the `Activity, Resource, & Event Types` tab.
 
 Click on the `Events` tab in the pane. The external event types from the example events should appear inside of the pane - these can be dragged to pre-existing rows to add as a filter, or by using the `+` icon when hovering over the type entry.
 
-For this tutorial, we'll create a new row entirely. We can also expedite the process by using the `Add Filter to Row` button at the top of the pane, and then clicking the `New Row +` button at the bottom of the list. This will create a new row, with all available external event types filtered *in*.
+For this tutorial, we'll create a new row entirely. We can expedite the process by using the `Add Filter to Row` button at the top of the pane, and then clicking the `New Row +` button at the bottom of the list. This will create a new row, with all available external event types included.
 
 <figure>
   <img alt="Click 'Add Filter to Row' and then 'New Row +'" src={externalEventsTutorialAddingRowStep2} />
   <figcaption><i>Click 'Add Filer to Row' and then 'New Row +'</i></figcaption>
 </figure>
 
-We can now see our example events on the timeline! There are 4 **derived** events shown, these represent the set of events that are *derived* from all the sources that existent within the derivation group.
+We can now see our example events on the timeline! There are 4 **derived** events shown, these represent the set of events that are *derived* from all the sources that exist within the derivation group.
 
 <figure>
   <img alt="External Events Row" src={externalEventsTutorialAddingRowStep3} />
@@ -120,16 +113,16 @@ Clicking the three dots on the bottom right of the layer and then clicking **Edi
 
 <figure>
   <img alt="The Timeline Editor panel" src={externalEventsTutorialTimelineEditor} />
-  <figcaption><i>The Timeline Editor for the row will appear!</i></figcaption>
+  <figcaption><i>Timeline Editor for the external events row displayed in the right panel</i></figcaption>
 </figure>
 
 External events appear in the same layer type as activities, and as such share options with them inside of the timeline row editor.
 
-There is a single option that is specific to external events: `Group By`. This allows the user to display the external events either as being grouped underneath the their respective external sources, or grouped underneath their respective external event types.
+[//]: # (There is a single option that is specific to external events: `Group By`. This allows the user to display the external events either as being grouped underneath the their respective external sources, or grouped underneath their respective external event types.)
 
-Additionally, there is an option for external events on the timeline that doesn't appear underneath the timeline editor: enabling/disabling visibility. This allows the user to hide (or un-hide) derivation groups from being drawn on the timeline irrespective of what row or layer they appear on. More information can be found under the [Plan](../../../planning/external-events/#plan) section of the main External Events documentation.
+[//]: # (Additionally, there is an option for external events on the timeline that doesn't appear underneath the timeline editor: enabling/disabling visibility. This allows the user to hide &#40;or un-hide&#41; derivation groups from being drawn on the timeline irrespective of what row or layer they appear on. More information can be found under the [Plan]&#40;../../../planning/external-events/#plan&#41; section of the main External Events documentation.)
 
-Examples of the two different `Group By` modes, as well as visibility enable/disable can be seen in the [Plan](../../../planning/external-events/#plan) section of the main External Events documentation.
+[//]: # (Examples of the two different `Group By` modes, as well as visibility enable/disable can be seen in the [Plan]&#40;../../../planning/external-events/#plan&#41; section of the main External Events documentation.)
 
 ## Additional Resources
 
