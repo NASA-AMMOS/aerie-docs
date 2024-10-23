@@ -1,0 +1,38 @@
+import externalEventsTutorialUploadStep1 from './assets/external_events_tutorial_upload_step1.png';
+import externalEventsTutorialUploadStep2 from './assets/external_events_tutorial_upload_step2.png';
+import externalEventsTutorialUploadStep3 from './assets/external_events_tutorial_upload_step3.png';
+import externalEventsTutorialUploadStep4 from './assets/external_events_tutorial_upload_step4.png';
+import externalEventsTutorialUploadStep5Timeline from './assets/external_events_tutorial_upload_step5_timeline.png';
+import externalEventsTutorialUploadStep5Table from './assets/external_events_tutorial_upload_step5_table.png';
+
+# Uploading the External Source
+Having created our sources, we are now able to upload them. Assuming you have deployed an instance of Aerie, navigate to the External Sources page:
+
+<figure>
+  <img alt="Click 'External Sources' button" src={externalEventsTutorialUploadStep1} />
+</figure>
+
+Once here, we can now upload our new External Sources. Click the **'Browse...'** button, and select the first file, `External_Events_Demo_00.json`. The upload section should autofill as follows:
+
+<figure>
+  <img alt="Click the 'Browse...' button and select the first test file - uploaded file form should become populated" src={externalEventsTutorialUploadStep2} />
+  <figcaption><i>Uploaded file form should become populated</i></figcaption>
+</figure>
+
+Go ahead and leave the `Derivation Group` as `DemoType Default`.
+
+Finally, click upload. The new External Source should show in the table on the right:
+
+<figure>
+  <img alt="External Sources table is populated" src={externalEventsTutorialUploadStep3} />
+</figure>
+
+Click the 'x' next to 'Selected External Source' to deselect it, then repeat these steps with the second file. The table should now look as follows:
+
+<figure>
+  <img alt="External Sources table is populated with both test files" src={externalEventsTutorialUploadStep4} />
+</figure>
+
+We can now see both external sources we've uploaded in the top-right table, and the external events of the selected source (in this case, the 2nd example file as it's the last we uploaded) in the bottom-right table.
+
+We are now ready to associate our new Derivation Group (`DemoType Default`) with a plan!

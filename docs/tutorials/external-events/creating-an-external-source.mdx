@@ -1,0 +1,95 @@
+import externalEventsOverlappingSources from './assets/external_events_overlapping_sources.png';
+
+# Creating an External Source
+We are going to manually create two External Sources and upload them to Aerie. They will be slightly staggered in the times they cover to help us later in illustrating how derivation works.
+
+<figure>
+  <img alt="Diagram of the two source's overlapping time ranges" src={externalEventsOverlappingSources} />
+  <figcaption><i>Diagram of the two source's overlapping time ranges</i></figcaption>
+</figure>
+
+Create the following JSON files in an editor:
+
+`External_Events_Demo_00.json`:
+```
+{
+    "source": {
+        "key": "External_Events_Demo_00.json",
+        "source_type": "DemoType",
+        "valid_at": "2024-01-01T00:00:00Z",
+        "period": {
+            "start_time": "2026-001T00:00:00Z",
+            "end_time": "2026-007T00:00:00Z"
+        }
+    },
+    "events": [
+        {
+            "key": "DemoType/SampleTypeA/1",
+            "event_type": "SampleTypeA",
+            "start_time": "2026-001T12:00:00Z",
+            "duration": "02:00:00"
+        },
+
+        {
+            "key": "DemoType/SampleTypeA/2",
+            "event_type": "SampleTypeA",
+            "start_time": "2026-002T00:00:00Z",
+            "duration": "01:00:00"
+        },
+
+        {
+            "key": "DemoType/SampleTypeA/3",
+            "event_type": "SampleTypeA",
+            "start_time": "2026-003T12:00:00Z",
+            "duration": "03:00:00"
+        }
+    ]
+}
+```
+
+`External_Events_Demo_01.json`:
+```
+{
+    "source": {
+        "key": "External_Events_Demo_01.json",
+        "source_type": "DemoType",
+        "valid_at": "2024-01-02T00:00:00Z",
+        "period": {
+            "start_time": "2026-003T00:00:00Z",
+            "end_time": "2026-010T00:00:00Z"
+        }
+    },
+    "events": [
+        {
+            "key": "DemoType/SampleTypeA/1",
+            "event_type": "SampleTypeA",
+            "start_time": "2026-003T20:00:00Z",
+            "duration": "02:00:00"
+        },
+
+        {
+            "key": "DemoType/SampleTypeA/3",
+            "event_type": "SampleTypeB",
+            "start_time": "2026-004T12:00:00Z",
+            "duration": "01:00:00"
+        },
+
+        {
+            "key": "DemoType/SampleTypeA/4",
+            "event_type": "SampleTypeB",
+            "start_time": "2026-009T20:00:00Z",
+            "duration": "03:00:00"
+        }
+    ]
+}
+```
+
+We are now ready to upload our test External Source files to Aerie!
+
+:::info Note
+
+In each of these files, the exact formatting of event keys is currently not important.
+
+:::
+
+More details can be found in the [External Events](../../../planning/external-events/) section.

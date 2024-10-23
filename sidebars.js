@@ -71,6 +71,19 @@ const sidebars = {
             'tutorials/mission-modeling/simulation-config',
           ],
         },
+        {
+          type: 'category',
+          label: 'External Events',
+          link: {
+            id: 'tutorials/external-events/introduction',
+            type: 'doc',
+          },
+          items: [
+            'tutorials/external-events/creating-an-external-source',
+            'tutorials/external-events/uploading-an-external-source',
+            'tutorials/external-events/associating-derivation-groups',
+          ],
+        },
       ],
     },
     {
@@ -142,6 +155,7 @@ const sidebars = {
         'planning/create-plan-and-simulate',
         'planning/external-datasets',
         'planning/activity-directive-metadata',
+        'planning/external-events',
         {
           type: 'category',
           label: 'Collaboration',
