@@ -81,10 +81,63 @@ where the set of events associated with a given plan are filtered down to those 
 
 ## `EventQuery`
 
-explain eventquery - more easy, idiomatic way of doing what's described above without an explicit filter for common functionality of filtering by dg/type/source
+There exists an easier, more idiomatic way of filtering a set of external events. The `EventQuery` object allows users
+to specify a set of event types, sources, and/or derivation groups of interest. Passing this object as an argument to
+`plan.events()` filters the set of events based on these properties:
 
-example
+<Tabs groupId="lang">
+<TabItem value="kt" label="Kotlin">
 
-a functionally equivalent way to do this is to get events and then call filterByX on it.
+```kotlin
+val query = EventQuery(
+  listOf("DerivationGroupA", "DerivationGroupB"),
+  null,
+  null
+)
+plan.events(query)
+```
 
-example
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java
+EventQuery query = new EventQuery(
+  List.of("DerivationGroupA", "DerivationGroupB"),
+  null,
+  null
+)
+plan.events(query)
+```
+
+</TabItem>
+</Tabs>
+
+A functionally equivalent way to perform this task is to access the list of events (`plan.events()`) and then invoke one of
+`filterByDerivationGroup`, `filterBySource`, or `filterByType` on it:
+
+<Tabs groupId="lang">
+<TabItem value="kt" label="Kotlin">
+
+```kotlin
+plan.events()
+      .filterBySource(
+          ExternalSource("Test.json", "DerivationGroupA"),
+          ExternalSource("NewTest.json", "DerivationGroupB")
+      )
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java
+plan.events(query)
+      .filterBySource(
+          new ExternalSource("Test.json", "DerivationGroupA"),
+          new ExternalSource("NewTest.json", "DerivationGroupB")
+      )
+```
+
+</TabItem>
+</Tabs>
+
+All of these methods take `varargs`, which means the same functionality exposed by `EventQuery` is exposed here as well.
