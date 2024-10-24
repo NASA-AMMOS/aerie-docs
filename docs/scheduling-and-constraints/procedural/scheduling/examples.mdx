@@ -1,0 +1,272 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Examples
+
+This page details various examples of scheduling procedures to further illustrate how the aforementioned concepts (namely
+timelines) can be used. The following examples are inspired by the tests in AERIE's `e2e-tests` directory.
+
+## Scheduling On an Interval
+The declarative scheduling system provides 3 types of goals:
+- Recurrence Goals
+- Cardinality Goals
+- Coexistence Goals
+
+The last type of goal is explored in [Scheduling From Resources](#scheduling-from-resources) and [Scheduling Based off of External Events](#scheduling-based-off-of-external-events).
+In this section, we will explore how to implement recurrence goals and in the next we will explore cardinality goals.
+This section should illustrate how much more flexible the procedural system is over its declarative predecessor.
+
+A recurrence goal specifies that a certain activity should occur repeatedly throughout the plan at some given interval.
+An example of this can be seen in the description of [Activity Recurrence Goal](../../declarative/scheduling/goals/#activity-recurrence-goal).
+
+We will replicate the second, more intricate goal. This places an activity of type `GrowBanana` every two hours, unless in one of
+the intervals an activity is found of the same type and duration:
+
+<Tabs groupId="lang">
+<TabItem value="kt" label="Kotlin">
+
+```kt
+NOT WRITTEN YET
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java
+@SchedulingProcedure
+public record ActivityRecurrenceGoal() implements Goal {
+  @Override
+  public void run(@NotNull final EditablePlan plan) {
+    // grab the current set of activities, and filter by those of type GrowBanana and duration 1 hour
+    var existingActivities = plan.directives("GrowBanana")
+                                     .filter(false, a -> a.inner.arguments.get("growingDuration").asInt().get() == 1)
+                                     .active().cache();
+
+    var currentTime = Duration.hours(0);
+    int count = 1;
+    for (final var time: plan.totalBounds().step(Duration.of(2, Duration.HOUR))) {
+      if (!existingActivities.sample(time)) {
+        // there are several overloads to this method
+        plan.create(
+          new NewDirective(
+            // parameters
+            new AnyDirective(Map.of(
+                "growingDuration", BasicValueMappers.duration().serializeValue(Duration.of(1, Duration.HOUR))
+                "quantity", SerializedValue.of(1)
+              )
+            ),
+            // name
+            "GrowBanana" + count,
+            // type
+            "GrowBanana",
+            // start time
+            new DirectiveStart.Absolute(currentTime)
+          )
+        );
+      }
+    }
+  }
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Scheduling with Cardinality
+
+Cardinality goals are different - they specify that a certain activity should occur in the plan either a certain number
+of times, or for a certain total duration.
+An example of this can be seen in the description of [Cardinality Goal](../../declarative/scheduling/goals/#cardinality-goal).
+
+We will rewrite the fourth, and most intricate goal. This places an activity of type `GrowBanana` at least 10 times in
+the plan, and for a duration of 10 total seconds. It checks to make sure it doesn't place an activity at the same time as
+one with `quantity` set to 1, and includes those in its count.
+
+<Tabs groupId="lang">
+<TabItem value="kt" label="Kotlin">
+
+```kt
+NOT WRITTEN YET
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java
+@SchedulingProcedure
+public record CardinalityGoal(int minOccurrences) implements Goal {
+  @Override
+  public void run(@NotNull final EditablePlan plan) {
+    Duration totalTime = Duration.of(10, Duration.SECOND);
+
+    Duration currentTotal = Duration.of(0, Duration.HOUR);
+    int totalOccurrences = 0;
+
+    // grab the current set of activities, and filter by those of type GrowBanana and duration 1 hour
+    var existingActivities = plan.directives("GrowBanana")
+                                 .filter(false, a -> a.inner.arguments.get("growingDuration").asInt().get() == 1);
+
+    // count up what exists now and create a set of intervals that's missing an activity
+    Duration lastTimeEncountered = null;
+    // openIntervals should never be empty. however, our placement mechanism doesn't guarantee non-overlap of activities
+    //    should intervals get to be shorter than the duration of our placed activities.
+    List<Pair<Duration, Duration>> openIntervals = new ArrayList<>();
+    for (var activity : existingActivities) {
+      if (lastTimeEncountered == null) {
+        lastTimeEncountered = activity.getInterval().end;
+      }
+      else {
+        openIntervals.add(
+          Pair.of(
+            lastTimeEncountered,
+            activity.getInterval().start
+          )
+        );
+        lastTimeEncountered = activity.getInterval().end;
+      }
+      currentTotal = currentTotal.plus(activity.getInterval().duration());
+      totalOccurrences++;
+    }
+    // final interval, from lastTimeEncountered to end
+    if (lastTimeEncountered != null) {
+      openIntervals.add(
+        Pair.of(
+          lastTimeEncountered,
+          plan.totalBounds().end
+        )
+      );
+    }
+    else if (lastTimeEncountered == null && openIntervals.size() == 0) {
+      openIntervals.add(
+        Pair.of(plan.totalBounds().start, plan.totalBounds().end)
+      );
+    }
+
+    while (currentTotal.noLongerThan(totalTime) && totalOccurrences <= minOccurrences) {
+      // grab current interval, always the first one because we remove and then add to the list
+      var currentInterval = openIntervals.get(0);
+
+      // get center of interval
+      Duration intervalCenter = currentInterval.getLeft().plus(currentInterval.getRight()).dividedBy(2);
+
+      // place activity in center
+      var newActivity = new NewDirective(
+          new AnyDirective(
+              Map.of(
+                  "growingDuration", BasicValueMappers.duration().serializeValue(Duration.of(1, Duration.SECOND)),
+                  "quantity", SerializedValue.of(1)
+              )
+          ),
+          "GrowBanana" + totalOccurrences,
+          "GrowBanana",
+          new DirectiveStart.Absolute(intervalCenter)
+      );
+      plan.create(newActivity);
+      plan.commit();
+
+      // replace, increment index
+      var before = Pair.of(currentInterval.getLeft(), intervalCenter);
+      var after = Pair.of(intervalCenter.plus(Duration.of(1, Duration.SECOND)), currentInterval.getRight());
+
+      // since we are removing the current index and adding to the end, i should remain at 0
+      openIntervals.remove(currentInterval);
+      openIntervals.add(before);
+      openIntervals.add(after);
+
+      // update counters
+      currentTotal = currentTotal.plus(Duration.of(1, Duration.SECOND));
+      totalOccurrences++;
+    }
+  }
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Scheduling From Resources
+
+Finally, we can talk about coexistence goals. These involve scheduling activities based off of windows where conditions are satisfied,
+such as the presence of certain activities, the presence of certain resources, or external events. We discuss how to schedule off of resource
+condition satisfaction here, and discuss external events (which are functionally similar to activities) next.
+
+<!--TODO!!!-->
+
+## Scheduling Based off of External Events
+
+Consider this set of events:
+
+import exampleEvents from './assets/example-events.png';
+
+<figure>
+  <img alt="A drawing of a timeline depicting two sources in different derivation groups, each with 3 non-overlapping events inside of them." src={exampleEvents} />
+  <figcaption>Figure 1: The events that we will write a procedure to schedule off of.</figcaption>
+</figure>
+
+Consider scheduling the Banananation activity `BiteBanana` off of these events.
+This can mean a variety of different things, depending on the exact behavior we desire:
+- schedule the activity coincident with all events
+- schedule the activity coincident with events belonging to derivation group `"TestGroup"`
+- schedule the activity coincident with events belonging to the second source
+- schedule the activity based on events of type `"Test_Type"`
+- schedule the activity based on events with the substring `"01"` in their key.
+
+For the sake of brevity, we will explore just one case - events belonging to the second source with the substring `"01"` in their key. This case makes use of all of the types described above.
+
+<Tabs groupId="lang">
+<TabItem value="kt" label="Kotlin">
+
+```kt
+NOT WRITTEN YET
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java
+@SchedulingProcedure
+public record ExternalEventsSourceQueryGoal() implements Goal {
+  @Override
+  public void run(@NotNull final EditablePlan plan) {
+
+    // extract events belonging to the second source
+    EventQuery eventQuery = new EventQuery(
+        null,
+        null,
+        List.of(new ExternalSource("NewTest.json", "TestGroup_2"))
+    );
+
+    for (final var e: plan.events(eventQuery)) {
+      // filter events that we schedule off of by key
+      if (e.key.contains("01")) {
+        plan.create(
+            "BiteBanana",
+            // place the directive such that it is coincident with the event's start
+            new DirectiveStart.Absolute(e.getInterval().start),
+            Map.of("biteSize", SerializedValue.of(1)));
+      }
+    }
+    plan.commit();
+  }
+}
+```
+
+</TabItem>
+</Tabs>
+
+This goal does the following:
+1. create an `EventQuery` to select events belonging to the second source. To specify that selector, we create an `ExternalSource` object, whose properties are the two properties necessary to uniquely identify two `ExternalSource`s in AERIE: a `key` and a `derivation_group_name`.
+2. Call `plan.events(eventQuery)`. This returns all external events associated with a plan (based on the associated derivation groups), and filters them according to the passed-in query.
+3. Filter by key. We directly access the properties of each event (namely, `key`) now to further match our requirements.
+4. Create the activity, placing it coincident with the event's start, accessed via `getInterval().start`.
+
+After running it, we get the following result in AERIE:
+
+import results from './assets/results.png';
+
+<figure>
+  <img alt="The results of scheduling off of external events. One should be scheduled off of an event belonging to the second source, of event type `TestType`." src={results} />
+  <figcaption>Figure 2: The results of the described procedure.</figcaption>
+</figure>
+
+As expected, there is a single activity, scheduled off of an `Event_01` from the second source.

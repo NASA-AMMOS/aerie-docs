@@ -221,6 +221,7 @@ const sidebars = {
                     'scheduling-and-constraints/procedural/timelines/basics/profiles',
                     'scheduling-and-constraints/procedural/timelines/basics/sampling-and-caching',
                     'scheduling-and-constraints/procedural/timelines/basics/activities',
+                    'scheduling-and-constraints/procedural/timelines/basics/external-events',
                     'scheduling-and-constraints/procedural/timelines/basics/windows',
                     'scheduling-and-constraints/procedural/timelines/basics/common-operations'
                   ]
@@ -242,7 +243,17 @@ const sidebars = {
             },
             'scheduling-and-constraints/procedural/plan-and-sim-results',
             'scheduling-and-constraints/procedural/constraints',
-            'scheduling-and-constraints/procedural/scheduling',
+            {
+              type: 'category',
+              label: 'Scheduling',
+              link: {
+                id: 'scheduling-and-constraints/procedural/scheduling/introduction',
+                type: 'doc'
+              },
+              items: [
+                'scheduling-and-constraints/procedural/scheduling/examples'
+              ]
+            },
             'scheduling-and-constraints/procedural/parameters-and-invocations',
             // 'scheduling-and-constraints/procedural/running-externally'
           ]
