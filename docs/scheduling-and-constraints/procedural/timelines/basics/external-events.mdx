@@ -9,13 +9,15 @@ a plan (specifically, the events that are members of derivation groups that are 
 [Associating Derivation Groups](../../../../tutorials/external-events/associating-derivation-groups)).
 
 A timeline of External Events is represented by the `ExternalEvents` class, which contains objects of the `ExternalEvent`
-type. `ExternalEvent` objects have associated with them 3 attributes which can be accessed by a user:
+type. `ExternalEvent` objects have associated with them 4 attributes which can be accessed by a user:
  - the `key`,
- - the `type`, and
- - the `source`.
-These are the 3 attributes necessary to uniquely identify any external event uploaded to AERIE. Unlike `Instances`,
+ - the `type`,
+ - the `source`, and
+ - the `interval` it spans.
+
+These are the 4 attributes necessary to uniquely identify any external event uploaded to AERIE. Unlike `Instances`,
 External Events currently don't have arguments or properties, so filtration of an `ExternalEvents` object by any other
-attributes is not currently possible.
+attributes is not yet possible.
 
 A user can access the `ExternalEvents` timeline in the following way:
 
@@ -50,8 +52,11 @@ include those where the event type includes the string `"A"`.
 ## `ExternalSource`
 
 A brief method was made to the fact that `ExternalEvent` objects have an attribute called `source`. This property is of
-type `ExternalSource`, and contains the two attributes necessary to uniquely identify an external source: the `key` and
-the `derivationGroupName`. To filter based on these attributes of the source of an event, once could do the following:
+type `ExternalSource`, and contains the two attributes necessary to uniquely identify an external source:
+ - the `key` and
+ - the `derivationGroupName`.
+
+To filter based on these attributes of the source of an event, one can do the following:
 
 <Tabs groupId="lang">
 <TabItem value="kt" label="Kotlin">
@@ -82,7 +87,7 @@ where the set of events associated with a given plan are filtered down to those 
 ## `EventQuery`
 
 There exists an easier, more idiomatic way of filtering a set of external events. The `EventQuery` object allows users
-to specify a set of event types, sources, and/or derivation groups of interest. Passing this object as an argument to
+to specify sets of event types, sources, and/or derivation groups of interest. Passing this object as an argument to
 `plan.events()` filters the set of events based on these properties:
 
 <Tabs groupId="lang">
@@ -112,6 +117,9 @@ plan.events(query)
 </TabItem>
 </Tabs>
 
+Passing no list or set (`null`) means that all are accepted. In our example above, we allow any event type or source (the second
+and third parameters, respectively)
+
 A functionally equivalent way to perform this task is to access the list of events (`plan.events()`) and then invoke one of
 `filterByDerivationGroup`, `filterBySource`, or `filterByType` on it:
 
@@ -140,4 +148,4 @@ plan.events(query)
 </TabItem>
 </Tabs>
 
-All of these methods take `varargs`, which means the same functionality exposed by `EventQuery` is exposed here as well.
+All of these methods take `varargs`, which means the same functionality provided by `EventQuery` is exposed here as well.
