@@ -1,0 +1,186 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Examples
+
+This page details various examples of scheduling procedures to further illustrate how the aforementioned concepts
+can be used.
+
+## Scheduling a Recurring Activity
+
+A recurrence goal specifies that a certain activity should occur repeatedly throughout the plan at some given interval.
+An example of this can be seen in the description of [Activity Recurrence Goal](../../../declarative/scheduling/goals/#activity-recurrence-goal).
+
+We will replicate the second, more intricate goal. This places an activity of type `GrowBanana` every two hours,
+unless an equivalent activity is already happening at the same time.
+
+```java
+@SchedulingProcedure
+public record ActivityRecurrenceGoal() implements Goal {
+  @Override
+  public void run(@NotNull final EditablePlan plan) {
+    // grab the current set of activities, and filter by those of type GrowBanana and duration 1 hour
+    var existingActivities = plan.directives("GrowBanana")
+                                     .filter(false, a -> a.inner.arguments.get("growingDuration").asInt().get() == 1)
+                                     .active().cache();
+
+    int count = 1;
+    for (final var time: plan.totalBounds().step(Duration.hours(2))) {
+      if (!existingActivities.sample(time)) {
+        plan.create(
+          new NewDirective(
+            // parameters
+            new AnyDirective(Map.of(
+                "growingDuration", BasicValueMappers.duration().serializeValue(Duration.of(1, Duration.HOUR)),
+                "quantity", SerializedValue.of(1)
+              )
+            ),
+            // name
+            "GrowBanana" + count++,
+            // type
+            "GrowBanana",
+            // start time
+            new DirectiveStart.Absolute(time)
+          )
+        );
+      }
+    }
+
+    plan.commit();
+  }
+}
+```
+
+## Scheduling From Profiles
+
+Next we'll show how to schedule from resource profile conditions, much like a [Coexistence Goal](../../../declarative/scheduling/goals/#coexistence-goal)
+from the declarative scheduler. This goal places an activity 5 minutes after the end of each where `/fruit` is equal to `4.0`.
+
+```java
+@SchedulingProcedure
+public record ResourceCoexistenceGoal() implements Goal {
+  @Override
+  public void run(@NotNull final EditablePlan plan) {
+    // Get the latest results, or simulate if they don't exist.
+    var simResults = plan.latestResults();
+    if (simResults == null) simResults = plan.simulate();
+
+    // access the resource
+    final var fruitResource = simResults.resource("/fruit", Numbers.deserializer());
+    for (final var interval: fruitResource.equalTo(4.0).highlightTrue()) {
+      // place the activity off of the window that the resource access created
+      plan.create(
+          "PeelBanana",
+          new DirectiveStart.Absolute(interval.start.plus(Duration.minutes(5))),
+          Map.of("peelDirection", SerializedValue.of("fromStem"))
+      );
+    }
+    plan.commit();
+  }
+}
+```
+
+An implementation of a procedure that schedules based off of an external profile is almost exactly the same, except
+the resource is queried using `plan.resource("/my_resource")` instead of `simResults.resource("/my_resource")`.
+In those cases, if you don't use any simulated resources, there's no need to get a sim results object.
+
+## Scheduling From Activities
+
+We can also schedule relative to other activities, and place new activities that are anchored to them. This is a slightly
+more complex example to show how to create activities to fix a problematic resource condition caused by other activities.
+We look for `BiteBanana` activities, and check if those activities lower the `/fruit` resource below zero. If so,
+we create a `GrowBanana` activity that replenishes the resource back up to zero. Lastly, we mock the effect the new
+activity would have on the `/fruit` resource, rather than resimulating a potentially expensive mission model.
+
+```java
+@SchedulingProcedure
+public record ActivityCoexistenceGoal() implements Goal {
+  @Override
+  public void run(@NotNull final EditablePlan plan) {
+    // make sure we have up-to-date results to start with
+    final var simResults = plan.simulate();
+
+    var mockedFruit = simResults.resource("/fruit", Real.deserializer()).cache();
+
+    for (final var biteInstance: simResults.instances("BiteBanana")) {
+      final var biteInterval = biteInstance.getInterval();
+      final var fruitLevel = mockedFruit.sample(biteInterval.end);
+      if (fruitLevel < 0.0) {
+        final var growQuantity = Math.ceil(-fruitLevel);
+        plan.create(
+            "GrowBanana",
+            new DirectiveStart.Anchor(biteInstance.directiveId, Duration.HOUR.negate(), DirectiveStart.Anchor.AnchorPoint.Start),
+            Map.of(
+                "growingDuration", SerializedValue.of(Duration.HOUR.micros()),
+                "quantity", SerializedValue.of(growQuantity)
+            )
+        );
+        mockedFruit = mockedFruit.plus(Real.step(biteInterval.start, growQuantity));
+      }
+    }
+
+    plan.commit();
+  }
+}
+```
+
+## Scheduling Based off of External Events
+
+Consider this set of events:
+
+import exampleEvents from './assets/example-events.png';
+
+<figure>
+  <img alt="A drawing of a timeline depicting two sources in different derivation groups, each with 3 non-overlapping events inside of them." src={exampleEvents} />
+  <figcaption>Figure 1: The events that we will write a procedure to schedule off of.</figcaption>
+</figure>
+
+Consider scheduling the Banananation activity `BiteBanana` off of these events.
+This can mean a variety of different things, depending on the exact behavior we desire:
+- schedule the activity coincident with all events
+- schedule the activity coincident with events belonging to derivation group `"TestGroup"`
+- schedule the activity coincident with events belonging to the second source
+- schedule the activity based on events of type `"Test_Type"`
+- schedule the activity based on events with the substring `"01"` in their key.
+
+We will just show one case - events belonging to the second source with the substring `"01"` in their key.
+
+```java
+@SchedulingProcedure
+public record ExternalEventsSourceQueryGoal() implements Goal {
+  @Override
+  public void run(@NotNull final EditablePlan plan) {
+
+    // extract events belonging to the second source
+    EventQuery eventQuery = new EventQuery(
+        null,
+        null,
+        new ExternalSource("NewTest.json", "TestGroup_2")
+    );
+
+    final var events = plan.events(eventQuery).filter(false, $ -> $.key.contains("01"));
+
+    for (final var e: events) {
+        plan.create(
+            "BiteBanana",
+            // place the directive such that it is coincident with the event's start
+            new DirectiveStart.Absolute(e.getInterval().start),
+            Map.of("biteSize", SerializedValue.of(1))
+        );
+    }
+
+    plan.commit();
+  }
+}
+```
+
+After running it, we get the following result in AERIE:
+
+import results from './assets/results.png';
+
+<figure>
+  <img alt="The results of scheduling off of external events. One should be scheduled off of an event belonging to the second source, of event type `TestType`." src={results} />
+  <figcaption>Figure 2: The results of the described procedure.</figcaption>
+</figure>
+
+As expected, there is a single activity, scheduled off of an `Event_01` from the second source.

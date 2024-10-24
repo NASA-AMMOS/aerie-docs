@@ -1,0 +1,88 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# External Events
+
+External Events timelines are analogous to activity `Instances` timelines. They represent intervals with various properties that
+are allowed to overlap in time, even if of the same type. It is possible to access the events associated with
+a plan (specifically, the events that are members of derivation groups that are associated with a plan - see
+[Associating Derivation Groups](../../../../../tutorials/external-events/associating-derivation-groups)).
+
+A timeline of External Events is represented by the `ExternalEvents` class, which contains objects of the `ExternalEvent`
+type. `ExternalEvent` objects have a `type`, a `source`, and an event `key` (which is unique within the `type` and `source`).
+The `source` contains its own key and also refers to the derivation group that it is a part of.
+
+Unlike `Instances`, external events currently don't have arguments or properties, so filtering by any other
+attributes is not yet possible.
+
+You can access external events using `plan.events()`. This will return all events associated with the plan; you can filter
+the result afterward or you can provide a more specific query to the events function.
+
+## Filtering Events
+
+You can filter events either with the general-purpose `filter` method, or with the specific `filterBySource`, `filterByType`,
+and `filterByDerivationGroup` methods.
+
+<Tabs groupId="lang">
+<TabItem value="kt" label="Kotlin">
+
+```kotlin
+// These are equivalent
+plan.events().filter { it.type.equals("MyEventType") }
+plan.events().filterByType("MyEventType")
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java
+// These are equivalent
+plan.events().filter(false, $ -> $.type.equals("MyEventType"));
+plan.events().filterByType("MyEventType");
+```
+
+</TabItem>
+</Tabs>
+
+Similar operations exist for filtering by derivation group and source (which is a combination of source name and derivation group).
+All of them accept varargs arguments (i.e. `.filterByType("TypeA", "TypeB")`) so you can filter for the union of multiple
+types/sources/etc.
+
+Lastly, you can filter by derivation group using the shorthand `plan.events("my derivation group")`.
+
+## `EventQuery`
+
+The `EventQuery` type is a more flexible way to express multiple filters, and the union of filters, at the same time.
+For example if you wanted the events of a specific type, but from multiple derivation groups, you could express it like
+this:
+
+<Tabs groupId="lang">
+<TabItem value="kt" label="Kotlin">
+
+```kotlin
+val query = EventQuery(
+  listOf("DerivationGroupA", "DerivationGroupB"), // both derivation groups are accepted
+  listOf("MyType"), // just one type is accepted
+  null // null indicates all sources are accepted
+)
+plan.events(query)
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java
+final var query = new EventQuery(
+  List.of("DerivationGroupA", "DerivationGroupB"), // both derivation groups are accepted
+  List.of("MyType"), // just one type is accepted
+  null // null indicates all sources are accepted
+);
+plan.events(query);
+```
+
+</TabItem>
+</Tabs>
+
+Passing `null` means that all are accepted. Some, but not all, implementations of the `Plan` interface may use the query
+object to selectively load only the events you want, improving performance. You could achieve with `plan.events().filterBy...`,
+but since the chain started with an unfiltered query, all events will be loaded and then filtered out.
