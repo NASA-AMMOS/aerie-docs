@@ -1,0 +1,86 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Examples
+
+This page details various examples of scheduling procedures to better illustrate how the aforementioned concepts (namely
+timelines) can be used. The following examples are inspired by the tests in AERIE's `e2e-tests` directory.
+
+## Scheduling Based off of External Events
+
+Consider this set of events:
+
+import exampleEvents from './assets/example-events.png';
+
+<figure>
+  <img alt="A drawing of a timeline depicting two sources in different derivation groups, each with 3 non-overlapping events inside of them." src={exampleEvents} />
+  <figcaption>Figure 1: The events that we will write a procedure to schedule off of.</figcaption>
+</figure>
+
+Consider scheduling the Banananation activity `BiteBanana` off of these events.
+This can mean a variety of different things, depending on the exact behavior we desire:
+- schedule the activity coincident with all events
+- schedule the activity coincident with events belonging to derivation group `"TestGroup"`
+- schedule the activity coincident with events belonging to the second source
+- schedule the activity based on events of type `"Test_Type"`
+- schedule the activity based on events with the substring `"01"` in their key.
+
+For the sake of brevity, we will explore just one case - events belonging to the second source with the substring `"01"` in their key. This case makes use of all of the types described above.
+
+<Tabs groupId="lang">
+<TabItem value="kt" label="Kotlin">
+
+```kt
+NOT WRITTEN YET
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java
+@SchedulingProcedure
+public record ExternalEventsSourceQueryGoal() implements Goal {
+  @Override
+  public void run(@NotNull final EditablePlan plan) {
+
+    // extract events belonging to the second source
+    EventQuery eventQuery = new EventQuery(
+        null,
+        null,
+        List.of(new ExternalSource("NewTest.json", "TestGroup_2"))
+    );
+
+    for (final var e: plan.events(eventQuery)) {
+      // filter events that we schedule off of by key
+      if (e.key.contains("01")) {
+        plan.create(
+            "BiteBanana",
+            // place the directive such that it is coincident with the event's start
+            new DirectiveStart.Absolute(e.getInterval().start),
+            Map.of("biteSize", SerializedValue.of(1)));
+      }
+    }
+    plan.commit();
+  }
+}
+```
+
+</TabItem>
+</Tabs>
+
+This goal does the following:
+1. create an `EventQuery` to select events belonging to the second source. To specify that selector, we create an `ExternalSource` object, whose properties are the two properties necessary to uniquely identify two `ExternalSource`s in AERIE: a `key` and a `derivation_group_name`.
+2. Call `plan.events(eventQuery)`. This returns all external events associated with a plan (based on the associated derivation groups), and filters them according to the passed-in query.
+3. Filter by key. We directly access the properties of each event (namely, `key`) now to further match our requirements.
+4. Create the activity, placing it coincident with the event's start, accessed via `getInterval().start`.
+
+After running it, we get the following result in AERIE:
+
+import results from './assets/results.png';
+
+<figure>
+  <img alt="The results of scheduling off of external events. One should be scheduled off of an event belonging to the second source, of event type `TestType`." src={results} />
+  <figcaption>Figure 2: The results of the described procedure.</figcaption>
+</figure>
+
+As expected, there is a single activity, scheduled off of an `Event_01` from the second source.

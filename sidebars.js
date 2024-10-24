@@ -243,7 +243,17 @@ const sidebars = {
             },
             'scheduling-and-constraints/procedural/plan-and-sim-results',
             'scheduling-and-constraints/procedural/constraints',
-            'scheduling-and-constraints/procedural/scheduling',
+            {
+              type: 'category',
+              label: 'Scheduling',
+              link: {
+                id: 'scheduling-and-constraints/procedural/scheduling/introduction',
+                type: 'doc'
+              },
+              items: [
+                'scheduling-and-constraints/procedural/scheduling/examples'
+              ]
+            },
             'scheduling-and-constraints/procedural/parameters-and-invocations',
             // 'scheduling-and-constraints/procedural/running-externally'
           ]
