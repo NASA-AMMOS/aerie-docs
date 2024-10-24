@@ -1,0 +1,90 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# External Events
+
+External Events timelines are analogous to activity `Instances` timelines. They represent intervals with various properties that
+are allowed to overlap in time and often do, even if of the same type. It is possible to access the events associated with
+a plan (specifically, the events that are members of derivation groups that are associated with a plan - see
+[Associating Derivation Groups](../../../../tutorials/external-events/associating-derivation-groups)).
+
+A timeline of External Events is represented by the `ExternalEvents` class, which contains objects of the `ExternalEvent`
+type. `ExternalEvent` objects have associated with them 3 attributes which can be accessed by a user:
+ - the `key`,
+ - the `type`, and
+ - the `source`.
+These are the 3 attributes necessary to uniquely identify any external event uploaded to AERIE. Unlike `Instances`,
+External Events currently don't have arguments or properties, so filtration of an `ExternalEvents` object by any other
+attributes is not currently possible.
+
+A user can access the `ExternalEvents` timeline in the following way:
+
+<Tabs groupId="lang">
+<TabItem value="kt" label="Kotlin">
+
+```kotlin
+plan.events()
+  .filter {
+    it.type.contains("A")
+  }
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java
+plan.events()
+  .filter(
+    false,
+    $ -> $.type.contains("A")
+  )
+```
+
+</TabItem>
+</Tabs>
+
+The above example also illustrates that one can filter an `ExternalEvents` object with high granularity by directly
+accessing attributes of the contained `ExternalEvent` instances. This example filters the returned set of events to only
+include those where the event type includes the string `"A"`.
+
+## `ExternalSource`
+
+A brief method was made to the fact that `ExternalEvent` objects have an attribute called `source`. This property is of
+type `ExternalSource`, and contains the two attributes necessary to uniquely identify an external source: the `key` and
+the `derivationGroupName`. To filter based on these attributes of the source of an event, once could do the following:
+
+<Tabs groupId="lang">
+<TabItem value="kt" label="Kotlin">
+
+```kotlin
+plan.events()
+  .filter {
+    it.source.key.equals("Test.json")
+  }
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java
+plan.events()
+  .filter(
+    false,
+    $ -> $.type.source.key.equals("Test.json")
+  )
+```
+
+</TabItem>
+</Tabs>
+
+where the set of events associated with a given plan are filtered down to those from `"Test.json"`.
+
+## `EventQuery`
+
+explain eventquery - more easy, idiomatic way of doing what's described above without an explicit filter for common functionality of filtering by dg/type/source
+
+example
+
+a functionally equivalent way to do this is to get events and then call filterByX on it.
+
+example

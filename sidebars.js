@@ -221,6 +221,7 @@ const sidebars = {
                     'scheduling-and-constraints/procedural/timelines/basics/profiles',
                     'scheduling-and-constraints/procedural/timelines/basics/sampling-and-caching',
                     'scheduling-and-constraints/procedural/timelines/basics/activities',
+                    'scheduling-and-constraints/procedural/timelines/basics/external-events',
                     'scheduling-and-constraints/procedural/timelines/basics/windows',
                     'scheduling-and-constraints/procedural/timelines/basics/common-operations'
                   ]
