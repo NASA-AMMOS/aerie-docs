@@ -21,15 +21,16 @@ Understand Aerie in **5 minutes** by trying it out!
 
 1. Before starting you first need to install [Docker](https://www.docker.com/get-started/) on your local machine. The Aerie system is essentially a collection of [OCI](https://opencontainers.org/) [images](https://github.com/orgs/NASA-AMMOS/packages?ecosystem=container&q=aerie).
 
-1. If you’re running macOS, Linux, or another Unix-like OS you can use following command in your terminal to download the [Docker Compose](https://docs.docker.com/compose/) file:
+1. If you’re running macOS, Linux, or another Unix-like OS you can use following two commands in your terminal to download the [Docker Compose](https://docs.docker.com/compose/) file and `.env` file:
 
    ```sh
    curl https://raw.githubusercontent.com/NASA-AMMOS/aerie-mission-model-template/main/docker-compose.yml --output docker-compose.yml
+   curl https://raw.githubusercontent.com/NASA-AMMOS/aerie-mission-model-template/refs/heads/main/.env.template --output .env
    ```
 
-   If you're running a different OS and do not have [curl](https://curl.se/) available you can [download the docker-compose.yml here](https://raw.githubusercontent.com/NASA-AMMOS/aerie-mission-model-template/main/docker-compose.yml).
+   If you're running a different OS and do not have [curl](https://curl.se/) available you can [download the docker-compose.yml here](https://raw.githubusercontent.com/NASA-AMMOS/aerie-mission-model-template/main/docker-compose.yml) and [the .env file here](https://raw.githubusercontent.com/NASA-AMMOS/aerie-mission-model-template/refs/heads/main/.env.template) (rename to `.env`).
 
-   Note that this compose file starts the [latest](https://github.com/NASA-AMMOS/aerie/releases/latest) version of Aerie.
+   Note that this compose file starts the [latest](https://github.com/NASA-AMMOS/aerie/releases/latest) version of Aerie. The Aerie version can be specified by changing the `DOCKER_TAG` variable in the `.env` file to any valid Aerie release.
 
 1. To start the Aerie services you can use the following command in the same directory as the `docker-compose.yml` file from the previous step:
 
