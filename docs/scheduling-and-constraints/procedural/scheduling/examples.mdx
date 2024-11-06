@@ -28,6 +28,7 @@ public record ActivityRecurrenceGoal() implements Goal {
     for (final var time: plan.totalBounds().step(Duration.hours(2))) {
       if (!existingActivities.sample(time)) {
         plan.create(
+          // use NewDirective() to specify names/arguments for activities
           new NewDirective(
             // parameters
             new AnyDirective(Map.of(
@@ -115,6 +116,7 @@ public record ActivityCoexistenceGoal() implements Goal {
                 "quantity", SerializedValue.of(growQuantity)
             )
         );
+        // mock the effect of new activity on fruit resource, so we don't need to resimulate
         mockedFruit = mockedFruit.plus(Real.step(biteInterval.start, growQuantity));
       }
     }
@@ -124,7 +126,7 @@ public record ActivityCoexistenceGoal() implements Goal {
 }
 ```
 
-## Scheduling Based off of External Events
+## Scheduling From External Events
 
 Consider this set of events:
 
@@ -157,7 +159,7 @@ public record ExternalEventsSourceQueryGoal() implements Goal {
         null,
         new ExternalSource("NewTest.json", "TestGroup_2")
     );
-
+    // look for events where key contains "01"
     final var events = plan.events(eventQuery).filter(false, $ -> $.key.contains("01"));
 
     for (final var e: events) {

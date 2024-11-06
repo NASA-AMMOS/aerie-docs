@@ -531,6 +531,13 @@ As a final note on the frontend, it is worth briefly detailing what parts of the
 - _External Event Type filters_ - the External Event Type filters selected in the timeline editor,
 - _External Event options_ - the options in the timeline editor filter.
 
+## Scheduling Activities from Events
+External events associated with a plan are accessible from the [Procedural Scheduling](../../scheduling-and-constraints/procedural/introduction/) API, just like resources and activities. This allows users to write scheduling goals which create activities based on the presence (or absence) of external events - for example, "create a downlink activity 5 minutes after the start of every 'DSN Contact' type event".
+
+To access events in a procedural goal, you must create an External Events timeline object - see [Timelines: External Events](../../scheduling-and-constraints/procedural/timelines/basics/external-events/). A full example of a scheduling goal using events can be found on the [Procedural Scheduling Examples](../../scheduling-and-constraints/procedural/scheduling/examples/#scheduling-based-off-of-external-events) page.
+
+Currently, external events are **not accessible from the [Declarative Scheduling EDSL](http://localhost:3000/aerie-docs/scheduling-and-constraints/declarative/scheduling/introduction/)** - but we may implement support for this in the future.
+
 ## What Remains
 Here, we discuss briefly everything that is not currently implemented but that we do plan to in the future.
 
@@ -554,17 +561,3 @@ It might make sense to add ownership, i.e. a given user owns an External Source 
 
 That being said, as we move forward with more features relating to External Events, more nuance may come to the problem of ownership and roles. Once plans start actually depending on these plans, the rules surrounding ownership and permissions may need to change or be entirely rethought. Ultimately, we need something that justifies the implementation of such a scheme in that it provides more than the status quo.
 
-### Scheduling/Constraints
-
-This is the biggest "coming-next" feature, but also the least explored. It is planned to be part of the next batch of work relating to External Events. We would like External Events to get the same visibility that activities and resources get in the scheduling and constraints EDSLs and engines. Ideally, we could define a scheduling goal (or constraint), like the following:
-
-```
-export default () =>
-  Goal.CoexistenceGoal({
-    forEach: ExternalEventExpression.ofType(ExternalEventTypes.Eclipse),
-    activityTemplate: ActivityTemplates.SolarDisable({ rate: 0.5 }),
-    startsAt: TimingConstraint.singleton(WindowProperty.START)
-  });
-```
-
-which might be how one could write a scheduling goal to place an activity disabling a solar panel whenever an eclipse occurred.
