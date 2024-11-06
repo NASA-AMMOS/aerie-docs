@@ -145,7 +145,7 @@ This can mean a variety of different things, depending on the exact behavior we 
 - schedule the activity based on events of type `"Test_Type"`
 - schedule the activity based on events with the substring `"01"` in their key.
 
-We will just show one case - events belonging to the second source with the substring `"01"` in their key.
+We will just show one case - events belonging to the second source with the substring `"01"` in their key. The event query and subsequent call to `plan.events()` in this example creates an `ExternalEvents` timeline object - see [Timelines: External Events](../../scheduling-and-constraints/procedural/timelines/basics/external-events/) for more information.
 
 ```java
 @SchedulingProcedure
