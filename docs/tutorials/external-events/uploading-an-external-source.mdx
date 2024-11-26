@@ -4,12 +4,41 @@ import externalEventsTutorialUploadStep3 from './assets/external_events_tutorial
 import externalEventsTutorialUploadStep4 from './assets/external_events_tutorial_upload_step4.png';
 import externalEventsTutorialUploadStep5Timeline from './assets/external_events_tutorial_upload_step5_timeline.png';
 import externalEventsTutorialUploadStep5Table from './assets/external_events_tutorial_upload_step5_table.png';
+import externalTypeManager from './assets/external_type_manager.png';
+import externalTypeManagerFileParsed from './assets/external_type_manager_file_parsed.png';
+import externalTypeManagerSuccessfulUpload from './assets/external_type_manager_successful_upload.png';
+import externalSourceManager from './assets/external_source_manager.png';
 
-# Uploading the External Source
-Having created our sources, we are now able to upload them. Assuming you have deployed an instance of Aerie, navigate to the External Sources page:
+# Upload the External Source & Event Type Schema
+First, we must upload the schema we created for the External Source Type & the two External Event Types. Assuming you have deployed an instance of Aerie, navigate to the External Sources page:
 
 <figure>
   <img alt="Click 'External Sources' button" src={externalEventsTutorialUploadStep1} />
+</figure>
+
+Next, click the 'Types' button in the top-right to switch to the sub-page used for creating & managing External Source & Event Types.
+
+<figure>
+  <img alt="External Type Manager" src={externalTypeManager} />
+</figure>
+
+Click 'Choose File' and select the `External_Types_Schema.json` file we previously created. The new Source Type & the two Event Types should have their names shown on the left-panel.
+
+<figure>
+  <img alt="Results from successfully parsing the file" src={externalTypeManagerFileParsed} />
+</figure>
+
+Clicking 'Upload' will create the listed types!
+
+<figure>
+  <img alt="External Source type created" src={externalTypeManagerSuccessfulUpload} />
+</figure>
+
+# Uploading the External Source
+Having created our types, we are now able to upload the External Source. Navigate to the External Sources page:
+
+<figure>
+  <img alt="External Source Manager" src={externalSourceManager} />
 </figure>
 
 Once here, we can now upload our new External Sources. Click the **'Browse...'** button, and select the first file, `External_Events_Demo_00.json`. The upload section should autofill as follows:
