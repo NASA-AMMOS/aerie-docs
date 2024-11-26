@@ -193,7 +193,15 @@ const sidebars = {
         'planning/create-plan-and-simulate',
         'planning/external-datasets',
         'planning/activity-directive-metadata',
-        'planning/external-events',
+        {
+          type: 'category',
+          label: 'External Events',
+          link: {
+            id: 'planning/external-events/introduction',
+            type: 'doc'
+          },
+          items: ['planning/external-events/external-events-attributes']
+        },
         {
           type: 'category',
           label: 'Collaboration',

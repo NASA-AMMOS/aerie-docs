@@ -8,10 +8,8 @@ import externalEventsWithResourcesAndActivities from './assets/external_events_b
 import externalEventLayerOptions from './assets/external_event_options.png';
 import externalSourceOrdering from './assets/ordering_external_sources.png';
 import externalSourceManager from './assets/external_source_manager_intro.png';
-import externalSourceManagerCreateDerivationGroup from './assets/create_derivation_group.png';
-import externalSourceManagerCreateExternalEventType from './assets/create_external_event_type.png';
-import externalSourceManagerCreateExternalSourceType from './assets/create_external_source_type.png';
-import externalSourceManagerCreateGroupsAndTypesButton from './assets/create_groups_and_types_button.png';
+import externalSourceManagerTypesPage from './assets/external_source_manager_types_page.png';
+import externalSourceManagerTypesExpanded from './assets/external_source_manager_types_expanded.png';
 import externalSourceManagerUpload from './assets/external_source_manager_upload.png';
 import externalSourceTable from './assets/external_sources_table.png';
 import externalSourceInspected from './assets/inspected_source.png';
@@ -45,10 +43,10 @@ External Events represent temporal occurrences outside of the locus of control o
 External Sources are containers for External Events and the primary way that users interact with External Events. To get External Events into Aerie, an External Source must be uploaded that contains the event definitions inside. See [External Sources](#external-sources-1) below for more information.
 
 #### External Event Types
-External Event Types define the *typing* of each External Event. This typing groups External Events on the basis of the data they represent. For example, an External Event may be of the type `Ground Station Contact`, `Solar Flare`, or `Weather Forecast`.
+External Event Types define the *typing* of each External Event. This typing groups External Events on the basis of the data they represent, and details the allowed attributes that a given External Event is allowed to have. For example, an External Event may be of the type `Ground Station Contact`, `Solar Flare`, or `Weather Forecast`. Each of these types may entail a set of allowed/defined attributes, like `station`, `flux level`, or `precipitation`.
 
 #### External Source Types
-External Source Types define the *typing* of each External Source. This typing groups External Sources on the basis of the data they contain. For example, you may have an External Source Type of `Weather Report` to represent all your weather reports, and inside each of the `Weather Report`-typed sources you can expect to find External Events that share a common External Event Type that appears in all `Weather Report`-typed sources (ex: Temperature).
+External Source Types define the *typing* of each External Source. This typing groups External Sources on the basis of the data they contain, and details the allowed attributes that a given External Source can have to describe the data contained within it. For example, you may have an External Source Type of `Weather Report` to represent all your weather reports, and inside each of the `Weather Report`-typed sources you can expect to find External Events that share a common External Event Type that appears in all `Weather Report`-typed sources (ex: Temperature). The attributes related to such a source may include details about the people and data involved in creating the forecast.
 
 #### Derivation Groups
 Derivation Groups are collections of External Sources that can be associated with plans. Within a Derivation Group, the collective External Events from its member External Sources are used to create a *derived* set of events for the Derivation Group. See [Derivation](#derivation) below for more information.
@@ -135,6 +133,20 @@ The `source` field includes the following fields:
       ...
     ```
 
+* `attributes`
+  * An object that includes additional data relevant to the External Source in question.
+  * For a Weather Forecast file, this may include details about the location, which version this file is, and notes about what changed between this version and the last.
+  * ***Example***
+    ```json
+    ...,
+    "attributes": {
+      "location": "Greenbelt, MD",
+      "version": 2,
+      "changelog": "Updated precipitation likelihood for 2024-007T00:00:00 from 20% to 35%."
+    },
+    ...
+    ```
+
 ##### Events
 
 Events are represented as a set of objects contained in a list, and each event has the following fields:
@@ -142,7 +154,7 @@ Events are represented as a set of objects contained in a list, and each event h
 * `key`
   * Unique identifier for the External Event
     * Uniqueness is required within the External Source, but **not** across different External Sources. For more information, see [derivation](#derivation)
-  * Currently has no restrictions or requirements, though those can be optionally imposed by users - see [Formal JSON Schema](#formal-json-schema) for more information
+  * Currently has no restrictions or requirements
   * **Example**: `ExampleEvent:1/sc/sc1:1:X/1`
 
 * `event_type`
@@ -158,6 +170,19 @@ Events are represented as a set of objects contained in a list, and each event h
   * This value may be 0 to represent an instantaneous event (ex: time of sunrise/sunset)
   * **Example**: `00:30:00`
 
+* `attributes`
+  * Similar to attributes for External Sources, this property lists various characteristics of a given event not directly implied by the above fields' values.
+  * For a Weather Forecast file, a given event may require properties detailing the likelihood of precipitation, or the wind speed.
+  * **Example:**
+    ```json
+    ...,
+    "attributes": {
+      "precipitation_lik": 0.35,
+      "wind_speed (mph)": 3
+    },
+    ...
+    ```
+
 ##### Full External Source Example
 
 The following is a full example of a valid, `JSON` representation of an External Source that can be ingested by Aerie.
@@ -167,63 +192,157 @@ The example represents a week-long weather forecast where each event is the repo
 ```json
 {
     "source": {
-        "key": "WeatherForecast2024001_2024008.json",
-        "source_type": "WeatherForecast",
-        "valid_at": "2024-01-00T00:00:00Z",
+        "key": "WEATHER_2024001_2024008_IDEAL.V00.json",
+        "source_type": "Weather",
+        "valid_at": "2024-001T00:00:00Z",
         "period": {
             "start_time": "2024-001T00:00:00Z",
             "end_time": "2024-008T00:00:00Z"
+        },
+        "attributes": {
+            "location": "Greenbelt, MD",
+            "version": 2,
+            "changelog": "Updated precipitation_lik for 2024-007T00:00:00 from 20% to 35%."
         }
     },
     "events": [
         {
-            "key": "Weather/Day/001",
+            "key": "W/Day/001",
             "event_type": "WeatherReport",
             "start_time": "2024-001T00:00:00Z",
-            "duration": "24:00:00"
+            "duration": "24:00:00",
+            "attributes": {
+                "daily_high": {
+                    "value": 43.2,
+                    "units": "F"
+                },
+                "daily_low": {
+                    "value": 32.9,
+                    "units": "F"
+                },
+                "precipitation_lik": 0.7
+            }
         },
+
+
         {
-            "key": "Weather/Day/002",
+            "key": "W/Day/002",
             "event_type": "WeatherReport",
             "start_time": "2024-002T00:00:00Z",
-            "duration": "24:00:00"
+            "duration": "24:00:00",
+            "attributes": {
+                "daily_high": {
+                    "value": 40.5,
+                    "units": "F"
+                },
+                "daily_low": {
+                    "value": 29.2,
+                    "units": "F"
+                },
+                "precipitation_lik": 0.6
+            }
         },
+
+
         {
-            "key": "Weather/Day/003",
+            "key": "W/Day/003",
             "event_type": "WeatherReport",
             "start_time": "2024-003T00:00:00Z",
-            "duration": "24:00:00"
+            "duration": "24:00:00",
+            "attributes": {
+                "daily_high": {
+                    "value": 42.1,
+                    "units": "F"
+                },
+                "daily_low": {
+                    "value": 28.4,
+                    "units": "F"
+                },
+                "precipitation_lik": 0.5
+            }
         },
+
+
         {
-            "key": "Weather/Day/004",
+            "key": "W/Day/004",
             "event_type": "WeatherReport",
             "start_time": "2024-004T00:00:00Z",
-            "duration": "24:00:00"
+            "duration": "24:00:00",
+            "attributes": {
+                "daily_high": {
+                    "value": 50.0,
+                    "units": "F"
+                },
+                "daily_low": {
+                    "value": 32.1,
+                    "units": "F"
+                },
+                "precipitation_lik": 0.4
+            }
         },
+
+
         {
-            "key": "Weather/Day/005",
+            "key": "W/Day/005",
             "event_type": "WeatherReport",
             "start_time": "2024-005T00:00:00Z",
-            "duration": "24:00:00"
+            "duration": "24:00:00",
+            "attributes": {
+                "daily_high": {
+                    "value": 46.3,
+                    "units": "F"
+                },
+                "daily_low": {
+                    "value": 21.0,
+                    "units": "F"
+                },
+                "precipitation_lik": 0.3
+            }
         },
+
+
         {
-            "key": "Weather/Day/006",
+            "key": "W/Day/006",
             "event_type": "WeatherReport",
             "start_time": "2024-006T00:00:00Z",
-            "duration": "24:00:00"
+            "duration": "24:00:00",
+            "attributes": {
+                "daily_high": {
+                    "value": 34.3,
+                    "units": "F"
+                },
+                "daily_low": {
+                    "value": 22.5,
+                    "units": "F"
+                },
+                "precipitation_lik": 0.2
+            }
         },
+
+
         {
-            "key": "Weather/Day/007",
+            "key": "W/Day/007",
             "event_type": "WeatherReport",
             "start_time": "2024-007T00:00:00Z",
-            "duration": "24:00:00"
-        },
+            "duration": "24:00:00",
+            "attributes": {
+                "daily_high": {
+                    "value": 39.0,
+                    "units": "F"
+                },
+                "daily_low": {
+                    "value": 35.3,
+                    "units": "F"
+                },
+                "precipitation_lik": 0.35
+            }
+        }
     ]
 }
 ```
 :::info Note
 
-Currently, External Sources only accept a `start_time` and an `end_time`, whereas External Events accept only a `start_time` and a `duration`. This may change in the future (i.e. External Events may accept a start time and an end time as well, for example). This is largely due to simplicity in implementation.
+Currently, External Sources only accept a `start_time` and an `end_time`, whereas External Events accept only a `start_time` and a `duration`. This is largely due to simplicity in implementation.
 
 :::
 
@@ -398,56 +517,39 @@ The External Source Manager page handles the uploading & inspection of External 
   <figcaption><i>Figure 8: External Source Manager</i></figcaption>
 </figure>
 
-#### Creating External Source Types, External Event Types, and Derivation Groups
-Within the External Source Manager, the user is able to create new External Source Types, External Event Types, and Derivation Groups. While this is currently **not required** (and these structures will be automatically created if they don't exist on source upload), it is planned to be the main way of creating these types in the future as each will require a strict schema to generate.
+#### Creating External Source Types and External Event Types
+While derivation groups are automatically created when a user uploads a source file (detailed below), External Source and Event Types require special handling, as they specify allowable attributes as well. 
 
-To create one of these types, click the `Create New Groups or Types` button in the top-right:
-
-<figure>
-  <img alt="Figure 8: Create Groups and Types button" src={externalSourceManagerCreateGroupsAndTypesButton} />
-  <figcaption><i>Figure 8: Create Groups and Types button</i></figcaption>
-</figure>
-
-Once the modal has been opened there is a set of tabs - select the tab for the data type you'd like to create:
-
-##### Creating a Derivation Group
-Creating a Derivation Group requires both a name for the group, and a source type to link it with.
+To create these types, navigate to the `Types` tab in the External Source Manager.
 
 <figure>
-  <img alt="Figure 8: Create a Derivation Group" src={externalSourceManagerCreateDerivationGroup} />
-  <figcaption><i>Figure 8: Create a Derivation Group</i></figcaption>
+  <img alt="Figure 9: External Source and Event Types Page" src={externalSourceManagerTypesPage} />
+  <figcaption><i>Figure 9: External Source and Event Types Page</i></figcaption>
 </figure>
 
-##### Creating an External Source Type
-Creating an External Source Type just requires a name for the type.
+Here, the existing types can be inspected for their contents. Most interestingly, we can discern what attributes are available for a given type. Here, we see the `Weather` source type has 3 attributes: `version` (a number), `location` (a string), and `changelog` (a string).
 
 <figure>
-  <img alt="Figure 8: Create an External Source Type" src={externalSourceManagerCreateExternalSourceType} />
-  <figcaption><i>Figure 8: Create an External Source Type</i></figcaption>
+  <img alt="Figure 10: Detail on a given External Source Type" src={externalSourceManagerTypesExpanded} />
+  <figcaption><i>Figure 10: Detail on a given External Source Type</i></figcaption>
 </figure>
 
-##### Creating an External Event Type
-Creating an External Event Type just requires a name for the type.
-
-<figure>
-  <img alt="Figure 8: Create an External Event Type" src={externalSourceManagerCreateExternalEventType} />
-  <figcaption><i>Figure 8: Create an External Event Type</i></figcaption>
-</figure>
+To create any of these sources, a user must upload a [JSON Schema](https://json-schema.org/learn/getting-started-step-by-step) to AERIE. We go in depth on how to write these schemas [here](../external-events-attributes).
 
 #### Uploading an External Source
 The main view allows users to upload External Sources. Most of these fields autofill and are immutable once parsed - except the Derivation Group which will be autofilled in the style of `external_source_type Default`, but can be edited by the user before upload.
 
 <figure>
-  <img alt="Figure 9: Uploading an External Source" src={externalSourceManagerUpload} />
-  <figcaption><i>Figure 9: Uploading an External Source</i></figcaption>
+  <img alt="Figure 11: Uploading an External Source" src={externalSourceManagerUpload} />
+  <figcaption><i>Figure 11: Uploading an External Source</i></figcaption>
 </figure>
 
 #### Inspecting an External Source
 After uploading an External Source, it will show up in the table on the upper-right pane. This table can be filtered by External Source Type as well as sorted by each of the columns - note the default multi-sorting on the columns `Source Type`, `Derivation Group`, and `Valid At`, which is meant to present the sources in the easiest-to-read manner (grouping by their common types & Derivation Groups, then ordering by their `Valid At` times).
 
 <figure>
-  <img alt="Figure 10: External Source Table" src={externalSourceTable} />
-  <figcaption><i>Figure 10: External Source Table</i></figcaption>
+  <img alt="Figure 12: External Source Table" src={externalSourceTable} />
+  <figcaption><i>Figure 12: External Source Table</i></figcaption>
 </figure>
 
 Selecting a source allows for the inspection of the source, which is essentially an in-Aerie rendering of what's included under `source` in the uploaded `JSON` (as discussed earlier). It is here, as well as in the table, that deletion can be performed. Note that for deletion to work, an External Source must not be associated with any existing plan (that is the Derivation Group it is a part of must be dissociated from all plans before deletions become legal). Aside from that, there is currently no system of ownership, meaning admins and users alike, as long as External Sources satisfy the aforementioned condition, can delete at will. Viewers, however, cannot.
@@ -455,23 +557,23 @@ Selecting a source allows for the inspection of the source, which is essentially
 It should also be noted that all this inspection takes place outside the context of a plan, so that External Sources & their events can be viewed without having to open and associate the External Source(s) to a plan.
 
 <figure>
-  <img alt="Figure 11: Inspected External Source" src={externalSourceInspected} />
-  <figcaption><i>Figure 11: Inspected External Source</i></figcaption>
+  <img alt="Figure 13: Inspected External Source" src={externalSourceInspected} />
+  <figcaption><i>Figure 13: Inspected External Source</i></figcaption>
 </figure>
 
 Finally, it is also possible to inspect each source's contained events as a table. This is useful, as Derivation Groups on plan timelines only show what has been derived, meaning anything that has been selected against won't appear. This page is therefore the absolute truth to see everything that is included, derived-out or not, with a given External Source.
 
 <figure>
-  <img alt="Figure 12: External Events Table" src={externalEventsTable} />
-  <figcaption><i>Figure 12: External Events Table</i></figcaption>
+  <img alt="Figure 14: External Events Table" src={externalEventsTable} />
+  <figcaption><i>Figure 14: External Events Table</i></figcaption>
 </figure>
 
 ### Plan
 Once an External Source has been uploaded, it can be viewed and interacted with in the context of a plan.
 
 <figure>
-  <img alt="Figure 13: Overview of the plan view containing External Event information" src={planExternalSourceView} />
-  <figcaption><i>Figure 13: Overview of the plan view containing External Event information</i></figcaption>
+  <img alt="Figure 15: Overview of the plan view containing External Event information" src={planExternalSourceView} />
+  <figcaption><i>Figure 15: Overview of the plan view containing External Event information</i></figcaption>
 </figure>
 
 To begin working with external sources in the plan, the left side panel should be set to the "External Sources" option. This panel is where users (administrators or plan collaborators) can associate different Derivation Groups with the plan.
@@ -481,8 +583,8 @@ To begin working with external sources in the plan, the left side panel should b
 There are currently two levels to linking a Derivation Group to a plan: **association** and **enabling**. Association is handled here, via the _Manage Derivation Groups_ button. This presents a modal where users can expand different Derivation Groups to view the associated sources and select whether or not they would like to associate said Derivation Group with their plan.
 
 <figure>
-  <img alt="Figure 14: Derivation Group Modal" src={planDerivationGroupModal} />
-  <figcaption><i>Figure 14: Derivation Group Modal</i></figcaption>
+  <img alt="Figure 16: Derivation Group Modal" src={planDerivationGroupModal} />
+  <figcaption><i>Figure 16: Derivation Group Modal</i></figcaption>
 </figure>
 
 **Association** simply means that the plan is *aware* of the existence of the Derivation Group, and is the gatekeeper for whether it is visible in the External Sources panel. In this panel lies the second level to linking, which is enabling. **Enabling** simply dictates whether a Derivation Group (even if the filters in the *Timeline Editor* select for it) is *visible* on the timeline. Disabling hides all events associated with the group completely, whereas enabling does the opposite. It does not, however, dissociate the plan and Derivation Group. This is simply a visibility attribute and is actually persisted as part of the view (and even persists after Derivation Group dissociation/reassociation, meaning if a Derivation Group is dissociated and then re-associated, its "enabled" setting stays the same).
@@ -494,16 +596,16 @@ Enabled|Disabled
 ![Enabled.](./assets/external_events_derivation_group_enabled.png)  |  ![Disabled.](./assets/external_events_derivation_group_disabled.png)
 
 <figure>
-  <img alt="Figure 15: External Sources Panel" src={planExternalSourcesPanel} />
-  <figcaption><i>Figure 15: External Sources Panel</i></figcaption>
+  <img alt="Figure 17: External Sources Panel" src={planExternalSourcesPanel} />
+  <figcaption><i>Figure 17: External Sources Panel</i></figcaption>
 </figure>
 
 #### Timeline
 The timeline shows any events from Derivation Groups that are associated with the plan, enabled in the current view, and are filtered for in the timeline editor. Having covered the first two, we can now discuss the editor and its effects on the timeline.
 
 <figure>
-  <img alt="Figure 16: Timeline & Layer Editor" src={timelineEditorFull} />
-  <figcaption><i>Figure 16: Timeline & Layer Editor</i></figcaption>
+  <img alt="Figure 18: Timeline & Layer Editor" src={timelineEditorFull} />
+  <figcaption><i>Figure 18: Timeline & Layer Editor</i></figcaption>
 </figure>
 
 The layer of the timeline is modelled after the activity layer, as it provides an easily readable representation of discrete-time occurrences. Layers share the layer options also provided to activity layers, as well as implementing a 'Group By' option specifically for external events. The 'Group By' mechanic allows the user to have external events either grouped by their external source (within the derivation group), or their event types.
@@ -513,16 +615,16 @@ The layer of the timeline is modelled after the activity layer, as it provides a
 ![External Source](./assets/external_events_group_by_source.png)  |  ![External Event Type](./assets/external_events_group_by_event_type.png)
 
 <figure>
-  <img alt="Figure 17: External Event Layer Options" src={externalEventLayerOptions} />
-  <figcaption><i>Figure 17: External Event Layer Options</i></figcaption>
+  <img alt="Figure 19: External Event Layer Options" src={externalEventLayerOptions} />
+  <figcaption><i>Figure 19: External Event Layer Options</i></figcaption>
 </figure>
 
 #### Tables and Inspection
 The screenshot below shows a brief overview of the remaining panels that have been added to plans. It is possible to either mouse over External Events for additional detail or to select them in the timeline, which selects them in a table view beneath the timeline as well as details them in the right pane. This looks as follows:
 
 <figure>
-  <img alt="Figure 18: The selected External Event view and a table of External Events, working in tandem" src={planSelectedExternalEvent} />
-  <figcaption><i>Figure 18: The selected External Event view and a table of External Events, working in tandem</i></figcaption>
+  <img alt="Figure 20: The selected External Event view and a table of External Events, working in tandem" src={planSelectedExternalEvent} />
+  <figcaption><i>Figure 20: The selected External Event view and a table of External Events, working in tandem</i></figcaption>
 </figure>
 
 #### A Note on Views
@@ -540,15 +642,6 @@ Currently, external events are **not accessible from the [Declarative Scheduling
 
 ## What Remains
 Here, we discuss briefly everything that is not currently implemented but that we do plan to in the future.
-
-### Formal JSON Schema
-We currently lack a formal schema uploaded External Sources and their contained External Events. The extent of our schema is just that we ask users to include the fields described in [External Sources](#external-sources), and that any additionally defined fields will be ignored.
-
-Prior to starting work in the UI, some work on a schema was done. However, it was ultimately ruled that making something restrictive like a schema might be smarter after having done some work on External Events, as it is entirely possible to spend a lot of time on a schema beforehand only to discard or rework a fair amount of it as we progress with development. At this point, we are a lot more confident in what fields should definitely be present in a [JSON Schema](https://json-schema.org/learn/getting-started-step-by-step), which means that creating a definition should be a lot more feasible in a future batch of work.
-
-These Schemae would likely be a part of the mission model themselves; seeing as defining what activities and resources are allowable for a mission plan are part of a mission model, so too would be definitions of allowable External Source Types and External Event Types.
-
-This raises the question of how External Source Types and External Event Types should be handled in a Schema. The idea we are currently floating is a multilayered Schema - one that is common to all sources (and events), which essentially details the fields listed in [External Sources](#external-sources), as those show in any External Source regardless of type. The second layer would constrain for an External Source's `metadata` field (to be included in a future update) and for an External Event's `metadata` field (to be included in a future update). Different External Source Types and External Event Types should have different allowable `metadata`, and as such defining a subschema for these fields becomes necessary to restrict and add uniformity to what should be included in that field given the type. It is these subschemae that we suggest should be part of a mission model. Exactly how this definition is to be created, how these layers are to be reconciled, and how to integrate them with the concept of a mission model is yet to be decided.
 
 ### Ownership/Roles
 
