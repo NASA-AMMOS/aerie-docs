@@ -43,10 +43,10 @@ External Events represent temporal occurrences outside of the locus of control o
 External Sources are containers for External Events and the primary way that users interact with External Events. To get External Events into Aerie, an External Source must be uploaded that contains the event definitions inside. See [External Sources](#external-sources-1) below for more information.
 
 #### External Event Types
-External Event Types define the *typing* of each External Event. This typing groups External Events on the basis of the data they represent, and details the allowed attributes that a given External Event is allowed to have. For example, an External Event may be of the type `Ground Station Contact`, `Solar Flare`, or `Weather Forecast`. Each of these types may entail a set of allowed/defined attributes, like `station`, `flux level`, or `precipitation`.
+External Event Types define the *typing* of each External Event. This typing groups External Events on the basis of the data they represent, and details the allowed attributes that a given External Event is allowed to have. For example, an External Event may be of the type `Ground Station Contact`, `Solar Flare`, or `Weather Forecast`. Each of these types contains a schema for a set of allowed/defined attributes which are then implemented by the events using this External Event Type to display additional data, such as `station`, `flux level`, or `precipitation`.
 
 #### External Source Types
-External Source Types define the *typing* of each External Source. This typing groups External Sources on the basis of the data they contain, and details the allowed attributes that a given External Source can have to describe the data contained within it. For example, you may have an External Source Type of `Weather Report` to represent all your weather reports, and inside each of the `Weather Report`-typed sources you can expect to find External Events that share a common External Event Type that appears in all `Weather Report`-typed sources (ex: Temperature). The attributes related to such a source may include details about the people and data involved in creating the forecast.
+External Source Types define the *typing* of each External Source. This typing groups External Sources on the basis of the data they contain, and details the allowed attributes that a given External Source can have to describe the data contained within it. For example, you may have an External Source Type of `Weather Report` to represent all your weather reports, and inside each of the `Weather Report`-typed sources you can expect to find External Events that share a common External Event Type that appears in all `Weather Report`-typed sources (ex: Temperature). Identical to [External Event Types](#external-event-types), External Source Types also contain attribute schemas that are then implemented by the External Sources using the External Source Type.
 
 #### Derivation Groups
 Derivation Groups are collections of External Sources that can be associated with plans. Within a Derivation Group, the collective External Events from its member External Sources are used to create a *derived* set of events for the Derivation Group. See [Derivation](#derivation) below for more information.
@@ -124,6 +124,7 @@ The `source` field includes the following fields, where **all** are required:
 
 * `attributes`
   * An object that includes additional data relevant to the External Source in question.
+  * Must follow the schema as defined by the External Source Type
   * For a Weather Forecast file, this may include details about the location, which version this file is, and notes about what changed between this version and the last.
   * ***Example***
     ```json
@@ -134,21 +135,6 @@ The `source` field includes the following fields, where **all** are required:
       "changelog": "Updated precipitation likelihood for 2024-007T00:00:00 from 20% to 35%."
     },
     ...
-    ```
-
-* `attributes`
-  * Defines the *values* for the attributes of the External Source - these attributes are *defined* or *schematized* by the External Source Type.
-  * **Example**
-    ```json
-    "attributes": {
-      "version": "1.2.3",
-      "week": 2,
-      "isTestFile": true,
-      "relatedPeriod": {
-        "startTime": "2024-001T00:00:00Z",
-        "endTime": "2024-008T00:00:00Z"
-      }
-    }
     ```
 
 ##### Events
@@ -176,6 +162,7 @@ Events are represented as a set of objects contained in a list, and each event h
 
 * `attributes`
   * Similar to attributes for External Sources, this property lists various characteristics of a given event not directly implied by the above fields' values.
+  * Must follow the schema as defined by the External Event Type
   * For a Weather Forecast file, a given event may require properties detailing the likelihood of precipitation, or the wind speed.
   * **Example:**
     ```json
@@ -186,6 +173,79 @@ Events are represented as a set of objects contained in a list, and each event h
     },
     ...
     ```
+
+##### Full External Source & Event Types Example
+
+The following is a full example of a valid, `JSON` representation of an External Source Type and External Event Type. The type definitions **must** be uploaded to Aerie *prior* to attempting to use them in an External Source and/or External Event(s)!
+
+The example represents the definitions for a weather forecast source & event.
+
+```json
+{
+  "event_types": {
+    "WeatherReport": {
+      "type": "object",
+      "required": ["daily_high", "daily_low", "precipitation_lik"],
+      "properties": {
+        "daily_high": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "number"
+            },
+            "units": {
+              "type": "string"
+            }
+          },
+          "required": ["units", "value"]
+        },
+        "daily_low": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "number"
+            },
+            "units": {
+              "type": "string"
+            }
+          },
+          "required": ["units", "value"]
+        },
+        "precipitation_lik": {
+          "type": "number"
+        }
+      }
+    }
+  },
+  "source_types": {
+    "Weather": {
+      "type": "object",
+      "required": [
+        "location",
+        "version",
+        "changelog"
+      ],
+      "properties": {
+        "location": {
+          "type": "string"
+        },
+        "version": {
+          "type": "number"
+        },
+        "changelog": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
+```
+
+:::info Note
+
+For more information on External Source & Type definitions & attribute schemas, see [External Events and Source Attributes](../external-events-attributes)
+
+:::
 
 ##### Full External Source Example
 
@@ -227,8 +287,6 @@ The example represents a week-long weather forecast where each event is the repo
                 "precipitation_lik": 0.7
             }
         },
-
-
         {
             "key": "W/Day/002",
             "event_type": "WeatherReport",
@@ -246,8 +304,6 @@ The example represents a week-long weather forecast where each event is the repo
                 "precipitation_lik": 0.6
             }
         },
-
-
         {
             "key": "W/Day/003",
             "event_type": "WeatherReport",
@@ -265,8 +321,6 @@ The example represents a week-long weather forecast where each event is the repo
                 "precipitation_lik": 0.5
             }
         },
-
-
         {
             "key": "W/Day/004",
             "event_type": "WeatherReport",
@@ -284,8 +338,6 @@ The example represents a week-long weather forecast where each event is the repo
                 "precipitation_lik": 0.4
             }
         },
-
-
         {
             "key": "W/Day/005",
             "event_type": "WeatherReport",
@@ -303,8 +355,6 @@ The example represents a week-long weather forecast where each event is the repo
                 "precipitation_lik": 0.3
             }
         },
-
-
         {
             "key": "W/Day/006",
             "event_type": "WeatherReport",
@@ -322,8 +372,6 @@ The example represents a week-long weather forecast where each event is the repo
                 "precipitation_lik": 0.2
             }
         },
-
-
         {
             "key": "W/Day/007",
             "event_type": "WeatherReport",
