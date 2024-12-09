@@ -1,7 +1,7 @@
 import externalEventsOverlappingSources from './assets/external_events_overlapping_sources.png';
 
 # Creating External Source & Event Types
-Before creating an External Source, we must define the Source & Event types that our External Source will use. The files we create will define 1) the name of the type and 2) the schema for the type's `attributes`. These files make use of the [JSON Schema](https://json-schema.org/) format and are additionally constrained by a meta-schema.
+Before creating an External Source, we must define the Source & Event types that our External Source will use. The files we create will define 1) the name of the type and 2) the schema for the type's `attributes`. These files make use of the [JSON Schema](https://json-schema.org/) format and are additionally constrained by a [meta-schema](https://github.com/NASA-AMMOS/aerie-gateway/blob/develop/src/schemas/external-event-validation-schemata.ts).
 
 Create the following `JSON` file in an editor:
 
@@ -55,96 +55,85 @@ Create the following `JSON` files in an editor:
 `External_Events_Demo_00.json`:
 ```json
 {
-    "source": {
-        "key": "External_Events_Demo_00.json",
-        "source_type": "DemoType",
-        "valid_at": "2024-01-01T00:00:00Z",
-        "period": {
-            "start_time": "2026-001T00:00:00Z",
-            "end_time": "2026-007T00:00:00Z"
-        },
-        "attributes": {
-          "SourceExampleAttribute": "this is an example attribute"
-        }
+  "source": {
+    "key": "External_Events_Demo_00.json",
+    "source_type": "DemoType",
+    "valid_at": "2026-001T00:00:00Z",
+    "period": {
+      "start_time": "2026-001T00:00:00Z",
+      "end_time": "2026-007T00:00:00Z"
     },
-    "events": [
-        {
-            "key": "DemoType/SampleTypeA/1",
-            "event_type": "SampleTypeA",
-            "start_time": "2026-001T12:00:00Z",
-            "duration": "02:00:00",
-            "attributes": {
-              "EventExampleAttribute": 1
-            }
-        },
-
-        {
-            "key": "DemoType/SampleTypeA/2",
-            "event_type": "SampleTypeA",
-            "start_time": "2026-002T00:00:00Z",
-            "duration": "01:00:00",
-            "attributes": {
-              "EventExampleAttribute": 2
-            }
-        },
-
-        {
-            "key": "DemoType/SampleTypeA/3",
-            "event_type": "SampleTypeA",
-            "start_time": "2026-003T12:00:00Z",
-            "duration": "03:00:00",
-            "attributes": {
-              "EventExampleAttribute": 1
-            }
-        }
-    ]
+    "attributes": {
+      "SourceExampleAttribute": "this is an example attribute"
+    }
+  },
+  "events": [
+    {
+      "key": "DemoType/SampleTypeA/1",
+      "event_type": "SampleTypeA",
+      "start_time": "2026-001T12:00:00Z",
+      "duration": "02:00:00",
+      "attributes": {
+        "EventExampleAttribute": 1
+      }
+    },
+    {
+      "key": "DemoType/SampleTypeA/2",
+      "event_type": "SampleTypeA",
+      "start_time": "2026-002T00:00:00Z",
+      "duration": "01:00:00",
+      "attributes": {
+        "EventExampleAttribute": 2
+      }
+    },
+    {
+      "key": "DemoType/SampleTypeA/3",
+      "event_type": "SampleTypeA",
+      "start_time": "2026-003T12:00:00Z",
+      "duration": "03:00:00",
+      "attributes": {
+        "EventExampleAttribute": 1
+      }
+    }
+  ]
 }
 ```
 
 `External_Events_Demo_01.json`:
 ```json
 {
-    "source": {
-        "key": "External_Events_Demo_01.json",
-        "source_type": "DemoType",
-        "valid_at": "2024-01-02T00:00:00Z",
-        "period": {
-            "start_time": "2026-003T00:00:00Z",
-            "end_time": "2026-010T00:00:00Z"
-        },
-        "attributes": {
-          "SourceExampleAttribute": "this is an example attribute"
-        }
+  "source": {
+    "key": "External_Events_Demo_01.json",
+    "source_type": "DemoType",
+    "valid_at": "2026-004T11:00:00Z",
+    "period": {
+      "start_time": "2026-004T11:00:00Z",
+      "end_time": "2026-010T00:00:00Z"
     },
-    "events": [
-        {
-            "key": "DemoType/SampleTypeA/1",
-            "event_type": "SampleTypeA",
-            "start_time": "2026-003T20:00:00Z",
-            "duration": "02:00:00",
-            "attributes": {
-              "EventExampleAttribute": 3
-            }
-        },
-        {
-            "key": "DemoType/SampleTypeA/3",
-            "event_type": "SampleTypeB",
-            "start_time": "2026-004T12:00:00Z",
-            "duration": "01:00:00",
-            "attributes": {
-              "DifferentExampleAttribute": true
-            }
-        },
-        {
-            "key": "DemoType/SampleTypeA/4",
-            "event_type": "SampleTypeB",
-            "start_time": "2026-009T20:00:00Z",
-            "duration": "03:00:00",
-            "attributes": {
-              "DifferentExampleAttribute": true
-            }
-        }
-    ]
+    "attributes": {
+      "SourceExampleAttribute": "this is an example attribute"
+    }
+  },
+  "events": [
+    {
+      "key": "DemoType/SampleTypeB/1",
+      "event_type": "SampleTypeB",
+      "start_time": "2026-004T12:00:00Z",
+      "duration": "01:00:00",
+      "attributes": {
+        "DifferentExampleAttribute": true
+      }
+    },
+    {
+      "key": "DemoType/SampleTypeB/2",
+      "event_type": "SampleTypeB",
+      "start_time": "2026-009T20:00:00Z",
+      "duration": "03:00:00",
+      "attributes": {
+        "DifferentExampleAttribute": true
+      }
+    }
+  ]
 }
 ```
 
@@ -152,7 +141,7 @@ We are now ready to upload our test External Source files to Aerie!
 
 :::info Note
 
-In each of these files, the exact formatting of event keys is currently not important.
+In each of these files, the exact formatting of the `key` field is currently not important.
 
 :::
 

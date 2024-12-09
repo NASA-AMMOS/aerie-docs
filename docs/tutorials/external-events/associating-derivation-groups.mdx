@@ -13,7 +13,13 @@ import externalEventsTutorialTimelineEditor from './assets/external_events_tutor
 import externalEventsTutorialFilterShown from './assets/external_events_tutorial_filter_shown.png';
 
 # Associating the Derivation Group with a Plan
-Now that we have some External Sources uploaded, we can utilize them within a plan to see them on a timeline (and in the future, use them to power constraints, dictate scheduling goals, etc.).
+Now that we have some External Sources uploaded, we can utilize them within a plan to see them on a timeline!
+
+:::caution Note
+
+Prior to creating a plan, a mission model must exist - currently, the mission model is not tied directly to any external event/source features, so any mission model can be used with any external sources/events.
+
+:::
 
 ## Creating a Plan
 Start by going to the Aerie **Plan** page:
@@ -26,18 +32,21 @@ Once there, create a new plan with the following parameters:
 
 <figure>
   <img alt="The example plan's parameters" src={externalEventsTutorialPlanParameters} />
-  <figcaption><i><b>Note</b>: The <b>start</b> and <b>end</b> times are important here, as they are bounds that contain all the external events in the sources we uploaded!</i></figcaption>
 </figure>
 
-To create this plan, make sure that there exists _some_ mission model that can be associated with the plan. The exact model is, at present, entirely unimportant as it has no bearing on External Events functionality. The mission model used here, arbitrarily, is that of Aerie's mission model template.
+:::info Note
 
-After the plan has been created, select the plan on the table to the right, and then select **Open plan** in the pane on the left. You should be presented with a plan view that resembles the image below:
+  The `start` and `end` times are important here, as they are the bounds that contain all the external events in the source we uploaded!
+
+:::
+
+After the plan has been created, select the plan on the table to the right, and then select `Open plan` in the pane on the left. You should be presented with a plan view that resembles the image below:
 
 <figure>
   <img alt="The plans page showing an empty timeline" src={externalEventsTutorialPlanSpecificIntroPage} />
 </figure>
 
-Select the `External Sources` tab on the left, and you should see the following:
+Click the drop-down menu in the top-right (currently on `Activity, Resource, External Event Types`) and select the `External Sources` tab. You should see the following:
 
 <figure>
   <img alt="External Sources pane with no associations" src={externalEventsTutorialExternalSourcesEmpty} />
@@ -46,13 +55,19 @@ Select the `External Sources` tab on the left, and you should see the following:
 This panel tells us that there are no derivation groups currently linked to our plan, meaning the external events we uploaded before are not yet associated with it.
 
 ## Associating the Derivation Group
-There are currently no Derivation Groups associated with this plan! While we should have one created, there aren't any that this plan is aware of. To change this, we need to click `Manage Derivation Groups`, to open the Derivation Group management modal.
+Previously we created and uploaded an External Source, however our plan is currently unaware of the source's events. To change this, we need to click `Manage Derivation Groups`, to open the Derivation Group management modal.
 
-Once here, we can now look at all of our available (currently only one) Derivation Groups and select which ones to associate with our plan. Association implies that the plan or at least the plan page is in some way aware of the fact that this Derivation Group exists (details on what exactly association entails can be found [here](../../../planning/external-events/#derivation-group-management-modal) under 'Derivation Group Management Modal').
+Once here we can now look at all of our available (currently only one) Derivation Groups and select which ones to associate with our plan. Association means that the plan is aware of the fact this Derivation Group exists and is able to use it's events.
 
-In the `Manage Derivation Groups` modal, check the check-box for our Derivation Group (`DemoType Default`). The check-box itself does not do anything yet, it requires the `Update` button at the bottom of the modal to be clicked to 'save' the linked/un-linked derivation groups.
+:::info Note
 
-Click the `Update` button to link the derivation group.
+Details on what exactly association entails can be found [here](../../../planning/external-events/) under `Derivation Group Management Modal`.
+
+:::
+
+In the `Manage Derivation Groups` modal, check the check-box for our Derivation Group (`DemoType Default`).
+
+Click the `Update` button to save the current Derivation Group associations.
 
 The modal should now appear as below, with a success toast in the bottom-right corner of the screen:
 
@@ -70,8 +85,6 @@ On the left-pane, we can see the breakdown of External Event Counts - where the 
 
 ## Creating an External Event timeline row
 Now that we have a derivation group associated with our plan, we can put those external events on the timeline to visualize them.
-
-By default, a dedicated 'External Events Row' is **not** created *unless* the user loads a plan that already existed and has at least one derivation group previously linked. In our case, because this is a new plan we must create our own row to see the events. Alternatively, a filter for the event types can also be added to a pre-existing row.
 
 First, switch to the `Activity, Resource, & Event Types` tab.
 
@@ -124,6 +137,4 @@ External events appear in the same layer type as activities, and as such share o
 
 [//]: # (Examples of the two different `Group By` modes, as well as visibility enable/disable can be seen in the [Plan]&#40;../../../planning/external-events/#plan&#41; section of the main External Events documentation.)
 
-## Additional Resources
-
-More detail on the topics discussed in this tutorial can be found under [External Events](../../../planning/external-events)
+With a Derivation Group associated to our plan, we can now run scheduling goals that incorporate External Events!

@@ -16,19 +16,19 @@ First, we must upload the schema we created for the External Source Type & the t
   <img alt="Click 'External Sources' button" src={externalEventsTutorialUploadStep1} />
 </figure>
 
-Next, click the 'Types' button in the top-right to switch to the sub-page used for creating & managing External Source & Event Types.
+Next, click the `Types` button in the top-right to switch to the sub-page used for creating & managing External Source & Event Types.
 
 <figure>
   <img alt="External Type Manager" src={externalTypeManager} />
 </figure>
 
-Click 'Choose File' and select the `External_Types_Schema.json` file we previously created. The new Source Type & the two Event Types should have their names shown on the left-panel.
+Click `Choose File` and select the `External_Types_Schema.json` file we previously created. The new Source Type & the two Event Types should have their names shown on the left-panel.
 
 <figure>
   <img alt="Results from successfully parsing the file" src={externalTypeManagerFileParsed} />
 </figure>
 
-Clicking 'Upload' will create the listed types!
+Clicking `Upload` will create the listed types!
 
 <figure>
   <img alt="External Source type created" src={externalTypeManagerSuccessfulUpload} />
@@ -48,7 +48,13 @@ Once here, we can now upload our new External Sources. Click the **'Browse...'**
   <figcaption><i>Uploaded file form should become populated</i></figcaption>
 </figure>
 
-Go ahead and leave the `Derivation Group` as `DemoType Default`.
+The `Derivation Group` field allows you to change the Derivation Group that the source will associate with, for this tutorial we will leave it as `DemoType Default`.
+
+:::info Note
+
+For more information on Derivation Groups, refer to the [External Events](../../../planning/external-events) documentation underneath the `Derivation` section!
+
+:::
 
 Finally, click upload. The new External Source should show in the table on the right:
 
@@ -56,7 +62,7 @@ Finally, click upload. The new External Source should show in the table on the r
   <img alt="External Sources table is populated" src={externalEventsTutorialUploadStep3} />
 </figure>
 
-Click the 'x' next to 'Selected External Source' to deselect it, then repeat these steps with the second file. The table should now look as follows:
+Click the `X` next to `Selected External Source` to deselect it, then repeat these steps with the second file. The table should now look as follows:
 
 <figure>
   <img alt="External Sources table is populated with both test files" src={externalEventsTutorialUploadStep4} />
