@@ -557,7 +557,7 @@ External Events show up in the UI in two main places - an External Source Manage
 
 :::info Note
 
-There is also a [tutorial section](../../tutorials/external-events/introduction) that walks through the content of this section in a step-by-step fashion, albeit with less detail.
+There is also a [tutorial section](../../../tutorials/external-events/introduction) that walks through the content of this section in a step-by-step fashion, albeit with less detail.
 
 :::
 
@@ -686,9 +686,9 @@ As a final note on the frontend, it is worth briefly detailing what parts of the
 - _External Event options_ - the options in the timeline editor filter.
 
 ## Scheduling Activities from Events
-External events associated with a plan are accessible from the [Procedural Scheduling](../../scheduling-and-constraints/procedural/introduction/) API, just like resources and activities. This allows users to write scheduling goals which create activities based on the presence (or absence) of external events - for example, "create a downlink activity 5 minutes after the start of every 'DSN Contact' type event".
+External events associated with a plan are accessible from the [Procedural Scheduling](../../../scheduling-and-constraints/procedural/introduction/) API, just like resources and activities. This allows users to write scheduling goals which create activities based on the presence (or absence) of external events - for example, "create a downlink activity 5 minutes after the start of every 'DSN Contact' type event".
 
-To access events in a procedural goal, you must create an External Events timeline object - see [Timelines: External Events](../../scheduling-and-constraints/procedural/timelines/basics/external-events/). A full example of a scheduling goal using events can be found on the [Procedural Scheduling Examples](../../scheduling-and-constraints/procedural/scheduling/examples/#scheduling-based-off-of-external-events) page.
+To access events in a procedural goal, you must create an External Events timeline object - see [Timelines: External Events](../../../scheduling-and-constraints/procedural/timelines/basics/external-events/). A full example of a scheduling goal using events can be found on the [Procedural Scheduling Examples](../../../scheduling-and-constraints/procedural/scheduling/examples/#scheduling-based-off-of-external-events) page.
 
 Currently, external events are **not accessible from the [Declarative Scheduling EDSL](http://localhost:3000/aerie-docs/scheduling-and-constraints/declarative/scheduling/introduction/)** - but we may implement support for this in the future.
 
