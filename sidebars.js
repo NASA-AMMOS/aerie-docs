@@ -114,6 +114,7 @@ const sidebars = {
             'tutorials/external-events/creating-an-external-source',
             'tutorials/external-events/uploading-an-external-source',
             'tutorials/external-events/associating-derivation-groups',
+            'tutorials/external-events/creating-a-scheduling-goal-with-external-events',
           ],
         },
       ],
@@ -198,9 +199,9 @@ const sidebars = {
           label: 'External Events',
           link: {
             id: 'planning/external-events/introduction',
-            type: 'doc'
+            type: 'doc',
           },
-          items: ['planning/external-events/external-events-attributes']
+          items: ['planning/external-events/external-events-attributes'],
         },
         {
           type: 'category',

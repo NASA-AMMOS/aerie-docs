@@ -1,0 +1,202 @@
+import schedulingGoalUpload from './assets/scheduling_goal_upload.png';
+import schedulingGoalModal from './assets/scheduling_goal_modal.png';
+import schedulingGoalResult from './assets/scheduling_goal_result.png';
+
+# Creating a Scheduling Goal with External Events
+Now that we have a plan with a Derivation Group associated to it, we can create & run procedural scheduling goals that make use of External Events!
+
+:::info Note
+
+This tutorial page will talk specifically about using **External Events** in procedural scheduling. A more in-depth guide to procedural scheduling can be found [here](../../../scheduling-and-constraints/procedural/introduction/).
+
+:::
+
+:::info Note
+
+The following sections is a partial walk-through of creating a procedural goal with some of the general goal setup removed. For reference, the full goal as it should be written is included in the [Full Example Goal](#full-example-goal) section.
+
+:::
+
+## Creating a Scheduling Goal
+
+As a pre-requesite to creating a scheduling goal, follow the `Create a project from the template` steps found in the [procedural scheduling documentation](../../../scheduling-and-constraints/procedural/introduction/).
+
+### Example: Scheduling an activity for `SampleTypeA`
+One simple use case for External Events in scheduling goals is tie-ing an activity instance to whenever an External Event occurs. In this example we'll create a goal that creates a new activity for each occurrence of a `SampleTypeA`-typed External Event in the plan.
+
+With the project initialized, create a new file within `scheduling/src/main/java/scheduling/procedures/` called `DemoSchedulingGoal.java`.
+
+External Events can be collected within the scheduling goal by creating `EventQuery`s, and using `plan.events(yourQueryHere).collect()`. To grab all the External Events of type `SampleTypeA`, we can write the following `EventQuery`:
+
+```java
+EventQuery sampleTypeAEvents = new EventQuery(null, List.of("Sample Type A"), null);
+```
+
+:::info Note on nulls
+
+The previous `EventQuery` only includes a value for the middle argument, `eventTypes`. A query can also be constructed by passing `Derivation Group(s)` to the first argument of the `EventQuery`, or by passing a list of `Sources` gathered by a `SourceQuery` to the last argument of the `EventQuery`.
+
+:::
+
+To retrieve the External Events associated with this `EventQuery`, we can use the following line:
+
+```java
+var exampleEvents = plan.events(sampleTypeAEvents).collect();
+```
+
+Prior to planning our new activity instances, we can simulate the plan and take note of all the existing activity instances:
+
+```java
+final var simResults = plan.simulate();
+final var existingSpans = simResults.instances();
+```
+
+Next, we can iterate over all of our collected events and plan activities for them:
+
+```java
+for (var currentEvent : exampleEvents) {
+  if (!areThereSpansForType(existingSpans, currentEvent.getInterval().start, newActivityType)) {
+    final var newActivityName = currentEvent.key + " Activity";
+    final var currentEventExampleAttribute = currentEvent.attributes.get("EventExampleAttribute").asInt().get();
+    plan.create(
+      new NewDirective(
+        new AnyDirective(Map.of(
+          "temperature", SerializedValue.of(123.1),
+          "tbSugar", SerializedValue.of(currentEventExampleAttribute),
+          "glutenFree", SerializedValue.of(false)
+        )),
+        newActivityName,
+        newActivityType,
+        new DirectiveStart.Absolute(currentEvent.getInterval().start)
+      )
+    );
+  }
+}
+```
+
+And finally, add a `plan.commit();` after the loop to finalize your goal!
+
+If we compile & upload this goal, we can associate it with the plan we previously created and once scheduling is run a `BakeBananaBread` activity will be planned at the start of each `SampleTypeA` External Event!
+
+### Example: Scheduling an activity for `SampleTypeA` using attributes
+
+Building on the above example, you may want to constrain your goal to only plan activity instances on the `SampleTypeA` External Events that have their `EventExampleAttribute` attribute set to `1`. The previous example gathers the `EventExampleAttribute` for use with the `tbSugar` arugment on the `BakeBananaBread` activity but instead we could use it in the `for` loop to filter the External Events we're using for planning:
+
+```java
+for (var currentEvent : exampleEvents) {
+  if (!areThereSpansForType(existingSpans, currentEvent.getInterval().start, newActivityType)) {
+    final var currentEventExampleAttribute = currentEvent.attributes.get("EventExampleAttribute").asInt().get();
+    if (currentEventExampleAttribute == 1) {
+      final var newActivityName = currentEvent.key + " Activity";
+      plan.create(
+        new NewDirective(
+          new AnyDirective(Map.of(
+            "temperature", SerializedValue.of(123.1),
+            "tbSugar", SerializedValue.of(currentEventExampleAttribute),
+            "glutenFree", SerializedValue.of(false)
+          )),
+          newActivityName,
+          newActivityType,
+          new DirectiveStart.Absolute(currentEvent.getInterval().start)
+        )
+      );
+    }
+  }
+}
+```
+
+### Full Example Goal
+
+```java
+package scheduling.procedures;
+
+import gov.nasa.ammos.aerie.procedural.scheduling.Goal;
+import gov.nasa.ammos.aerie.procedural.scheduling.annotations.SchedulingProcedure;
+import gov.nasa.ammos.aerie.procedural.scheduling.plan.EditablePlan;
+import gov.nasa.ammos.aerie.procedural.scheduling.plan.NewDirective;
+import gov.nasa.ammos.aerie.procedural.timeline.collections.Instances;
+import gov.nasa.ammos.aerie.procedural.timeline.payloads.activities.AnyDirective;
+import gov.nasa.ammos.aerie.procedural.timeline.payloads.activities.AnyInstance;
+import gov.nasa.ammos.aerie.procedural.timeline.payloads.activities.DirectiveStart;
+import gov.nasa.ammos.aerie.procedural.timeline.plan.EventQuery;
+import gov.nasa.jpl.aerie.merlin.protocol.types.Duration;
+import gov.nasa.jpl.aerie.merlin.protocol.types.SerializedValue;
+
+import java.util.List;
+import java.util.Map;
+
+@SchedulingProcedure
+public record DemoSchedulingGoal() implements Goal {
+
+    boolean areThereSpansForType(Instances<AnyInstance> spans, Duration startTime, String activityType) {
+        final var filteredByType = spans.filter(false, it -> it.getType().equals(activityType));
+        final var filteredByTime = filteredByType.filter(false, it -> it.getStartTime().equals(startTime));
+        return !filteredByTime.collect().isEmpty();
+    }
+
+    @Override
+    public void run(EditablePlan plan) {
+        final var newActivityType = "BakeBananaBread";  // This can be any activity type in your model!
+        EventQuery sampleTypeAEvents = new EventQuery(null, List.of("SampleTypeA"), null);
+        var exampleEvents = plan.events(sampleTypeAEvents).collect();
+
+        final var simResults = plan.simulate();
+        final var existingSpans = simResults.instances();
+
+        for (var currentEvent : exampleEvents) {
+            if (!areThereSpansForType(existingSpans, currentEvent.getInterval().start, newActivityType)) {
+                var currentEventExampleAttribute = currentEvent.attributes.get("EventExampleAttribute").asInt().get();
+                if (currentEventExampleAttribute == 1) {
+                    final var newActivityName = currentEvent.key + " Activity";
+                    plan.create(
+                            new NewDirective(
+                                    new AnyDirective(Map.of(
+                                            "temperature", SerializedValue.of(123.1),
+                                            "tbSugar", SerializedValue.of(currentEventExampleAttribute),
+                                            "glutenFree", SerializedValue.of(false)
+                                    )),
+                                    newActivityName,
+                                    newActivityType,
+                                    new DirectiveStart.Absolute(currentEvent.getInterval().start)
+                            )
+                    );
+                }
+            }
+        }
+        plan.commit();
+    }
+}
+```
+
+## Uploading the Scheduling Goal
+After the goal has been created and saved, it must be compiled following the steps in [Getting Started](../../../scheduling-and-constraints/procedural/getting-started/). The following commands should be run from the root of the project directory:
+
+```bash
+./gradlew :scheduling:compileJava
+./gradlew :scheduling:buildAllProceduralSchedulingJars
+```
+
+Afterwards, a `DemoSchedulingGoal.jar` should be created in `$project/scheduling/build/libs/`!
+
+In the Aerie UI, navigate back to the plan view for our previously created plan and swap the top-left drop-down menu to the `Scheduling Goals` tab. From there, click `Manage Goals` and then the `New` button to be directed to creating/uploading a new scheduling goal.
+
+<figure>
+  <img alt="Opening the scheduling goal management modal" src={schedulingGoalModal} />
+</figure>
+
+In the creation form, enter a name (for example, `DemoSchedulingGoal`), swap the `EDSL/Jar File` button to `Jar File`, and then click `Choose File` and select the previously created `.jar` file. Your screen should show the following:
+
+<figure>
+  <img alt="Successful scheduling goal upload" src={schedulingGoalUpload} />
+</figure>
+
+Back in the plan view, the goal can now be associated and run
+
+<figure>
+  <img alt="Result from running scheduling goal" src={schedulingGoalResult} />
+  <figcaption>Two new activities should be created to satisfy the scheduling goal!</figcaption>
+</figure>
+
+## Additional Resources
+
+More detail on the topics discussed in this tutorial can be found under [External Events](../../../planning/external-events)
