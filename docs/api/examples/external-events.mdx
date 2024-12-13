@@ -1,0 +1,297 @@
+import uploadExternalSourceEventTypes from '../assets/external-events-uploadExternalSourceEventTypes.png';
+import uploadExternalSource from '../assets/external-events-uploadExternalSource.png';
+
+# External Events
+
+Refer to [External Events](../../../planning/external-events/introduction) for more information on External Events & Sources.
+
+## API Gateway
+External Events & their respective External Sources utilize routes located on [`aerie-gateway`](https://github.com/NASA-AMMOS/aerie-gateway) to perform data validation and upon success, an upload through Hasura/GQL.
+
+
+### Creating External Source & Event Types
+Users should use the following `aerie-gateway` route to upload their "types" file:
+<figure>
+  <img alt="Request headers & body for the 'uploadExternalSourceEventTypes' route" src={uploadExternalSourceEventTypes} />
+  <figcaption>Request headers & body for the 'uploadExternalSourceEventTypes' route</figcaption>
+</figure>
+
+When uploading through Aerie's UI, External Source & Event types are packaged together in a single `JSON` file which adheres to the meta-schema defined [here](https://github.com/NASA-AMMOS/aerie-gateway/blob/develop/src/schemas/external-event-validation-schemata.ts). **However**, the Gateway route accepts the content of the two top-level fields (`event_types` and `source_types`) separately as the request body.
+
+Uploading a simple definition of a single External Source Type (`ExampleSource`) and a single External Event Type (`ExampleEvent`) should yield the following response:
+
+**Example Input**
+
+`event_types`
+```json
+{
+  "ExampleEvent": {
+    "type": "object",
+    "properties": {
+      "example": {
+        "type": "string"
+      }
+    },
+    "required": [ "example" ]
+  }
+}
+```
+
+`source_types`
+```json
+{
+  "ExampleSource": {
+    "type": "object",
+    "properties": {
+      "example": {
+        "type": "string"
+      }
+    },
+    "required": [ "example" ]
+  }
+}
+```
+
+**Example Output**
+```json
+{
+  "createExternalEventTypes": {
+    "returning": [
+      {
+        "name": "ExampleEvent"
+      }
+    ]
+  },
+  "createExternalSourceTypes": {
+    "returning": [
+      {
+        "name": "ExampleSource"
+      }
+    ]
+  }
+}
+```
+
+### Creating an External Source
+Users should use the following `aerie-gateway` route to upload their External Sources file:
+<figure>
+  <img alt="Request headers & body for the 'uploadExternalSource' route" src={uploadExternalSource} />
+  <figcaption>Request headers & body for the 'uploadExternalSource' route</figcaption>
+</figure>
+
+When uploading through Aerie's UI, the External Source & it's contained External Events are packaged together in a single `JSON` file which adheres to the meta-schema defined [here](https://github.com/NASA-AMMOS/aerie-gateway/blob/develop/src/schemas/external-event-validation-schemata.ts). **However**, the Gateway route accepts the content of the two top-level fields (`source` and `events`) separately as the request body.
+
+:::info Note
+
+In order to upload an External Source, the **External Source Type** and **External Event Type** **must** exist. For uploading types, see [above](#creating-external-source--event-types).
+
+:::
+
+Uploading a simple definition of an External Source with a single External Event should yield the following result:
+
+**Example Input**
+
+`source`
+```json
+{
+  "attributes": { "example": "Example attribute" },
+  "derivation_group_name": "ExampleSource Default",
+  "key": "ExampleSource:1",
+  "period": {
+    "end_time": "2024-008T00:00:00Z",
+    "start_time": "2024-001T00:00:00Z"
+  },
+  "source_type_name": "ExampleSource",
+  "valid_at": "2024-001T00:00:00Z"
+}
+```
+
+`events`
+```json
+[
+  {
+    "attributes": { "example": "Example attribute" },
+    "duration": "00:00:01",
+    "event_type_name": "ExampleEvent",
+    "key": "ExampleEvent:1",
+    "start_time": "2024-002T00:00:00Z"
+  }
+]
+```
+
+**Example Output**
+```json
+{
+  "upsertDerivationGroup": {
+    "name": "ExampleSource Default"
+  },
+  "createExternalSource": {
+    "attributes": {
+        "example": "Example attribute"
+    },
+    "derivation_group_name": "ExampleSource Default",
+    "end_time": "2024-01-08T00:00:00+00:00",
+    "key": "ExampleSource:1",
+    "source_type_name": "ExampleSource",
+    "start_time": "2024-01-01T00:00:00+00:00",
+    "valid_at": "2024-01-01T00:00:00+00:00"
+  }
+}
+```
+
+## GQL
+The following operations can be performed directly through GQL/Hasura and do not need to interact with Gateway like the above section.
+
+### Associating a Derivation Group to a Plan
+If a plan and a derivation group exist, they can be associated using the following GraphQL mutation:
+
+```graphql
+mutation CreatePlanDerivationGroup($source: plan_derivation_group_insert_input!) {
+  planExternalSourceLink: insert_plan_derivation_group_one(
+    object: $source,
+    on_conflict: {
+      constraint: plan_derivation_group_pkey
+    }
+  ) {
+    derivation_group_name
+  }
+}
+```
+
+This mutation requires a an argument, `$source`, which includes: 1) the name of the derivation group to link, and 2) the ID of the plan to link it to. See below for an example input:
+
+```json
+{
+  "source": {
+    "derivation_group_name": "ExampleSource Default",
+    "plan_id": 1
+  }
+}
+```
+
+This request will yield the following response:
+
+```json
+{
+  "data": {
+    "planExternalSourceLink": {
+      "derivation_group_name": "ExampleSource Default"
+    }
+  }
+}
+```
+
+### Disassociating a Derivation Group from a Plan
+To disassociate a derivation group from a plan, the following GraphQL mutation can be used:
+
+```graphql
+mutation DeletePlanExternalSource($where: plan_derivation_group_bool_exp!) {
+  planDerivationGroupLink: delete_plan_derivation_group(where: $where) {
+    returning {
+      derivation_group_name
+    }
+  }
+}
+```
+
+This mutations requires an argument which is an expression returning a boolean such as:
+
+```json
+{
+  "where": {
+    "_and": {
+      "derivation_group_name": { "_eq": "ExampleSource Default" },
+      "plan_id": { "_eq": 1}
+    }
+  }
+}
+```
+
+This request will yield the following response:
+
+```json
+{
+  "data": {
+    "planDerivationGroupLink": {
+      "returning": [
+        {
+          "derivation_group_name": "ExampleSource Default"
+        }
+      ]
+    }
+  }
+}
+```
+
+### Get External Events
+```graphql
+query GetExternalEvents {
+  external_event {
+    attributes
+    event_type_name
+    key
+    duration
+    start_time
+    source_key
+  }
+}
+```
+
+### Get External Events from an External Source
+```graphql
+query GetExternalEventsFromExternalSource($sourceKey: String!, $derivationGroupName: String!) {
+  external_event(where: {source_key: {_eq: $sourceKey}, derivation_group_name: {_eq: $derivationGroupName}}) {
+    attributes
+    event_type_name
+    key
+    duration
+    start_time
+    source_key
+  }
+}
+```
+
+### Get External Sources
+```graphql
+query GetExternalSources {
+  external_source {
+    attributes
+    created_at
+    derivation_group_name
+    end_time
+    key
+    owner
+    start_time
+    source_type_name
+    valid_at
+  }
+}
+```
+
+### Get External Sources from a Derivation Group
+```graphql
+query GetExternalSourcesFromDerivationGroup($derivationGroupName: String!) {
+  external_source(where: {derivation_group_name: {_eq: $derivationGroupName}}) {
+    attributes
+    created_at
+    derivation_group_name
+    end_time
+    key
+    owner
+    start_time
+    source_type_name
+    valid_at
+  }
+}
+```
+
+### Get Derivation Groups
+```graphql
+query GetDerivationGroup {
+  derivation_group {
+    name
+    owner
+    source_type_name
+  }
+}
+```
