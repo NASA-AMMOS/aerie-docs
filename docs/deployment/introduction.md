@@ -83,7 +83,8 @@ Note these numbers are lower bounds. You will need to scale Aerie based on your 
 
 ## Defect Reporting Procedure
 
-All defect reports should go to `aerie_support@jpl.nasa.gov`.
+Defect reports should be sent to: `aerie-support@googlegroups.com`. For chat-based support, please join us on the [NASA-AMMOS Slack](https://join.slack.com/t/nasa-ammos/shared_invite/zt-1mlgmk5c2-MgqVSyKzVRUWrXy87FNqPw), in the `#aerie-users` channel.
+
 
 [gateway]: https://github.com/orgs/NASA-AMMOS/packages/container/package/aerie-gateway
 [hasura]: https://github.com/orgs/NASA-AMMOS/packages/container/package/aerie-hasura

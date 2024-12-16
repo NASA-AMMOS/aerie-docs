@@ -4,7 +4,7 @@ This document describes some of the things you'll need to consider when deployin
 
 :::danger
 
-Aerie allows execution of user-provided code in the simulation and scheduling environments, so it is important to protect your environment from being accessed by anonymous Internet users. The safest way to deploy Aerie is with *network-level access controls*, limiting access to eg. only IP addresses on your local network or VPN. You may want to also use an [authentication adapter](http://localhost:3000/aerie-docs/deployment/advanced-sso/) to implement user-level access controls. Do not run Aerie on the public internet without one or both of these controls in place!
+Aerie allows execution of user-provided code in the simulation and scheduling environments, so it is important to protect your environment from being accessed by anonymous Internet users. The safest way to deploy Aerie is with *network-level access controls*, limiting access to eg. only IP addresses on your local network or VPN. You may want to also use an [authentication adapter](/deployment/advanced-sso/) to implement user-level access controls. Do not run Aerie on the public internet without one or both of these controls in place!
 
 :::
 
@@ -15,7 +15,7 @@ Before deployment, consider how you plan to handle these details about your infr
 * **Domain name** - if you are using a domain name for your Aerie services, make sure you configure the DNS to point to your server's IP address, whether internal or public. This name will also be used in your docker-compose configuration - see below.
 * **HTTPS** - we recommend that Aerie deployments, **especially** those on public networks, use HTTPS with a valid TLS certificate. You can use a TLS certificate from an authority like [Let's Encrypt](https://letsencrypt.org/), or a self-signed certificate from your organization for deployments on a private network.
 * **Reverse proxy/load balancer** - _if_ you are using HTTPS, you will need to configure an additional service to be the single ingress point for all (HTTPS) network traffic, strip TLS and forward HTTP traffic to the Aerie services. One way to accomplish this is with the **[reverse proxy pattern](/deployment/advanced-reverse-proxy/)**, for which an example is provided. If you are using AWS infrastructure, you may find it easier to manage your certificate with [Amazon Certificate Manager](https://docs.aws.amazon.com/acm/latest/userguide/acm-overview.html) and route all traffic through an [Application Load Balancer](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/introduction.html) instead of using a reverse proxy.
-* **Authentication/SSO** - Aerie **does not include** its own fully-featured implementation of user authentication, and should either be used with an **"authentication adapter,"** or in a private network with limited access. We provide an adapter for use with JPL CAM, a JPL-internal SSO solution - [instructions here](http://localhost:3000/aerie-docs/deployment/advanced-sso/). Users needing to integrate with other SSO/auth systems may need to write their own auth adapters following the same pattern.
+* **Authentication/SSO** - Aerie **does not include** its own fully-featured implementation of user authentication, and should either be used with an **"authentication adapter,"** or in a private network with limited access. We provide an adapter for use with JPL CAM, a JPL-internal SSO solution - [instructions here](/deployment/advanced-sso/). Users needing to integrate with other SSO/auth systems may need to write their own auth adapters following the same pattern.
 
 
 ## Production Deployment Guide
@@ -30,11 +30,11 @@ This checklist outlines a set of steps for running a minimal production Aerie de
     unzip Deployment.zip
     tar -xf deployment.tar
    ```
-4. Modify the `.env` file to fill in the required variables - see [Environment Variables](http://localhost:3000/aerie-docs/deployment/introduction/#environment-variables). Importantly, all services need usernames and passwords set, and Hasura needs a secret key - see eg. [this completed example](https://github.com/NASA-AMMOS/aerie-mission-model-template/blob/main/.env.template).
-5. Modify the [`docker-compose.yml` file](http://localhost:3000/aerie-docs/deployment/introduction/#docker-composeyml) for your specific environment.
+4. Modify the `.env` file to fill in the required variables - see [Environment Variables](/deployment/introduction/#environment-variables). Importantly, all services need usernames and passwords set, and Hasura needs a secret key - see eg. [this completed example](https://github.com/NASA-AMMOS/aerie-mission-model-template/blob/main/.env.template).
+5. Modify the [`docker-compose.yml` file](/deployment/introduction/#docker-composeyml) for your specific environment.
     - A useful pattern is to **[merge Compose files](https://docs.docker.com/compose/how-tos/multiple-compose-files/merge/)** when running Aerie, to keep your custom compose file changes separate from the original file provided by the deployment, rather than modifying the original. You can create a file called eg. `docker-compose.prod.yml` which contains *only* the overriding changes you want to make to the original file. Then, when running your services, you can pass them both to Compose [with the `-f` flag](https://docs.docker.com/compose/how-tos/multiple-compose-files/merge/).
-    - If you are using [CAM/SSO authentication adapters](http://localhost:3000/aerie-docs/deployment/advanced-authentication/) and/or [a reverse proxy](http://localhost:3000/aerie-docs/deployment/advanced-reverse-proxy/), review their docs to determine the Compose file modifications they require.
-    - Regardless of your other settings, your compose file needs to provide the `aerie-ui` service with the **fully-qualified domain names** it will use to make requests to the other services. This is generally done by adding an additional variable to the `.env` file with your base domain, eg.:
+    - If you are using [CAM/SSO authentication adapters](/deployment/advanced-authentication/) and/or [a reverse proxy](/deployment/advanced-reverse-proxy/), review their docs to determine the Compose file modifications they require.
+    - Regardless of your other settings, your compose file needs to provide the `aerie-ui` service with the **fully-qualified domain names** (FQDNs) it will use to make requests to the other services. This is generally done by adding an additional variable to the `.env` file with your base domain, eg.:
       ```
       AERIE_HOST="myaerie.myorg.com"
       ```
@@ -58,8 +58,9 @@ This checklist outlines a set of steps for running a minimal production Aerie de
 
 ### Data persistence and backups
 It's a good idea to have a strategy for backing up and restoring your Aerie data in case something goes wrong with your server. Aerie mainly persists data in two ways:
-* The Postgres database, managed by the `aerie-postgres` instance, stores the majority of user-created data such as plans and simulation runs.
-* Some data is also stored in the filesystem of the Aerie instance, such as uploaded mission model JAR files.
+* The Postgres database, managed by the `aerie-postgres` container, stores the majority of user-created data such as plans and simulation runs.
+* Some data is also stored in the filesystem of the Aerie container, such as uploaded mission model JAR files.
+
 Both types of data are persisted using [Docker Volumes](https://docs.docker.com/engine/storage/volumes/). One way to handle backups is simply to copy all data out of the Aerie volumes (to another location, off of your main instance) on a eg. nightly basis.
 
 It may be useful sometimes to just backup the state of your Postgres database using a utility like `pg_dump` eg. before performing complex database operations - just remember this does not backup the files in the filesystem and therefore is only useful for recovering from database issues. 
@@ -74,7 +75,7 @@ Aerie releases new versions roughly every two weeks, and eventually you may want
   - Update the `DOCKER_TAG` environment variable to the new desired Aerie version
   - If necessary, modify your docker-compose or any other deployment options to deal with breaking changes
   - Bring your docker containers back up with `docker compose up`
-  - Follow the instructions on the [Database Migrations page](http://localhost:3000/aerie-docs/deployment/advanced-database-migrations/) to run the migration script, which will automatically migrate your data to be compatible with the new version.
+  - Follow the instructions on the [Database Migrations page](/deployment/advanced-database-migrations/) to run the migration script, which will automatically migrate your data to be compatible with the new version.
 
 ### Logging
 
