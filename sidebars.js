@@ -99,6 +99,7 @@ const sidebars = {
           type: 'link',
           href: '/introduction/#fast-track',
         },
+        'deployment/production-deployment',
         'deployment/advanced-ui-custom-base-path',
         'deployment/advanced-kubernetes',
         'deployment/advanced-database-migrations',
