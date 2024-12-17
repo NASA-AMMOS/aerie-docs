@@ -1,6 +1,28 @@
 # Sequence Editor
 
-Aerie sequence editor is a web application with various features (auto complete, linting, hinting) to assist users while typing a sequence of commands. Aerie only supports AMPCS command dictionary schema for commands. To be able to author or edit a sequence, users must reference a command dictionary available in the Aerie instance. To upload a command dictionary [see instructions here](../../command-expansion/upload-command-dictionary).
+Aerie sequence editor is a web application with various features (auto complete, linting, hinting) to assist users while typing a sequence of commands. Aerie currently supports AMPCS command, parameter, and channel dictionary schemas for commands, parameters, and telemetry channels. To be able to author or edit a sequence, users must reference a parcel containing a command dictionary available in the Aerie instance. To upload a command dictionary [see instructions here](../../command-expansion/upload-command-dictionary). Users may optionally upload parameter dictionaries, channel dictionaries, and adaptataion code on the same view. After these are uploaded a parcel should be specified.
+
+## Parcel
+
+Aerie groups a command dictionary along with zero of more parameter dictionaries, an optional channel dictionary, and an optional javascript adaptation file. If a parcel includes an adaptation, the adaptation may use parameter and channel dictionaries for additional information beyond the command dictionary. If a parcek does not specify an adaption or specifies an adaptation does not make use of the additional dictionaries they may have no impact on sequencing.
+
+Navigate to the parcel page to create a parcel or edit an existing parcel.
+
+import parcelMenuItem from './assets/parcelMenuItem.png';
+
+<figure>
+  <img alt="Navigate to Aerie parcel configuration view" src={parcelMenuItem} />
+  <figcaption>Use main Aerie drop down menu to navigate to the Aerie parcel configuration view.</figcaption>
+</figure>
+
+Create a new parcel or edit an existing parcel to change the configuration. Parcels are often named according to Ground Data System or Flight Software releases.
+
+import parcelConfiguration from './assets/parcelConfiguration.png';
+
+<figure>
+  <img alt="Specify which dictionaries and adaptation makeup a parcel" src={parcelConfiguration} />
+  <figcaption>Parcels define a grouping of files that effect sequencing checks and translations</figcaption>
+</figure>
 
 Navigate to the Aerie sequence editor from the Aerie drop down menu at the upper left corner.
 
@@ -32,7 +54,7 @@ import editSeq from './assets/editSeq.png';
 
 <figure>
   <img alt="Edit sequence" src={editSeq} />
-  <figcaption>Users can rename or edit a sequence, and view the seqJSON output. </figcaption>
+  <figcaption>Users can rename or edit a sequence, and view the seqJSON output.</figcaption>
 </figure>
 
 ## Import / export seqJSON
@@ -62,3 +84,39 @@ R00:00:10 THROW_BANANA 10
 - For the enumerated args, `control + Space` can be used to select one of the defined enum values.
 - Errors will be linted with a red squiggly underline. Hovering over the error should provide explanation for the error as shown below.
 - Generate seqJSON will fail if you have errors in the sequence.
+
+## Form editor
+
+import sequenceFormEditor from './assets/sequenceFormEditor.png';
+
+Aerie offers a form editor to edit individual arguments. Different argument types -- strings, enumerations, variables and numbers -- each have their own appropriate control
+
+<figure>
+  <img alt="Form view for sequence editing" src={sequenceFormEditor} />
+  <figcaption>
+    The currently selected command's arguments can be edited in the form view, changes are reflected in the open
+    sequence.
+  </figcaption>
+</figure>
+
+## Keyboard shortcuts
+
+When the cursor is within the sequence editor the following keyboard commands are available
+
+| Windows/Linux        | Mac                            | Command            | Description                                                                                                                |
+| -------------------- | ------------------------------ | ------------------ | -------------------------------------------------------------------------------------------------------------------------- |
+| Alt-ArrowLeft        | Ctrl-ArrowLeft on macOS        | cursorSyntaxLeft   | Move the cursor over the next syntactic element to the left.                                                               |
+| Shift-Alt-ArrowLeft  | Shift-Ctrl-ArrowLeft on macOS  | selectSyntaxLeft   | Move the selection head over the next syntactic element to the left.                                                       |
+| Alt-ArrowRight       | Ctrl-ArrowRight on macOS       | cursorSyntaxRight  | Move the cursor over the next syntactic element to the right.                                                              |
+| Shift-Alt-ArrowRight | Shift-Ctrl-ArrowRight on macOS | selectSyntaxRight  | Move the selection head over the next syntactic element to the right.                                                      |
+| Alt-ArrowUp          | Alt-ArrowUp                    | moveLineUp         | Move the selected lines up one line.                                                                                       |
+| Alt-ArrowDown        | Alt-ArrowDown                  | moveLineDown       | Move the selected lines down one line.                                                                                     |
+| Shift-Alt-ArrowUp    | Shift-Alt-ArrowUp              | copyLineUp         | Create a copy of the selected lines. Keep the selection in the top copy.                                                   |
+| Shift-Alt-ArrowDown  | Shift-Alt-ArrowDown            | copyLineDown       | Create a copy of the selected lines. Keep the selection in the bottom copy.                                                |
+| Alt-l                | Ctrl-l                         | selectLine         | Expand the selection to cover entire lines.                                                                                |
+| Ctrl-[               | Cmd-[                          | indentLess         | Remove a unit of indentation from all selected lines.                                                                      |
+| Ctrl-]               | Cmd-]                          | indentMore         | Add a unit of indentation to all selected lines.                                                                           |
+| Shift-Ctrl-k         | Shift-Cmd-k                    | deleteLine         | Delete selected lines.                                                                                                     |
+| Ctrl-/               | Cmd-/                          | toggleComment      | Comment or uncomment the current selection. Will use line comments if available, otherwise falling back to block comments. |
+| Ctrl-S               | Cmd-S                          | saveDocument       | Save current editor contents                                                                                               |
+| Ctrl-Space           | Cmd-Space                      | suggestCompletions | Show autocomplete options                                                                                                  |
