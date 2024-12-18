@@ -1,2 +1,2 @@
-https://nasa-ammos.github.io/aerie-docs/mgss-cover-page.html
-https://nasa-ammos.github.io/aerie-docs/overview/software-design-document/
+http://localhost:3000/mgss-cover-page.html
+http://localhost:3000/overview/software-design-document/

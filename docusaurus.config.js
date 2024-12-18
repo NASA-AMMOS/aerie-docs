@@ -6,7 +6,7 @@ const isDev = process.env.NODE_ENV === 'development';
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  baseUrl: '/aerie-docs',
+  baseUrl: '/',
   favicon: 'img/favicon.ico',
   i18n: {
     defaultLocale: 'en',

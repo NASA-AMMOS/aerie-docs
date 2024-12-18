@@ -24,7 +24,7 @@ function HomepageHeader() {
         <div className={styles.buttons}>
           <Link
             className={clsx('button button--secondary button--lg', styles.heroButton)}
-            to="/aerie-docs/introduction/#fast-track"
+            to="/introduction/#fast-track"
           >
             Get started
           </Link>
