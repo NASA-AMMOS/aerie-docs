@@ -1,21 +1,45 @@
 # Sequence Adaptation
 
-The sequence editor supports uploading a custom sequence adaptation through the Ditionaries page. This custom adaptation can overwrite various features inside of the editor including linting and autocomplete.
+The sequence editor supports uploading a custom sequence adaptation through the Dictionaries page. This custom adaptation can overwrite various features inside of the editor including linting and autocomplete.
 
-The adaptation uses `globalThis` overrides and currently supports the following properties:
+The adaptation type is defined in [Sequencing](https://github.com/NASA-AMMOS/aerie-ui/blob/develop/src/types/sequencing.ts#L70) and [Extension Points](https://github.com/NASA-AMMOS/aerie-ui/blob/develop/src/utilities/sequence-editor/extension-points.ts)
 
 ```ts
-  globalThis.CONDITIONAL_KEYWORDS: { ELSE: string; ELSE_IF?: string[]; END_IF: string; IF: string[] } | undefined;
-  globalThis.LOOP_KEYWORDS:
-    | {
-        BREAK: string;
-        CONTINUE: string;
-        END_WHILE_LOOP: string;
-        WHILE_LOOP: string[];
-      }
-    | undefined;
-  globalThis.GLOBALS = [{ name: string, type: 'int' | 'flt' | 'str' | 'unit' }] | undefined;
-  globalThis.ARG_DELEGATOR: [stem: string]: {
+export interface ISequenceAdaptation {
+  argDelegator?: ArgDelegator;
+  autoComplete: (
+    channelDictionary: AmpcsChannelDictionary | null,
+    commandDictionary: AmpcsCommandDictionary | null,
+    parameterDictionaries: AmpcsParameterDictionary[],
+    librarySequences: LibrarySequence[],
+  ) => (context: CompletionContext) => CompletionResult | null;
+  autoIndent?: () => (context: IndentContext, pos: number) => number | null | undefined;
+  globals?: GlobalType[];
+  inputFormat: {
+    linter?: (
+      diagnostics: Diagnostic[],
+      commandDictionary: AmpcsCommandDictionary,
+      view: EditorView,
+      node: SyntaxNode,
+    ) => Diagnostic[];
+    name: string;
+    toInputFormat?(input: string): Promise<string>;
+  };
+  modifyOutput?: (
+    output: string,
+    parameterDictionaries: AmpcsParameterDictionary[],
+    channelDictionary: AmpcsChannelDictionary | null,
+  ) => any;
+  modifyOutputParse?: (
+    output: string,
+    parameterDictionaries: AmpcsParameterDictionary[],
+    channelDictionary: AmpcsChannelDictionary | null,
+  ) => any;
+  outputFormat: IOutputFormat[];
+}
+
+export type ArgDelegator = {
+  [stem: string]: {
     [arg: string]:
       | undefined
       | ((
@@ -24,8 +48,15 @@ The adaptation uses `globalThis` overrides and currently supports the following 
           channelDictionary: ChannelDictionary | null,
           precedingArgValues: string[],
         ) => FswCommandArgument | undefined);
-  } | undefined;
-  function TO_SEQ_JSON(seqJson: SeqJson, parameterDictionaries: ParameterDictionary[], channelDictionary: ChannelDictionary | null);
-  function FROM_SEQ_JSON(seqJson: SeqJson, parameterDictionaries: ParameterDictionary[], channelDictionary: ChannelDictionary | null);
-  function LINT(commandDictionary: CommandDictionary | null, view: EditorView, node: SyntaxNode);
+  };
+};
 ```
+
+- argDelegator - adaptations may define a function which changes an argument definition from what is in the command dictionary. One use case for this is when the allowed values for an argument are dependent on the context of the surrounding arguments
+- autoComplete - adaptations may defined a function which changes the suggestion completions by the editor
+- autoIndent - A function to provide an algorithm to use for aligning code and performing indentation
+- globals - A collection of values that will be put into scope for syntax checking
+- inputFormat - the language that the user will use to author sequences
+- modifyOutput - function to transform output file prior to storage
+- modifyOutputParse - function to transform an existinng output for purposes of loading into the editor
+- outputFormat - an array of languages to transpile the sequence into upon save.
