@@ -43,7 +43,33 @@ const sidebars = {
       link: {
         type: 'generated-index',
       },
-      items: ['overview/concept-of-operations', 'overview/software-design-document'],
+      items: [
+        'overview/concept-of-operations',
+        {
+          type: 'category',
+          label: 'Software Architecture and Design',
+          link: {
+            id: 'overview/design/arch-design-overview',
+            type: 'doc',
+          },
+          items: [
+            {
+              type: 'category',
+              label: 'ADRs',
+              link: {
+                type: 'generated-index',
+              },
+              items: [
+                'overview/design/arch-decision-records/adr-0000-adr-process',
+                'overview/design/arch-decision-records/adr-0001-java',
+                'overview/design/arch-decision-records/adr-0002-graphql',
+                'overview/design/arch-decision-records/adr-0003-hasura-and-postgres',
+              ],
+            },
+            'overview/design/software-design-document',
+          ],
+        },
+      ],
     },
     {
       type: 'category',
