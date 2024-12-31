@@ -1,10 +1,10 @@
-# ADR-0101 Aerie Actions
+# ADR-0101 - Aerie Actions
 
 ## Context
 
-Much like an integrated development environment (IDE) for programming, the Phoenix Sequencing Development Environment (SDE) is intended to help spacecraft operators efficiently develop and verify sequences of commands in preparation for sending those commands to a spacecraft or test bed for execution (see [adr-0100](adr-0100-phoenix-sde)). Given the wide variety of languages used to write sequences and tools used to operate on sequences found across missions (to perform static checking, compilation, and sequence translation), Phoenix must be designed so missions can easily hook in their language and tools of choice.
+Much like an integrated development environment (IDE) for programming, the Phoenix Sequencing Development Environment (SDE) is intended to help spacecraft operators efficiently develop and verify sequences of commands in preparation for sending those commands to a spacecraft or test bed for execution (see [adr-0100](../adr-0100-phoenix-sde)). Given the wide variety of languages used to write sequences and tools used to operate on sequences found across missions (to perform static checking, compilation, and sequence translation), Phoenix must be designed so missions can easily hook in their language and tools of choice.
 
-As a first step in providing mission customization of Phoenix, a sequence adaptation interface was created (see [adr-0006](adr-0006-phoenix-editor)). This adaptation is written in javascript and can loaded at runtime into the Aerie UI to add or alter the behavior of Phoenix. Over time, the interfaces and capabilities provided by the sequence adaptation have grown. The sequence adaptation currently provides the following:
+As a first step in providing mission customization of Phoenix, a sequence adaptation interface was created (see [adr-0006](../adr-0006-phoenix-editor)). This adaptation is written in javascript and can loaded at runtime into the Aerie UI to add or alter the behavior of Phoenix. Over time, the interfaces and capabilities provided by the sequence adaptation have grown. The sequence adaptation currently provides the following:
 
 - Customization of the text editor behavior used to write and view sequences via the use of CodeMirror extensions (there are guardrails here so only some code mirror capabilities are exposed)
 - Use parsed command dictionary files (e.g. parameter and telemetry) parsed by Aerie whose contents are used to provide a better sequence authoring experience (e.g. autocompletion of user-friendly names for command arguments instead of numeric values).

@@ -1,6 +1,6 @@
-# ADR-0005 Typescript Sequence Editor (SUPERSEDED)
+# ADR-0005 - Typescript Sequence Editor (SUPERSEDED)
 
-NOTE: This ADR has been superseded by [ADR-0006](adr-0006-phoenix)
+NOTE: This ADR has been superseded by [ADR-0006](../adr-0006-phoenix-editor)
 
 ## Context
 

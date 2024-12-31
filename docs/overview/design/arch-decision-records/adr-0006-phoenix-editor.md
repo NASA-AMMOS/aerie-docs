@@ -1,6 +1,6 @@
 # ADR-0006 - Phoenix Editor with SeqN Language
 
-NOTE: This ADR supersedes [ADR-0005](adr-0005-sequencing-typescript)
+NOTE: This ADR supersedes [ADR-0005](../adr-0005-sequencing-typescript)
 
 ## Context
 
