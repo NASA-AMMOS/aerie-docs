@@ -1,6 +1,6 @@
 # ADR-0002 - GraphQL instead of REST API
 
-NOTE: Apollo has been replaced by Hasura as of [0003-hasura-and-postgres](../0003-hasura-and-postgres.md).
+NOTE: Apollo has been replaced by Hasura as of [0003-hasura-and-postgres](../adr-0003-hasura-and-postgres).
 
 ## Context
 
