@@ -1,4 +1,4 @@
-# ADR-0100 Phoenix as a Multi-Mission Sequencing IDE
+# ADR-0100 - Phoenix as a Multi-Mission Sequencing IDE
 
 ## Context
 
