@@ -2,6 +2,10 @@
 
 NOTE: This ADR supersedes [ADR-0005](../adr-0005-sequencing-typescript)
 
+## Status
+
+Retroactive
+
 ## Context
 
 The Aerie sequence editor currently provides users with the ability to author and edit sequences in a TypeScript embedded Domain Specific Language (eDSL). As this capability has been rolled out, the feedback from users has been far from positive. Below are some of the issues that have been identified:

@@ -1,12 +1,14 @@
 # ADR-0005 - Typescript Sequence Editor (SUPERSEDED)
 
-NOTE: This ADR has been superseded by [ADR-0006](../adr-0006-phoenix-editor)
+## Status
+
+**Superseded** by [ADR-0006](../adr-0006-phoenix-editor)
 
 ## Context
 
 In the spring of 2022, the project was under immense pressure from its primary sponsor (MGSS) and its first committed customer, Europa Clipper, to deliver an integrated sequence editing capability within Aerie. Much of the pressure was driven by Clipper's impending launch date and its upcoming verification and validation activities in preparation for launch.
 
-Prior to this time, a VS code extension known as the "Falcon Sequence Editor" had been developed, which allowed users to author and edit sequences in ???? language format and generate corresponding seq-json sequences that could be passed to other tools within a mission's ground system. The Falcon sequence editor was completely separate from Aerie, and thus at the time, there was no way to share information between the editor and Aerie.
+Prior to this time, a VS code extension known as the "Falcon Sequence Editor" had been developed, which allowed users to author and edit sequences in a particular language format and generate corresponding seq-json sequences that could be passed to other tools within a mission's ground system. The Falcon sequence editor was completely separate from Aerie, and thus at the time, there was no way to share information between the editor and Aerie.
 
 TODO: Add some additional context on why the current Falcon Sequence Editor was insufficient to meet needs...
 

@@ -1,5 +1,9 @@
 # ADR-0001 - Java as a mission modeling language
 
+## Status
+
+Retroactive
+
 ## Context
 
 APGen, Aerie's predecessor, used a Domain-Specific Language (DSL) for defining activities and resources.

@@ -1,5 +1,9 @@
 # ADR-0100 - Phoenix as a Multi-Mission Sequencing IDE
 
+## Status
+
+Accepted
+
 ## Context
 
 The Aerie project team was tasked by its primary sponsor, the NASA AMMOS program, to deliver enhanced multi-mission spacecraft sequencing capabilities to missions (this task has been colloquially called SEQ 2.0).

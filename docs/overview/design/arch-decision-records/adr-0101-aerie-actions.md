@@ -1,5 +1,9 @@
 # ADR-0101 - Aerie Actions
 
+## Status
+
+Proposed
+
 ## Context
 
 Much like an integrated development environment (IDE) for programming, the Phoenix Sequencing Development Environment (SDE) is intended to help spacecraft operators efficiently develop and verify sequences of commands in preparation for sending those commands to a spacecraft or test bed for execution (see [adr-0100](../adr-0100-phoenix-sde)). Given the wide variety of languages used to write sequences and tools used to operate on sequences found across missions (to perform static checking, compilation, and sequence translation), Phoenix must be designed so missions can easily hook in their language and tools of choice.

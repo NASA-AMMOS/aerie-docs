@@ -1,5 +1,9 @@
 # ADR-0003 - Use Hasura and Postgres
 
+## Status
+
+Retroactive
+
 ## Context
 
 At the time, the Aerie team was developing and maintaining an API server, using [Apollo](https://www.apollographql.com/). The team found themselves spending a lot of their time on repetitive tasks involving adding endpoints to create, read, update, or delete some domain object.

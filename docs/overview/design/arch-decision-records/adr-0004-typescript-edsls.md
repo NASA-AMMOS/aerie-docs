@@ -1,6 +1,10 @@
 # ADR-0004 - TypeScript as the User-Facing Language for Scheduling, Constraints, and Command Expansion
 
-This has been partially superseded: Command Expansion is still in Typescript, and Scheduling and Constraints checking TypeScript interfaces continue to be supported. Scheduling is now also supported in java.
+## Status
+
+Retroactive, partially Superseded: 
+
+Command Expansion is still in Typescript, and Scheduling and Constraints checking TypeScript interfaces continue to be supported. Scheduling is now also supported in java.
 
 ## Context
 

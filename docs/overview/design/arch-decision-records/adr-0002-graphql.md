@@ -2,6 +2,10 @@
 
 NOTE: Apollo has been replaced by Hasura as of [0003-hasura-and-postgres](../adr-0003-hasura-and-postgres).
 
+## Status
+
+Retroactive
+
 ## Context
 
 #### Aerie API Needs
