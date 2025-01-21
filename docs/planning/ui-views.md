@@ -137,12 +137,12 @@ interface Timeline {
 }
 ```
 
-To visualize data in a timeline you need to add row objects to the `rows` array. A row is a layered visualization of time-ordered data. Each layer of a row is specified as an object of the `layers` array. The interfaces for a `Row`, `Layer`, and `ActivityOptions` are as follows:
+To visualize data in a timeline you need to add row objects to the `rows` array. A row is a layered visualization of time-ordered data. Each layer of a row is specified as an object of the `layers` array. The types for a `Row`, `Layer`, and `DiscreteOptions` are as follows:
 
 ```ts
-interface Row {
-  activityOptions?: ActivityOptions;
+type Row = {
   autoAdjustHeight: boolean;
+  discreteOptions: DiscreteOptions;
   expanded: boolean;
   height: number;
   horizontalGuides: HorizontalGuide[];
@@ -150,37 +150,48 @@ interface Row {
   layers: Layer[];
   name: string;
   yAxes: Axis[];
-}
+};
 
-interface Layer {
-  chartType: 'activity' | 'line' | 'x-range';
+type Layer {
+  chartType: 'activity' | 'line' | 'x-range' | 'external-event';
   filter: {
     activity?: ActivityLayerFilter;
+    externalEvent?: ExternalEventLayerFilter;
     resource?: ResourceLayerFilter;
   };
   id: number;
+  name: string;
   yAxisId: number | null;
 }
 
-type ActivityOptions = {
-  // Height of activity subrows
-  activityHeight: number;
+type DiscreteOptions = {
+  // Activity-Layer-specific Options
+  activityOptions?: {
+    // Whether or not to display only directives, only spans, or both in the row
+    composition: 'directives' | 'spans' | 'both';
 
-  // Whether or not to display only directives, only spans, or both in the row
-  composition: 'directives' | 'spans' | 'both';
+    // If 'directive' the activities are grouped starting with directive types, if 'flat' activities are grouped by type regardless of hierarchy
+    hierarchyMode: 'directive' | 'flat';
+  };
 
-  // Describes the primary method in which activities are visualized within this row
+  // Describes the primary method in which external events are visualized within this row
   displayMode: 'grouped' | 'compact';
 
-  // If 'directive' the activities are grouped starting with directive types, if 'flat' activities are grouped by type regardless of hierarchy
-  hierarchyMode: 'directive' | 'flat';
+  // External-Event-Layer-specific Options
+  externalEventOptions?: {
+    // Determines whether to group the External Events by their event type, or their external source
+    groupBy: 'event_type_name' | 'source_key';
+  };
 
-  // Activity text label behavior
+  // Height of subrows
+  height: number;
+
+  // Item text label behavior
   labelVisibility: 'on' | 'off' | 'auto';
 };
 ```
 
-Here is a JSON object that creates a single row with one activity layer.
+Here is a JSON object that creates a single row with one activity layer that renders all activity types. Activity layer filtering and customization is discussed in depth on the [Timeline Editing](./timeline-editing.mdx) page.
 
 ```json
 {
@@ -191,9 +202,7 @@ Here is a JSON object that creates a single row with one activity layer.
   "layers": [
     {
       "activityColor": "#283593",
-      "activityHeight": 20,
       "chartType": "activity",
-      "filter": { "activity": { "types": ["BiteBanana", "PickBanana"] } },
       "id": 0,
       "yAxisId": null
     }
@@ -225,13 +234,6 @@ Here is the JSON for creating a row with two overlaid `resource` layers. The fir
 
 ```json
 {
-  "activityOptions": {
-    "activityHeight": 16,
-    "composition": "both",
-    "displayMode": "grouped",
-    "hierarchyMode": "flat",
-    "labelVisibility": "auto"
-  },
   "autoAdjustHeight": false,
   "height": 100,
   "horizontalGuides": [],
