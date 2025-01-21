@@ -2,6 +2,7 @@ import timelineEditor from './assets/timeline-editor.png';
 import timelineRowEditor from './assets/timeline-row-editor.png';
 import timelineDiscreteOptionsEditor from './assets/timeline-discrete-options-editor.png';
 import timelineActivityOptionsMode from './assets/timeline-activity-options-mode.png';
+import timelineActivityFilteringModal from './assets/timeline-activity-filtering-modal.png';
 import timelineYAxisSettings from './assets/timeline-y-axis-settings.png';
 import timelineActivityTree from './assets/timeline-activity-tree.png';
 import timelineActivityEditingDemo from './assets/timeline-activity-layer-adding.mov';
@@ -55,6 +56,52 @@ To visualize activities on the timeline, add a new activity layer using the plus
   <source src={timelineActivityEditingDemo} />
 </video>
 
+### Filter Activities
+
+Each activity layer can be configured with a custom filter on activity types and directive/span instance properties. Clicking on the default Activity Layer button on a layer will open the Activity Filtering overlay. This overlay can be repositioned by dragging on the top bar of the overlay. The overlay can also be resized using the resize handle in the bottom right of the overlay. With this overlay you can:
+
+- Manually specify activity types to include in the layer
+- Dynamically specify activity types to include in the layer by type name and/or subsystem
+- Apply other filters on top of the manual and dynamic type filters that target specific directives/spans. This includes
+  filtering by tags, activity name, scheduling goal id, and activity parameter values. These filters can also be applied to specific activity types.
+
+<figure>
+  <img
+    alt="Aerie UI - Activity Filtering"
+    src={timelineActivityFilteringModal}
+    style={{ maxHeight: '100%', width: '100%' }}
+  />
+  <figcaption>Figure 3: Aerie UI Activity Filtering</figcaption>
+</figure>
+
+#### 1. Layer Name
+
+Change the activity layer name. It is recommended that you name your activity layers when you have multiple activity layers within a row in order to better keep track of what your layers are filtering on. No name is automatically generated from your filters.
+
+#### 2. Manually Select Types
+
+Manually select specific activity types to render in the activity layer. This is useful when you want tighter control over a small set of activity types.
+
+#### 3. Dynamically Select Types
+
+Dynamically select activity types by type name and/or subsystem. Click on the filter with the plus button to add a new clause. For example, you could create a filter such as `Type includes "banana"` to match all activity types that include the string banana. This matching is case insensitive. Each clause is ANDed together, so if you add another clause such as `Type does not include "grow"` the final statement would be `Type includes "banana" AND does not include "grow"`. Dynamic type filters are stored as clauses within the UI View so that they can be dynamically applied to any model.
+
+:::info Note
+The resulting activity types for a filter are determined using the union of the manual and dynamic types. If no manual or dynamic type filters are added, all activity types are by default included.
+:::
+
+#### 4. Other Activity filters
+
+Filter activity directive and span instances by tags, activity name, scheduling goal id, and activity parameter values. These filters apply to the set of manually and dynamically selected types (or all types if none specified). These filters behave similarly to dynamic types – each clause is ANDed together. For example, you could create a filter such as `Tag includes (FOO or "Bar") AND Parameter "biteSize" equals 1`. The list of parameters is filtered by the list of resulting activity types. Additionally, parameters are uniquely identified in the filter by the combination of parameter name and parameter type. Parameter filtering works across activity types when the parameter name + type is shared - a common use case when multiple spacecraft are being modeled that share certain parameters.
+
+##### 5. Resulting Types
+
+This section shows the list of types resulting from the manually and dynamically selected types. If no manual or dynamic filters have been specified, all types in the model will be included. The indicator to the right of the Resulting Types text shows the number of resulting types followed by the number of "instances" which is the number of directives and spans (where each span does not have a direct parent directive) that match your filters.
+
+##### 6. Resuling Type Filter
+
+Add other filters (see 4) to a specific activity type in order to further filter instances of that type.
+
 ### Manage how Activities and Events are Rendered
 
 A Layer Options section will appear in the row editor when the row has at least one activity or event layer. Layer Options affect how activities and events are rendered for this row.
@@ -65,7 +112,7 @@ A Layer Options section will appear in the row editor when the row has at least 
     src={timelineDiscreteOptionsEditor}
     style={{ maxHeight: '100%', width: '100%' }}
   />
-  <figcaption>Figure 3: Aerie UI Timeline Discrete Options Editor - Manage Activity and Event Rendering</figcaption>
+  <figcaption>Figure 4: Aerie UI Timeline Discrete Options Editor - Manage Activity and Event Rendering</figcaption>
 </figure>
 
 #### 1. Height
@@ -85,7 +132,7 @@ Activities and events can be rendered in two ways:
     src={timelineActivityOptionsMode}
     style={{ maxHeight: '100%', width: '100%' }}
   />
-  <figcaption>Figure 4: Aerie UI Timeline Layer Options Display Mode</figcaption>
+  <figcaption>Figure 5: Aerie UI Timeline Layer Options Display Mode</figcaption>
 </figure>
 
 #### 3. Label Visibility
@@ -129,7 +176,7 @@ Group events either by event source or by event type.
     src={timelineActivityTree}
     style={{ maxHeight: '100%', width: '100%' }}
   />
-  <figcaption>Figure 5: Aerie UI Timeline Activity Tree</figcaption>
+  <figcaption>Figure 6: Aerie UI Timeline Activity Tree</figcaption>
 </figure>
 
 In `Grouped` mode the activity tree presented in the row header has several important indicators and actions:
@@ -170,7 +217,7 @@ Y Axes have additional options available in the settings menu popover. By defaul
 
 <figure>
   <img alt="Aerie UI - Y Axis Settings" src={timelineYAxisSettings} style={{ maxHeight: '100%', width: '100%' }} />
-  <figcaption>Figure 6: Aerie UI Timeline Y Axis Settings</figcaption>
+  <figcaption>Figure 7: Aerie UI Timeline Y Axis Settings</figcaption>
 </figure>
 
 ### Manage Line and X-Range Names
