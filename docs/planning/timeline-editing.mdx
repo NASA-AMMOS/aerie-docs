@@ -1,6 +1,6 @@
 import timelineEditor from './assets/timeline-editor.png';
 import timelineRowEditor from './assets/timeline-row-editor.png';
-import timelineActivityOptionsEditor from './assets/timeline-activity-options-editor.png';
+import timelineDiscreteOptionsEditor from './assets/timeline-discrete-options-editor.png';
 import timelineActivityOptionsMode from './assets/timeline-activity-options-mode.png';
 import timelineYAxisSettings from './assets/timeline-y-axis-settings.png';
 import timelineActivityTree from './assets/timeline-activity-tree.png';
@@ -49,31 +49,35 @@ Edit row properties from within the timeline row editor. If multiple rows exist 
 
 ### Add an Activity Layer
 
-To visualize activities on the timeline add a new layer using the plus button in the Layers section. By default new layers have a layer type of Activity. Additionally, the default Aerie UI view creates a row with a single activity layer with all activities grouped by type. Manage which activities are visualized in an activity layer by clicking on the search input for the layer and selecting activities. Activities can be filtered by substring match using the input. Once you have a filter applied you can also select all matches using the Select X activities button at the bottom of the result list. You can also manage the color of the layer using the color picker. All activity layers within a row are drawn on the same canvas so that all of the activities are grouped and packed together correctly. Below is a demonstration of this workflow.
+To visualize activities on the timeline, add a new activity layer using the plus button in the Activity Layers section. The default Aerie UI view creates a row with a single activity layer with all activities grouped by type. Manage which activities are visualized in an activity layer by clicking on the Activity Layer filter button within the layer. Activity filtering will be explained in the next section. You can also manage the color of the activities rendered by this layer using the color picker. All activity layers within a single row are drawn on the same canvas so that all of the activities are grouped and packed together correctly. Below is a demonstration of this workflow.
 
 <video controls>
   <source src={timelineActivityEditingDemo} />
 </video>
 
-### Manage how Activities are Rendered
+### Manage how Activities and Events are Rendered
 
-An Activity Options section will appear in the row editor when the row has at least one activity layer. Activity options govern how activities are rendered for this row.
+A Layer Options section will appear in the row editor when the row has at least one activity or event layer. Layer Options affect how activities and events are rendered for this row.
 
 <figure>
   <img
-    alt="Aerie UI - Timeline Activity Options"
-    src={timelineActivityOptionsEditor}
+    alt="Aerie UI - Timeline Discrete Options"
+    src={timelineDiscreteOptionsEditor}
     style={{ maxHeight: '100%', width: '100%' }}
   />
-  <figcaption>Figure 3: Aerie UI Timeline Activity Options Editor - Manage Activity Rendering</figcaption>
+  <figcaption>Figure 3: Aerie UI Timeline Discrete Options Editor - Manage Activity and Event Rendering</figcaption>
 </figure>
 
-#### 1. Activity Display Mode
+#### 1. Height
 
-Activities can be rendered in two ways:
+Sets the height of activities and events in the row.
 
-- `Grouped Mode`: Activities are recursively grouped by type. In this mode, activity groups appear in the left side of the row and can be expanded to reveal the directives and spans within each type group. If a directive/span has descendents, the directive/span can be expanded to reveal its grouped descendents. This behavior continues down the decomposition tree until the resulting directive/span has no descendents. This mode is useful for understanding larger sets of activities in a broad sense across an entire plan, especially if the plan is long or contains a significant number of activities that cannot easily be visualized in a small area.
-- `Compact Mode`: Activities from all of the layers are packed together in a space efficient waterfall manner. This mode is useful for visualizing smaller sets of activities in a more traditional timeline view. In this mode the row will not autosize and must be manually adjusted to accommodate the current activity packing solution. This allows for a more precise adjustment of the density in the timeline.
+#### 2. Display Mode
+
+Activities and events can be rendered in two ways:
+
+- `Grouped Mode`: Activities are recursively grouped by type. In this mode, activity groups appear in the left side of the row and can be expanded to reveal the directives and spans within each type group. If a directive/span has descendents, the directive/span can be expanded to reveal its grouped descendents. This behavior continues down the decomposition tree until the resulting directive/span has no descendents. This mode is useful for understanding larger sets of activities in a broad sense across an entire plan, especially if the plan is long or contains a significant number of activities that cannot easily be visualized in a small area. Events render in a similar manner to activities.
+- `Compact Mode`: Activities from all of the layers are packed together in a space efficient waterfall manner. This mode is useful for visualizing smaller sets of activities in a more traditional timeline view. In this mode the row will not autosize and must be manually adjusted to accommodate the current activity packing solution. This allows for a more precise adjustment of the density in the timeline. Events render in a similar manner to activities.
 
 <figure>
   <img
@@ -81,22 +85,26 @@ Activities can be rendered in two ways:
     src={timelineActivityOptionsMode}
     style={{ maxHeight: '100%', width: '100%' }}
   />
-  <figcaption>Figure 4: Aerie UI Timeline Activity Options Display Mode</figcaption>
+  <figcaption>Figure 4: Aerie UI Timeline Layer Options Display Mode</figcaption>
 </figure>
 
-#### 2. Activity Label Visibility
+#### 3. Label Visibility
 
-There are several options to control how activity labels appear in the timeline:
+There are several options to control how activity and event labels appear in the timeline:
 
-- `On`: Always show activity labels regardless of collision.
-- `Off`: Never show activity labels.
-- `Auto`: Show activity labels when they do not collide with other labels or activities.
+- `On`: Always show labels regardless of collision.
+- `Off`: Never show labels.
+- `Auto`: Show labels when they do not collide with other labels or rectangles.
 
-#### 3. Directive and Span Visibility
+A Layer Options section will appear in the row editor when the row has at least one activity or event layer. Layer Options affect how activities and events are rendered for this row.
+
+### Activity Specific Options
+
+#### 4. Directive and Span Visibility
 
 By default, both directives and spans are shown in a row. Alternatively you may choose to show only directive or only spans.
 
-#### 4. Hierarchy Root
+#### 5. Hierarchy Root
 
 _This option is only available in `Grouped` mode._
 
@@ -105,9 +113,13 @@ Affects which activities appear in the initial type groups. By default, `Flat` i
 - `Flat`: Both activity directives and spans will appear in the top most type groups. This is useful when examining all activities resulting from a simulation without needing to consider activity decomposition.
 - `By Directive`: Only activity directives will appear in the top most type groups, effectively hiding any child spans until further down in the trees. This is useful when examining the timeline from a decomposition perspective.
 
-#### 5. Activity Height
+### Event Specific Options
 
-Sets the height of activities in the row.
+#### 6. Directive and Span Visibility
+
+_This option is only available in `Grouped` mode._
+
+Group events either by event source or by event type.
 
 ### Understanding the Grouped Activity Tree
 
