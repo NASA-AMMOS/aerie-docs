@@ -19,9 +19,10 @@ python -m pip install -r requirements.txt
 Once the prerequisite software has been installed, the script can be executed by running the following command from inside the Aerie [deployment](https://github.com/NASA-AMMOS/aerie/tree/develop/deployment) directory:
 
 ```sh
-python aerie_db_migration.py
+python aerie_db_migration.py <SUBCOMMAND>
 ```
 
+Where `<SUBCOMMAND>` is one of `status` or `migrate` ([see below](#subcommands)).
 Alternatively, you can add the script to your `PATH` and run it from anywhere with the command `aerie_db_migration.py`:
 
 ```sh
