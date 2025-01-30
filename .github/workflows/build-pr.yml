@@ -1,4 +1,4 @@
-name: "Build Docs on PR"
+name: 'Build Docs on PR'
 
 on:
   pull_request:
@@ -27,7 +27,7 @@ jobs:
         run: npm run build
       - name: Upload Artifact
         if: ${{ failure() && steps.build.conclusion == 'failure' }}
-        uses: actions/upload-pages-artifact@v1
+        uses: actions/upload-pages-artifact@v3.0.1
         with:
           path: build/
           retention-days: 7
