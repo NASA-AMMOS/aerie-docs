@@ -132,18 +132,23 @@ const sidebars = {
           href: '/introduction/#fast-track',
         },
         'deployment/production-deployment',
-        'deployment/advanced-ui-custom-base-path',
-        'deployment/advanced-kubernetes',
-        'deployment/advanced-database-migrations',
-        'deployment/advanced-authentication',
-        'deployment/advanced-permissions',
-        'deployment/advanced-reverse-proxy',
-        'deployment/advanced-sso',
+        'deployment/upgrade-process',
+        {
+          type: 'doc',
+          id: 'deployment/advanced-database-migrations',
+          label: 'Database Migrations'
+        },
         {
           label: 'Environment Variables',
           type: 'link',
           href: 'https://github.com/NASA-AMMOS/aerie/blob/develop/deployment/Environment.md',
         },
+        'deployment/advanced-ui-custom-base-path',
+        'deployment/advanced-kubernetes',
+        'deployment/advanced-authentication',
+        'deployment/advanced-permissions',
+        'deployment/advanced-reverse-proxy',
+        'deployment/advanced-sso'
       ],
     },
     {
