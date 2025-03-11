@@ -351,6 +351,18 @@ const sidebars = {
         'command-expansion/expansion-sets',
         'command-expansion/sequences',
         'command-expansion/run-expansion',
+        {
+          type: 'category',
+          label: 'Experimental: Sequence Templates',
+          link: {
+            id: 'command-expansion/template-expansion/introduction',
+            type: 'doc',
+          },
+          items: [
+            'command-expansion/template-expansion/authoring-templates',
+            'command-expansion/template-expansion/expanding-templates',
+          ],
+        },
       ],
     },
     {
