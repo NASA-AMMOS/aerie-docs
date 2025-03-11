@@ -1,0 +1,364 @@
+# SeqN Sequence Format
+
+Aerie's sequencing capabilities are adaptable to support user-specified sequencing languages, but provide the SeqN language natively.
+
+SeqN is a plaintext authoring format for commands and command sequences to a mission asset. Commands are instructions with arguments understood by the asset and command sequences collect these commands into executable programs. While sequences may be authored for execution by any asset which recognizes commands, SeqN was designed for space missions, and so this documentation refers to concepts such as "missions," "spacecraft," "ground," "uplink," and "flight software."
+
+In an operational context, SeqN serves to:
+
+- present uplink products in a human-readable, easy-to-write format
+- associate additional information with commands/command sequences for ground processes including command modeling and expansion
+
+It is designed to largely have parity with the [SeqJSON format](https://github.com/NASA-AMMOS/seq-json-schema), although it may be translated to any sequence interchange format with similar constructs. This document describes the SeqN syntax in detail and establishes conventional semantics for SeqN/SeqJSON constructs.
+
+## Sequencing Concepts
+
+A sequencing language is coupled to the ways a spacecraft can be commanded. SeqN and SeqJSON have been developed to support specific sequencing and commanding capabilities. This section describes those capabilities and the terminology used in the SeqN/SeqJSON ecosystem, but analogous capabilities may go by different/conflated names on different missions.
+
+### Sequences and Real-time Commanding
+
+SeqN expresses commands in one of two ways: either with or without timing information. A **sequence** is list of commands with timing information for when each command should be executed by Flight Software. In contrast, **real-time commands** are executed as soon as they reach their execution target and lack timing information. Sequence timing is further described in [Time Tags](#time-tags), and two forms of real-time commanding are discussed in [Immediate Commands](#immediate-commands) and [Hardware Commands](#hardware-commands).
+
+### Sequence Engines
+
+Sequencing Flight Software can be capable of executing multiple sequences at once. Each venue for sequence execution is called a **sequence engine**. SeqN supports the concept of an **engine ID** as a numeric identifier for sequence engines. Frequently, an engine ID of -1 is used to indicate "any engine" instead of specifying a particular engine. Sequence engines are principally concerned in the [Load and Activate](#load-and-activate) steps.
+
+### Ground Modeling
+
+While SeqN is principally a language to express commands for execution onboard a spacecraft, additional instructions can be included in command/sequence source files to trigger events during simulation or generate products to sequence ground tools. For this, SeqN provides the ability to attach specific modeling instructions to sequenced steps, as well as the [Ground Event](#ground-event) and [Ground Block](#ground-block) step types.
+
+## File Structure
+
+SeqN files are newline-delimited lists of directives, directive blocks, and one of steps, immediate commands, or hardware commands. Comments begin with the `#` character and may be used on a full line or inline.
+
+## Directives and Directive Blocks
+
+Directives and directive blocks are reserved keywords to express special types and metadata in SeqN. The following tables describe the directives and directive blocks available in SeqN, including the scope where each is allowed to be used and links to sections with more information where appropriate. Most directives are scoped to "top-level," meaning they are only used at the top of the SeqN file prior to any commands.
+
+| Directive                                  | Description                                                                                                                                                      | Scope                                                                               |
+| :----------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------- |
+| `@ID`                                      | String identifier for the sequence                                                                                                                               | Top-level directive                                                                 |
+| `@LOAD_AND_GO`                             | Identifies that a sequence will be executed as soon as it is uplinked; sets the SeqJSON metadata key `lgo` to boolean true if used                               | Top-level directive                                                                 |
+| `@IMMEDIATE`                               | Specifies that lines in this SeqN file are immediate commands. See [Immediate Commands](#immediate-commands)                                                     | Top-level directive                                                                 |
+| `@HARDWARE`                                | Specifies that lines in this SeqN file are hardware commands. See [Hardware Commands](#hardware-commands)                                                        | Top-level directive                                                                 |
+| `@LOCALS`                                  | Specifies local variable names to be declared. See [Sequence Variables](#sequence-variables)                                                                     | Top-level directive                                                                 |
+| `@INPUT_PARAMS`                            | Specifies sequence input parameters to be declared. See [Sequence Variables](#sequence-variables)                                                                | Top-level directive                                                                 |
+| `@ENGINE`                                  | Specifies the integer sequence engine ID                                                                                                                         | Following `@ACTIVATE` or `@LOAD` steps. See [Load and Activate](#load-and-activate) |
+| `@EPOCH`                                   | Specifies the string epoch name for epoch-relative steps in a called sequence                                                                                    | Following `@ACTIVATE` or `@LOAD` steps. See [Load and Activate](#load-and-activate) |
+| `@METADATA`                                | Specifies a general JSON key and value. See [Metadata Directives](#metadata-directives)                                                                          | Top-level directive, or following a step or request                                 |
+| `@MODEL`                                   | Specifies a value to be assumed for a given model attribute, at a specified time offset from the preceding step. See [Modeling Directives](#modeling-directives) | Following a step                                                                    |
+| `@INPUT_PARAMS_BEGIN`, `@INPUT_PARAMS_END` | Extended syntax for sequence input parameters. See [Sequence Variables](#sequence-variables)                                                                     | Top-level directive                                                                 |
+| `@LOCALS_BEGIN`, `@LOCALS_END`             | Extended syntax for local variables. See [Sequence Variables](#sequence-variables)                                                                               | Top-level directive                                                                 |
+| `@REQUEST_BEGIN`, `@REQUEST_END`           | A request block. See [Requests](#requests)                                                                                                                       | May be interlaced with sequence steps                                               |
+
+## Sequence Step Types
+
+A step is a time-tagged, sequenced event. Steps comprise a time tag (see [Time Tags](#time-tags)), identifier, and step-specific arguments (see [Arguments](#arguments)). The following sections describe the different step types.
+
+### Commands
+
+Command steps are identified by a command mnemonic, or "stem," followed by arguments.
+
+```
+R00:01:00 CMD_CAPTURE_IMAGE 0.067 3 "HI_RES"
+```
+
+### Load and Activate
+
+The `@LOAD` and `@ACTIVATE` step types are used to invoke another sequence. Both use a function call parentheses syntax to specify the invocable identifier of the sequence being loaded, followed by arguments (see [Arguments](#arguments)). And engine ID and sequence epoch may optionally be provided. The invocable identifier generally varies by Flight Software but may be, e.g., the path to the sequence file on the onboard file system.
+
+These two step types are identical, except that by convention the `@LOAD` step loads the sequence into the engine without beginning execution, whereas `@ACTIVATE` loads and executes the sequence as fast as possible.
+
+```
+C @LOAD("my_sequence.seq") 123 "string argument"
+@ENGINE 12
+@EPOCH "MARS_FLYBY"
+```
+
+```
+C @ACTIVATE("my_sequence.seq") 123 "string argument"
+@ENGINE 12
+@EPOCH "MARS_FLYBY"
+```
+
+### Ground Block
+
+A `@GROUND_BLOCK` step invokes a parameterized block of modeling behavior defined outside the sequence (e.g., in a common library of ground modeling utilities).
+
+```
+C @GROUND_BLOCK("my_ground_block") 123 "string argument"
+```
+
+### Ground Event
+
+Identical in form to the Ground Block, a `@GROUND_EVENT` step is used to invoke a parameterized event trigger which may be recognized by other model elements.
+
+```
+C @GROUND_EVENT("my_ground_event") 123 "string argument"
+```
+
+### Note
+
+For issuing a simple message (for example, to track events in modeling logs), the `@NOTE` step is available. It takes a single string argument, although it can also carry the metadata and models allowed on other steps.
+
+```
+C @NOTE("String argument")
+```
+
+## Non-Sequence Types
+
+A SeqN file, by default, enumerates the steps of a single sequence. Under conditions defined in the following sections, SeqN files may specify additional or alternate types of contents.
+
+### Requests
+
+A request is a construct to group steps, generally used to accomplish a particular mission-relevant goal. Requests may be merged or otherwise mutated by sequence build tools. For example, multiple requests authored by different mission stakeholders may be merged into a single sequence product.
+
+A SeqN file can contain zero or more requests, as specified using a request directive block. Lines within the request block begin and end directives are interpreted as steps belonging to the request. Each request requires a string name and may include `@METADATA` directives following the request end directive to specify arbitrary metadata.
+
+Requests may be combined with regular sequence steps.
+
+```
+@ID "Steps and requests"
+
+C CMD_NO_OP # Regular sequence step
+
+C @REQUEST_BEGIN("my_request")
+  C CMD_NO_OP # Request step
+@REQUEST_END
+```
+
+### Immediate Commands
+
+A SeqN file with the `@IMMEDIATE` directive contains only "immediate commands". Conceptually, immediate commands are a type of real-time command: a command which is executed immediately, outside the context of a sequence or sequence engine. Commands available as command steps are also generally available as immediate commands.
+
+Immediate commands have no time tag and thus comprise only a command mnemonic and command arguments (if applicable):
+
+```
+@IMMEDIATE
+<mnemonic> [<arguments>]
+```
+
+```
+@IMMEDIATE
+CMD_ECHO "test"
+```
+
+### Hardware Commands
+
+A SeqN file with the `@HARDWARE` directive contains only "hardware commands". These commands are lower-level instructions which are executed in real-time, often by a processor prior to the main compute element (e.g., to control hardware on the asset when the compute element isn't powered on). Hardware commands are generally separate from the commands available for sequenced or immediate commanding.
+
+Hardware commands have no time tag and also take no arguments:
+
+```
+@HARDWARE
+<mnemonic>
+```
+
+```
+@HARDWARE
+HDW_POWER_ON
+```
+
+### Metadata Directives
+
+A SeqN sequence can contain arbitrary metadata belonging to any of the full sequence, a single step, or a request. Where used, the `@METADATA` directive applies to the preceding element: top-level `@METADATA` entries apply to the full sequence, usage after a step applies to that step, and usage after a request block applies to the request.
+
+```
+@ID "demo_sequence"
+@METADATA "top_level_key" "value"
+# Applies to the full sequence
+
+C CMD_NOOP
+@METADATA "step_level_key" "value"
+# Applies to the preceding commmand
+
+C @REQUEST_BEGIN("request.name")
+  C CMD_NOOP
+@REQUEST_END
+@METADATA "request_level_key" "value"
+# Applies to the request
+```
+
+The special `@LOAD_AND_GO` directive corresponds in SeqJSON to setting the sequence-level metadata key `lgo` to boolean `true`.
+
+### Modeling Directives
+
+Ground simulators which execute sequence files may accept special instructions to set modeled attributes to a value from within a source sequence file.
+
+## Arguments
+
+Arguments to commands and sequences are whitespace-delimited positional lists of literals and symbols. Symbols may be declared local variables, declared input parameters, or global symbols. SeqN supports the following
+
+### Numeric Arguments
+
+Numeric arguments expressed in either decimal or scientific notation are permitted. As in SeqJSON, SeqN makes no distinction between different numeric types. For example, 100, 1e2, and 100.0 are all equivalent.
+
+```
+C SHOW_INT -30
+C SHOW_UINT 400
+C SHOW_FLOAT 4.5
+C SHOW_FLOAT 1.23e-3
+```
+
+Unsigned integers can also be expressed in hexadecimal using the canonical `0x` prefix. Values expressed in hexadecimal are preserved in the SeqJSON `hex` argument type.
+
+```
+C SHOW_UINT 0xFC12
+```
+
+### Quoted Arguments: Strings, Enumerations
+
+Enum arguments are identified by their name in SeqN. String- and enum-type arguments should be enclosed in double quotes.
+
+```
+C CMD_ECHO "Hello, World!"
+C RADIO_POWER "RADIO_ONE" "ENABLE"
+```
+
+### Repeat Arguments
+
+Repeat arguments are flat, square-bracketed lists of the repeated arguments separated by whitespace.
+
+The number of arguments contained in the brackets must be a multiple of the expected number of repeat arguments, as specified in the dictionary. They must have opening and closing brackets even if the argument is empty.
+
+```
+R00:00:01 DDM_DMP_EHA_HISTORY ["AVS" 0 0] 0
+R00:00:01 GNC_SRU_WRITE_MEMORY "SRU_EU_A" 0 [1 1 1]
+R00:00:01 DDM_UPDATE_NUM_TSR 0 "AVS" 1 "ALWAYS" "5 seconds" [] "RT_REC" "LOW" [ "AVS" 1 ] "AVS"
+```
+
+### Symbol Arguments
+
+For Sequencing Flight Software which allows the usage of variables in place of argument literals, SeqN supports "symbol"-type arguments. These argument values are simply the simple name, unquoted, used as a positional argument. The name of the variable may be a declared local/input parameter (see [Sequence Variables](#sequence-variables)) or a global variable name. Symbols names must begin with an ASCII letter (A-Z, a-z) and may contain ASCII letters, digits 0-9, underscores, and hyphens.
+
+```
+@INPUT_PARAMS_BEGIN
+LV_DL_RATE INT
+@INPUT_PARAMS_END
+
+C SET_DOWNLINK_RATE LV_DL_RATE
+```
+
+## Time Tags
+
+Steps can be timed in several different ways. A SeqN step time tag begins with one of `A`, `R`, `E`, `B`, or `C`, and all time types except `C` include a "tag," or a time value. The following sections describe the different time types and their expression in SeqN.
+
+### `A`: Absolute
+
+Absolute time tags specify a UTC time when the step should be executed.
+
+Time value format: `<YYY>-<DDD>T<HH>:<MM>:<SS>[.<sss>]`
+
+- `A2030-125T00:30:30`
+
+### `R`: Relative
+
+Relative time tags specify a duration from the previous step's start at which to execute the given step. Command relative times are unsigned and are by definition always positive.
+
+Time value format: `[<DDD>T]<HH>:<MM>:<SS>[.<sss>]` or number of seconds
+
+Examples:
+
+- `R001T14:30:00` (+1 day, 14 hours, 30 minutes from previous step)
+- `R00:10:01` (10 minutes, 1 second from previous step)
+- `R30` (30 seconds from previous step)
+
+### `E`: Epoch-Relative
+
+Epoch-relative times specify a duration before or after a parameterized sequence epoch to dispatch the command. In order for these time tags to be evaluated, an onboard epoch with a value known by Sequencing Flight Software must be passed during sequence invocation.
+
+Epoch relative times are signed and can be positive or negative. The "days" component may only be included for durations greater than one day.
+
+Time value format: `[+|-][<DDD>T]<HH>:<MM>:<SS>[.<sss>]` or number of seconds
+
+Examples:
+
+- `E001T14:30:00`
+- `E+001T14:30:00`
+- `E-001T14:30:00`
+- `E30`
+- `E+30`
+- `E-10`
+
+### `B`: Block-Relative
+
+Block-relative times specify a duration before or after the start time of the current "block" at which the command should execute. In the context of sequence steps, the "block" refers to the sequence. In the context of requests, the "block" refers to the request. Block relative times are signed and can be positive or negative. The "days" component may only be included for durations greater than one day.
+
+Time value format: `[+|-][<DDD>T]<HH>:<MM>:<SS>[.<sss>]` or number of seconds
+
+Examples:
+
+- `B001T14:30:00`
+- `B+001T14:30:00`
+- `B-001T14:30:00`
+- `B30`
+- `B+30`
+- `B-10`
+
+### `C`: Command Completion
+
+The only non-deterministic timing type, command completion waits to execute the current step after the previous step has been completed (according to some criteria known to the sequencing software).
+
+- `C`
+
+## Sequence Variables
+
+SeqN supports the use of variables in sequences through two mechanisms: sequence parameters and local variables. Variables declared in this way, along with global variables, may be used as symbol-type arguments to steps (see [Symbol Arguments](#symbol-arguments))
+
+Sequence parameters allow a sequence to define that it must be called with the specified positional arguments whose values will be stored in the named local variables. The abbreviated syntax using the `@INPUT_PARAMS` directive allows users to specify a list of positional variable names each ending in one of `INT`, `STR`, `UINT`, or `FLT` (corresponding to the data types integer, string, unsigned integer, and float).
+
+The extended directive block syntax using the `@INPUT_PARAMS_BEGIN` and `@INPUT_PARAMS_END` directives allows variables to use any name which is a valid symbol argument and then specify the type as one of `FLOAT`, `INT`, `STRING`, `UINT`, or `ENUM`. `ENUM`-type parameters additionally require the author to specify an identifier for the enumeration so that downstream processing tools can parse the enum values according to the correct dictionary. Lastly, the extended syntax enables the author to specify allowed ranges for each sequence parameter.
+
+```
+# Declaration of four input parameters in the abbreviated syntax
+@INPUT_PARAMS L00INT L00STR L00UINT L00FLT
+```
+
+```
+# An integer input parameter limited to a range of 1-10
+@INPUT_PARAMS_BEGIN
+MY_LV_NAME INT "1...10"
+@INPUT_PARAMS_END
+```
+
+```
+# An unsigned integer input parameter with allowable values 1, 2, or 3
+@INPUT_PARAMS_BEGIN
+MY_LV_NAME UINT "" "1,2,3"
+@INPUT_PARAMS_END
+```
+
+```
+# An enum input parameter with the enum name specified as "radio_power"
+@INPUT_PARAMS_BEGIN
+MY_LV_ENUMERATION ENUM radio_power
+@INPUT_PARAMS_END
+```
+
+Similarly, the `@LOCALS` directive and `@LOCALS_BEGIN`/`@LOCALS_END` directive block provide analogous declarations for local variables which will be populated within the sequence (as opposed to being populated with sequence argument values). These local variable directives work the exact same as the input parameter counterparts.
+
+```
+# Declaration of four local variables in the abbreviated syntax
+@LOCALS L00INT L00STR L00UINT L00FLT
+```
+
+```
+# An integer local variable limited to a range of 1-10
+@LOCALS_BEGIN
+MY_LV_NAME INT "1...10"
+@LOCALS_END
+```
+
+```
+# An unsigned integer local variable with allowable values 1, 2, or 3
+@LOCALS_BEGIN
+MY_LV_NAME UINT "" "1,2,3"
+@LOCALS_END
+```
+
+```
+# An enum local variable with the enum name specified as "radio_power"
+@LOCALS_BEGIN
+MY_LV_ENUMERATION ENUM radio_power
+@LOCALS_END
+```
