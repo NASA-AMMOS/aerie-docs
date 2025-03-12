@@ -1,7 +1,30 @@
+import plan from './assets/expanding-templates-plan.png';
+import filter from './assets/expanding-templates-filter.png';
+import result from './assets/expanding-templates-result.png';
+
 # Expanding Templates
 
-// TODO reference how to author sequence templates [Authoring Templates](./authoring-templates).
+Now that our templates have been authored (see [Authoring Templates](./authoring-templates)), we can expand our templates. The process is very similar to what was outline in [Sequences](../../sequences), but for completeness, we will repeat it here in full. 
 
-// TODO include a reference to [Sequences](../../sequences) and filter/sequence creation, show the result here.
+We have sequence templates authored for activity types `GrowBanana` and `ThrowBanana`, and have now created the following plan:
 
-// TODO show the associations between sequences and activities, and then expand
+<figure>
+  <img alt="Aerie UI - The Plan" src={plan} />
+  <figcaption>Figure 1: The plan</figcaption>
+</figure>
+
+We only wish to expand for the activity types we have a template defined for, so we create a sequence filter with these types in the **Sequences & Expansion** tab.
+
+<figure>
+  <img alt="Aerie UI - The Filter" src={filter} />
+  <figcaption>Figure 2: The sequence filter</figcaption>
+</figure>
+
+From this, we mouse over that sequence filter and click the play button to create a sequence from that filter, and go along with the default range.
+
+Finally, we mouse over the new sequence and click its play button to run expansion. We can now view our result:
+
+<figure>
+  <img alt="Aerie UI - The Result" src={result} />
+  <figcaption>Figure 2: The result of expanding our sequence</figcaption>
+</figure>

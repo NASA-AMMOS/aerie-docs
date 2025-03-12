@@ -27,7 +27,7 @@ To edit an existing template, mouse over it in the table and select the edit but
   <figcaption>Figure 2: Creating a new sequence template</figcaption>
 </figure> 
 
-This editor has autocomplete functionality, whitespace formatting, and error visibility. There is also a panel that describes the available commands, one describing the template, and the ability to switch to editing a different sequence template. Note that switching templates does discard any unsaved edits made prior to switching the template currently being edited.
+This editor has autocomplete functionality, whitespace formatting, and error visibility. There is also a panel that describes the available commands, one describing the template, and the ability to switch to editing a different sequence template.
 
 <figure>
   <img alt="Aerie UI - Template Editor" src={templateEditor} />
@@ -59,7 +59,7 @@ and compiled these together using Handlebars, I would get as a result:
 I like to eat bananas.
 ```
 
-This has a lot of utility as far as expanding activities goes, because, as discussed in the [Introduction](./introduction), we can now directly and easily write a sequence with little mustaches that fill in certain mission model properties.
+This has a lot of utility as far as expanding activities goes, because, as discussed in the [Introduction](./introduction), we can now directly and easily write a sequence with little template expressions that fill in certain mission model properties.
 
 To parrot our earlier example with this context, what was formerly:
 
@@ -287,7 +287,7 @@ There are some quirks here, which can be uncovered by looking through the Handle
 I ate {{ add 1 2 }} bananas.
 ```
 
-Similarly, if a non-existent argument (or helper) is used, nothing shows up in the result:
+Similarly, if a non-existent argument (or helper) is used in a template expression, nothing shows up in the result:
 
 **Input**
 ```
