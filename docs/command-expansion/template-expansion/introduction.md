@@ -45,8 +45,8 @@ C DP_PRIORITIZE "STRING" 5
 ## Configuration
 In order to use sequence templating instead of sequence rules (or "legacy" expansion), some configuration files need to be updated.
 
-:::note
-Either sequence templating or legacy expansion can be used at a given time. They cannot coexist in the same instance of AERIE.
+:::caution
+Sequence templating and legacy expansion are exclusive of each other. They cannot coexist in the same instance of AERIE.
 :::
 
 If you are running `aerie-ui` locally, then within the `aerie-ui` directory, navigate to `{aerie-ui path}/.env` and update the variable `PUBLIC_SEQUENCING_MODE` to `templating`, instead of its default (`legacy`). Then redeploy (or refresh) the server.
