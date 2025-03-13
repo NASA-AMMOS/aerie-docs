@@ -5,7 +5,7 @@ import templateHelpers from './assets/authoring-template-helpers.png';
 
 # Authoring Templates
 
-Template authoring follows a similar process to its predecessor/alternative of legacy expansion rule authoring. 
+Template authoring follows a similar process to its predecessor/alternative of legacy expansion rule authoring.
 
 To create a new sequence template (or to edit existing ones) navigate to the **Sequence Templates** page of Aerie.
 
@@ -15,17 +15,18 @@ To create a new sequence template (or to edit existing ones) navigate to the **S
 </figure>
 
 To create a new template, select `New Template`, and provide your template with:
-- a name, 
-- a language (currently restricted to: `STOL`, `SeqN`, or `Text`, for CSTOL, SeqN, or plaintext respectively), 
-- a parcel ID (to get the set of allowed commands), a model ID (to enable access to the activity types), 
-- and then the activity type that this template is for. 
+
+- a name,
+- a language (currently restricted to: `STOL`, `SeqN`, or `Text`, for CSTOL, SeqN, or plaintext respectively),
+- a parcel ID (to get the set of allowed commands), a model ID (to enable access to the activity types),
+- and then the activity type that this template is for.
 
 To edit an existing template, mouse over it in the table and select the edit button.
 
 <figure>
   <img alt="Aerie UI - Create New Template" src={createNewTemplate} />
   <figcaption>Figure 2: Creating a new sequence template</figcaption>
-</figure> 
+</figure>
 
 This editor has autocomplete functionality, whitespace formatting, and error visibility. There is also a panel that describes the available commands, one describing the template, and the ability to switch to editing a different sequence template.
 
@@ -38,9 +39,10 @@ Finally, you can save your result, and you are now ready to expand using this te
 
 ## Using Mustache functionality
 
-Templating is done in the <a href=https://mustache.github.io/mustache.5.html>Mustache formatting language</a>, more specifically making use of the <a href=https://handlebarsjs.com/guide/>Handlebars API</a>. This templating language allows users to weave variables from _some_ input (more on the input shortly) into a body of text. For example, if I had the following:
+Templating is done in the [Mustache formatting language](https://mustache.github.io/mustache.5.html), more specifically making use of the [Handlebars API](https://handlebarsjs.com/guide/). This templating language allows users to weave variables from _some_ input (more on the input shortly) into a body of text. For example, if I had the following:
 
 **Input**
+
 ```
 {
   input: "bananas"
@@ -48,6 +50,7 @@ Templating is done in the <a href=https://mustache.github.io/mustache.5.html>Mus
 ```
 
 **Template**
+
 ```
 I like to eat {{ input }}.
 ```
@@ -55,6 +58,7 @@ I like to eat {{ input }}.
 and compiled these together using Handlebars, I would get as a result:
 
 **Result**
+
 ```
 I like to eat bananas.
 ```
@@ -78,6 +82,7 @@ export default function MyExpansion(props: {
 ```
 
 Now becomes:
+
 ```
 C BOOT_COPY_NOR_IMAGE "ZONE_0" "ZONE_1"
 A2024-123T00:00:00 AVS_PCE_MEMORY_POKE {{ attributes.arguments.quantity }} "string"
@@ -88,6 +93,7 @@ C DP_PRIORITIZE "STRING" {{ attributes.arguments.quantity }}
 and both compile to:
 
 **Result**
+
 ```
 C BOOT_COPY_NOR_IMAGE "ZONE_0" "ZONE_1"
 A2024-123T00:00:00 AVS_PCE_MEMORY_POKE 5 "string"
@@ -96,6 +102,7 @@ C DP_PRIORITIZE "STRING" 5
 ```
 
 One remaining question is what precisely the structure of the input is. The above example should give a hint at it, but here is the input schema as a whole:
+
 ```
 {
   id: number;
@@ -127,9 +134,11 @@ CMD {{ activityTypeName }} endsAt={{ endTime }} quantity={{ attributes.arguments
 The actual compilation of templates is discussed in [Expanding Templates](./expanding-templates).
 
 ### In-AERIE Helpers
-We also introduce with Mustache formatting the notion of helpers. Mustache helper functions (discussed in-depth in the Handlebars documentation <a href=https://handlebarsjs.com/guide/builtin-helpers.html>here</a>), allow for a user to invoke a function on parameters to produce a specific value. For example, if I had a helper that adds two numbers, then I would have: 
+
+We also introduce with Mustache formatting the notion of helpers. Mustache helper functions (discussed in-depth in the Handlebars documentation [here](https://handlebarsjs.com/guide/builtin-helpers.html)), allow for a user to invoke a function on parameters to produce a specific value. For example, if I had a helper that adds two numbers, then I would have:
 
 **Input**
+
 ```
 {
   input: {
@@ -140,6 +149,7 @@ We also introduce with Mustache formatting the notion of helpers. Mustache helpe
 ```
 
 **Template**
+
 ```
 I ate {{ add input.a input.b }} bananas.
 ```
@@ -147,15 +157,18 @@ I ate {{ add input.a input.b }} bananas.
 which compiles to:
 
 **Result**
+
 ```
 I ate 3 bananas.
 ```
 
-We have defined in AERIE 4 helpers, currently. User-defined helpers do not yet exist, so only these 4 are available at the moment. 
+We have defined in AERIE 4 helpers, currently. User-defined helpers do not yet exist, so only these 4 are available at the moment.
 
 #### `add-time`
+
 This helper allows a user to compute a new time string (that is either STOL or SeqN compatible) from an existing one, and a duration to be added to that time. For example:
 **Input**
+
 ```
 {
   ...,
@@ -171,6 +184,7 @@ This helper allows a user to compute a new time string (that is either STOL or S
 ```
 
 **Template**
+
 ```
 A{{ add-time startTime attributes.arguments.growingDuration }}
 ```
@@ -178,13 +192,16 @@ A{{ add-time startTime attributes.arguments.growingDuration }}
 which compiles to:
 
 **Result**
+
 ```
 A2024-001T01:00:00
 ```
 
 #### `subtract-time`
+
 This helper allows a user to compute a new time string (that is either STOL or SeqN compatible) from an existing one, and a duration to be subtracted from that time. For example:
 **Input**
+
 ```
 {
   ...,
@@ -200,6 +217,7 @@ This helper allows a user to compute a new time string (that is either STOL or S
 ```
 
 **Template**
+
 ```
 A{{ subtract-time startTime attributes.arguments.growingDuration }}
 ```
@@ -207,13 +225,16 @@ A{{ subtract-time startTime attributes.arguments.growingDuration }}
 which compiles to:
 
 **Result**
+
 ```
 A2023-365T23:00:00
 ```
 
 #### `formatAsDate`
+
 This helper allows a user to format a date-like string to whatever language is necessary. For example, if I want STOL-like dates (which use `/` instead of a `T`, and include the time zone abbrevriation) but my input is as such:
 **Input**
+
 ```
 {
   ...,
@@ -224,6 +245,7 @@ This helper allows a user to format a date-like string to whatever language is n
 then I can write my template as:
 
 **Template**
+
 ```
 CMD AT={{ formatAsDate startTime }}
 ```
@@ -231,13 +253,16 @@ CMD AT={{ formatAsDate startTime }}
 which provides me with:
 
 **Result**
+
 ```
 CMD AT=2025-001/00:00:00Z
 ```
 
 #### `flatten`
+
 This helper allows a user to format arrays correctly. SeqN array formatting looks a little different than conventional array formatting in Mustache/Handlebars, which we illustrate below:
 **Input**
+
 ```
 {
   ...,
@@ -252,6 +277,7 @@ This helper allows a user to format arrays correctly. SeqN array formatting look
 ```
 
 **Template**
+
 ```
 Unflattened: {{ firstArraySet }}; Flattened: {{ flatten firstArraySet }}
 ```
@@ -259,30 +285,32 @@ Unflattened: {{ firstArraySet }}; Flattened: {{ flatten firstArraySet }}
 which provides me with:
 
 **Result**
+
 ```
 Unflattened: 1,2,3.5,string; Flattened: [1 2 3.5 string]
 ```
 
----------
+---
 
 Putting this all together in AERIE, we might have the following:
 
 <figure>
   <img alt="Aerie UI - Template With Helpers" src={templateHelpers} />
   <figcaption>Figure 4: A sequence template using helpers</figcaption>
-</figure> 
-
+</figure>
 
 ### Other Notes
 
 There are some quirks here, which can be uncovered by looking through the Handlebars documentation. For example, one cannot directly write an input that's not in the input object (or in our case, not an existing property of a simulated activity). The following is invalid:
 
 **Input**
+
 ```
 <empty>
 ```
 
 **Template**
+
 ```
 I ate {{ add 1 2 }} bananas.
 ```
@@ -290,11 +318,13 @@ I ate {{ add 1 2 }} bananas.
 Similarly, if a non-existent argument (or helper) is used in a template expression, nothing shows up in the result:
 
 **Input**
+
 ```
 <empty>
 ```
 
 **Template**
+
 ```
 I work at {{ company }}.
 ```
@@ -302,6 +332,7 @@ I work at {{ company }}.
 (which compiles to):
 
 **Result**
+
 ```
 I work at .
 ```
