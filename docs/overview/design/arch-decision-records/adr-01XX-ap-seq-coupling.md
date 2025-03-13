@@ -29,7 +29,7 @@ In order to support customers that want only the planning or sequencing portions
 
 ## Planning-Sequencing Interface
 
-In order to support separate upgradability of planning and sequencing components, it is critical to understand the interface between these components. Below is a list of data items that need to move between components and a notional interface specification for who produces and consumes each item.
+In order to support separate upgradability of planning and sequencing components, it is critical to understand the interface between these components (i.e. establish an API contract). Below is a list of data items that need to move between components and a notional interface specification for who produces and consumes each item.
 
 | Data                                          | Producer   | Consumer                | Notes                                                                           |
 | --------------------------------------------- | ---------- | ----------------------- | ------------------------------------------------------------------------------- |
@@ -82,7 +82,53 @@ Sequence Template Editor should have access to activity dictionary and command d
   - Seen this done with separate service for authentication and roles, but fine grained permissions make this more challenging
   - User management component separate from applications which is integratable with 3rd party solutions
 
+#### Database
+
+Option 1: Shared Database Schema
+
+- Maintain a single PostgreSQL instance with separate schemas for planning and sequencing.
+- Access to tables is controlled based on deployment configuration (e.g., if only planning is deployed, sequencing tables are not used).
+- Benefits: Easier integration for customers using both components, no need for complex data synchronization.
+- Drawbacks: Coupling at the database level still exists.
+
+Option 2: Separate Databases with Data Sync
+
+- Deploy independent PostgreSQL instances for planning and sequencing when needed.
+- Use an event-driven data sync mechanism (e.g., Kafka, RabbitMQ) to ensure data consistency when both components are deployed.
+- Benefits: True independence of components, reducing risk of schema changes affecting the other.
+- Drawbacks: More complexity in data synchronization.
+
+#### Authentication and Authorization
+
+#### UI
+
+Options???
+
+- Dynamic UI Configuration: Implement feature flags or configuration settings that control which UI elements are displayed based on deployment settings.
+- API-Driven UI Behavior: The frontend should dynamically adjust based on API responses—if a sequencing API is unavailable, related UI elements should be hidden.
+
+#### Data Exchange and Interoperability
+
+- Exportable Data: Ensure all data exchanged between planning and sequencing can be exported via UI and API for external system integration.
+- Standardized Data Format: Define JSON or Protobuf-based standardized formats for activity plans, sequence templates, and other data.
+- Inter-Service Communication:
+  - When both services are deployed, they communicate via direct API calls.
+  - When deployed separately, customers can use batch exports or webhook-based updates.
+
 ## Decision
+
+- What do we do with repo organization?
+
+- Should we version planning/sequencing API contract? Probably...
+
+- Likely want to just have a single database for joint deployment
+
+- A&A
+
+  - Use the same gateway service, even if deployed separately?
+  - Implement SSO?
+  - Use Federated Role-Based Access Control (RBAC)? (global user roles across components)
+  - The authentication gateway issues JWT tokens that include role and permission claims, which are validated by the individual services.?????
 
 - What do we do with sequence templates if someone is using one component vs. another...
 
