@@ -1,0 +1,94 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Examples
+
+This page provides various examples of constraint procedures to use as a reference when implementing your own constraints
+
+## Simple Numeric Resource Condition
+
+This constraint reports a violation when one resource (`RecordingRate`) goes above a parameterized numeric value (`threshold`)
+
+```java
+@ConstraintProcedure
+public record RecordingRateThreshold(int threshold) implements Constraint {
+  @Override
+  public Violations run(Plan plan, SimulationResults simResults) {
+    final var rate = simResults.resource("RecordingRate", Real.deserializer());
+
+    return Violations.on(
+      rate.greaterThan(threshold),
+      true
+    );
+  }
+}
+```
+
+## Activity Mutual Exclusion
+
+- Report violation if activity of a particular type overlaps with itself
+
+```java
+@ConstraintProcedure
+public record DataCollectionOverlap() implements Constraint {
+  @Override
+  public Violations run(Plan plan, SimulationResults simResults) {
+     return Violations.on(
+       simResults.instances("CollectData").countActive().greaterThan(1),
+       true);
+  }
+}
+```
+
+## State Resource Maximum Duration
+
+- Report a violation if resource is in a state for longer than specified duration
+
+```java
+@ConstraintProcedure
+public record HighRateModeMaxDuration(Duration maxDur) implements Constraint {
+  @Override
+  public Violations run(Plan plan, SimulationResults simResults) {
+    final var mode = simResults.resource("MagDataMode", Strings.deserializer() );
+    Windows highRateWins = mode.highlightEqualTo("HIGH_RATE").filterLongerThan(maxDur);
+    return Violations.inside(new Windows(highRateWins));
+  }
+}
+```
+
+## Activity-Resource Mutual Exclusion
+
+- Report a violation if an activity overlaps with a specific resource condition
+
+```java
+@ConstraintProcedure
+public record NoDownlinkDuringOccultations() implements Constraint {
+  @Override
+  public Violations run(Plan plan, SimulationResults simResults) {
+
+    Booleans occs = simResults.resource("Occultation", Real.deserializer()).greaterThan(0);
+    Booleans downlinks = simResults.instances("Downlink").active();
+
+    return Violations.on(
+      occs.and(downlinks),
+      true
+    );
+  }
+}
+```
+
+## Activity Minimum Duration
+
+- Report a violation if activities of a certain type are below a minimum duration (e.g. downlink)
+
+```java
+@ConstraintProcedure
+public record DownlinkMinDuration(Duration minDur) implements Constraint {
+  @Override
+  public Violations run(Plan plan, SimulationResults simResults) {
+    return Violations.on(
+      simResults.instances("Downlink").filterShorterThan(minDur).active(),
+      true);
+  }
+}
+```

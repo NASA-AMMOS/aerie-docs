@@ -136,7 +136,7 @@ const sidebars = {
         {
           type: 'doc',
           id: 'deployment/advanced-database-migrations',
-          label: 'Database Migrations'
+          label: 'Database Migrations',
         },
         {
           label: 'Environment Variables',
@@ -148,7 +148,7 @@ const sidebars = {
         'deployment/advanced-authentication',
         'deployment/advanced-permissions',
         'deployment/advanced-reverse-proxy',
-        'deployment/advanced-sso'
+        'deployment/advanced-sso',
       ],
     },
     {
@@ -280,7 +280,6 @@ const sidebars = {
               ],
             },
             'scheduling-and-constraints/procedural/plan-and-sim-results',
-            'scheduling-and-constraints/procedural/constraints',
             {
               type: 'category',
               label: 'Scheduling',
@@ -289,6 +288,15 @@ const sidebars = {
                 type: 'doc',
               },
               items: ['scheduling-and-constraints/procedural/scheduling/examples'],
+            },
+            {
+              type: 'category',
+              label: 'Constraints',
+              link: {
+                id: 'scheduling-and-constraints/procedural/constraints/introduction',
+                type: 'doc',
+              },
+              items: ['scheduling-and-constraints/procedural/constraints/examples'],
             },
             'scheduling-and-constraints/procedural/parameters-and-invocations',
             // 'scheduling-and-constraints/procedural/running-externally'
