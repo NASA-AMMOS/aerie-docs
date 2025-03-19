@@ -335,3 +335,47 @@ I work at {{ company }}.
 ```
 I work at .
 ```
+
+HTML escaping (should any inputs coming from a simulated activity have XML-like strings) is automatic in Handlebars. That is, if we have:
+
+**Input**
+```
+{ 
+  name: "<name>"
+}
+```
+
+**Template**
+```
+I am {{ name }}.
+```
+
+it will compile to:
+
+**Result**
+```
+I am &lt;name&gt;.
+```
+
+This can be avoided by using triple brackets:
+
+**Input**
+```
+{ 
+  name: "<name>"
+}
+```
+
+**Template**
+```
+I am {{{ name }}}.
+```
+
+it will compile to:
+
+**Result**
+```
+I am <name>.
+```
+
+However, helpers are still applied, even in triple brackets. So something like `{{{ format-as-date input.date }}}` will still call `format-as-date` on `input.date`, but if the result is an XML-like string, those brackets simply won't be escaped like in the above example.
