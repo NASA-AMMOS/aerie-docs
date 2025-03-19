@@ -230,8 +230,7 @@ which compiles to:
 A2023-365T23:00:00
 ```
 
-#### `formatAsDate`
-
+#### `format-as-date`
 This helper allows a user to format a date-like string to whatever language is necessary. For example, if I want STOL-like dates (which use `/` instead of a `T`, and include the time zone abbrevriation) but my input is as such:
 **Input**
 
@@ -247,7 +246,7 @@ then I can write my template as:
 **Template**
 
 ```
-CMD AT={{ formatAsDate startTime }}
+CMD AT={{ format-as-date startTime }}
 ```
 
 which provides me with:
