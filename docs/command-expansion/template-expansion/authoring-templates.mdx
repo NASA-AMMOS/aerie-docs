@@ -257,6 +257,10 @@ which provides me with:
 CMD AT=2025-001/00:00:00Z
 ```
 
+:::info Note
+If the sequencing language is `Text`, it is preferred that users include the Zulu time abbreviation. Currently, if it is left out, and the date is formatted as a YYYY-MM-DD string, the date is automatically converted to the current time zone, which produces some inconsistency in output.
+:::
+
 #### `flatten`
 
 This helper allows a user to format arrays correctly. SeqN array formatting looks a little different than conventional array formatting in Mustache/Handlebars, which we illustrate below:
