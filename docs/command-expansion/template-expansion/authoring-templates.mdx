@@ -304,7 +304,11 @@ Putting this all together in AERIE, we might have the following:
 
 ### Other Notes
 
-There are some quirks here, which can be uncovered by looking through the Handlebars documentation. For example, one cannot directly write an input that's not in the input object (or in our case, not an existing property of a simulated activity). The following is invalid:
+There are some quirks here, which can be uncovered by looking through the Handlebars documentation. We will list some of the least intuitive ones, however, any quirks that are noticed by users not listed here should be cross-referenced with the real documentation as our listing here cannot be comprehensive.
+
+#### Helpers
+
+One cannot directly write an input that's not in the input object (or in our case, not an existing property of a simulated activity). The following is invalid:
 
 **Input**
 
@@ -339,6 +343,8 @@ I work at {{ company }}.
 ```
 I work at .
 ```
+
+#### HTML/XML-like String Escaping
 
 HTML escaping (should any inputs coming from a simulated activity have XML-like strings) is automatic in Handlebars. That is, if we have:
 
@@ -383,3 +389,35 @@ I am <name>.
 ```
 
 However, helpers are still applied, even in triple brackets. So something like `{{{ format-as-date input.date }}}` will still call `format-as-date` on `input.date`, but if the result is an XML-like string, those brackets simply won't be escaped like in the above example.
+
+#### Arrays and Objects
+
+Arrays and objects also have particular behavior. There currently exists no well-defined (as there haven't been good use cases yet) behavior for objects, so the default behavior of resolving to the string format `[Object object]` for any given object is used. For arrays, if `flatten` _isn't_ used, the array flattens as a list of comma-separated elements WITHOUT brackets. That is:
+
+**Input**
+```
+{ 
+  array: [1, 2, 3],
+  object: {
+    arbitrary: {
+      property1: "a",
+      property2: "b",
+    },
+    important: "item"
+  }
+}
+```
+
+**Template**
+```
+Array: {{ array }}
+Object: {{ object }}
+```
+
+will compile to:
+
+**Result**
+```
+Array: 1,2,3
+Object: [Object object]
+```
