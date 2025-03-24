@@ -92,3 +92,55 @@ public record DownlinkMinDuration(Duration minDur) implements Constraint {
   }
 }
 ```
+
+## Activity Argument Constraint
+
+- Report a violation if the value of a particular activity parameter is outside of a bounds. Note that activity parameter validations serve a similar function, but are intended to catch parameter issues prior to plan simulation and cannot catch violations of children activity instances generated during simulation.
+
+```java
+@ConstraintProcedure
+public record ActivityArgumentConstraint(double minValue, double maxValue) implements Constraint {
+  @Override
+  public Violations run(Plan plan, SimulationResults simResults) {
+     return Violations.on(
+       simResults.instances("CollectData").filter(false,
+         $ -> (
+           $.inner.arguments.get("rate").asReal().get() >= minValue &&
+           $.inner.arguments.get("rate").asReal().get() <= maxValue)).active(),
+       true);
+  }
+}
+```
+
+## State Resource Relative Constraint
+
+- Report a violation if one state resource has a certain value within a specified duration from a state transition of another state resource. In the example below, the constraint is also ensuring that the same state is maintained after the transition to when the resource changes value.
+- This example ensures that an instrument (radar) has been on and warming up for at least `minDur` before collecting data (i.e. being in any other data mode other than off)
+
+```java
+@ConstraintProcedure
+public record MinWarmupDuration(Duration minDur) implements Constraint {
+  @Override
+  public Violations run(Plan plan, SimulationResults simResults) {
+    // Get windows of time when the radar is ON (since there are many on modes, look for when it is not OFF)
+    Windows radarOnTimes = simResults.resource("radarState", Strings.deserializer()).notEqualTo("OFF").highlightTrue();
+    // Get windows of time when the data collection is ON
+    Windows dataCollectOffTimes = simResults.resource("RadarDataMode", Strings.deserializer()).notEqualTo("OFF").highlightTrue();
+
+    // Collector of violation windows
+    Windows violationWins = new Windows();
+
+    // For the first part of each on-time interval up to the minimum duration, the radar should not be collecting data
+    // (since it should be warming up).
+    for (Interval onTime : radarOnTimes) {
+      // Create an interval representing the minimum time data collection should be off
+      Interval warmupWin = Interval.between(onTime.start,onTime.start.plus(minDur));
+      // Find times within the warmup interval when data collection is ON (our violations)
+      Windows tmpViolations = new Windows(warmupWin).intersection(dataCollectOffTimes);
+      // Collect violations
+      violationWins = violationWins.union(tmpViolations);
+    }
+    return Violations.inside(violationWins);
+  }
+}
+```
