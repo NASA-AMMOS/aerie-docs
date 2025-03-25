@@ -144,3 +144,42 @@ public record MinWarmupDuration(Duration minDur) implements Constraint {
   }
 }
 ```
+
+## Separation Constraint
+
+- Report a violation if instances of an activity type are not separated by a specified duration
+
+```java
+@ConstraintProcedure
+public record DataCollectionSeparation(Duration minSeparation) implements Constraint {
+  @Override
+  public Violations run(Plan plan, SimulationResults simResults) {
+
+    List<Instance<AnyInstance>> acts  = simResults.instances("CollectData").collect();
+
+    List<Interval> actIntervals = new ArrayList<>();
+    for ( Instance<AnyInstance> act : acts) {
+      actIntervals.add(act.getInterval());
+    }
+
+    // Collector of violation windows
+    Windows violationWins = new Windows();
+
+    // For each activity, create an interval by adding minSeparation to each side
+    // of the activity. The intersection of that interval with other activities
+    // violate this separation constraint
+    for (int i = 0; i < actIntervals.size(); i++) {
+        Interval activity = actIntervals.get(i);
+        Interval sepInterval = Interval.between(activity.start.minus(minSeparation), activity.end.plus(minSeparation));
+        // Remove this activity before doing interval logic against all activities
+        List<Interval> tmpActs = new ArrayList<>(actIntervals);
+        tmpActs.remove(i);
+        Windows actsMinusThisAct = new Windows(tmpActs);
+        Windows tmpViolations = actsMinusThisAct.intersection(new Windows(sepInterval));
+        // Collect violations
+        violationWins = violationWins.union(tmpViolations);
+    }
+    return Violations.inside(violationWins);
+  }
+}
+```
