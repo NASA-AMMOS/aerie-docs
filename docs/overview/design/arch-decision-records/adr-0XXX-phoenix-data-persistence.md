@@ -38,6 +38,7 @@ Below are some options that were considered and some pros/cons of each
 Cons:
 
 - Requires external service: Needs S3/MinIO server running if self-hosted.
+- Lose simplicity of direct file system manipulation, perhaps from different tools
 - Eventually consistent: May not be ideal for strict ACID-type file ops.
 - Permission management: More complex than a simple DB and will require mapping to our role/permission model.
 
