@@ -145,6 +145,39 @@ public record MinWarmupDuration(Duration minDur) implements Constraint {
 }
 ```
 
+## Sequential Constraint
+
+- Report a violation if an activity of a certain type does follow an activity of another type within a specified duration
+
+```java
+@ConstraintProcedure
+public record ReprioritizeAfterDownlink(Duration maxOffset) implements Constraint {
+  @Override
+  public Violations run(Plan plan, SimulationResults simResults) {
+
+    List<Instance<AnyInstance>> parentActs  = simResults.instances("Downlink").collect();
+
+    Windows opponentWins = simResults.instances("ReprioritizeData").highlightAll();
+
+    // Collector of violation windows
+    Windows violationWins = new Windows();
+
+    // For each parent activity, determine if there is an opponent activity (or activities) within
+    // the time between the end of the parent activity and the maxOffset. If not, report a violation
+    for (Instance<AnyInstance> parent : parentActs) {
+      Windows maxOffsetWin = new Windows(Interval.between(parent.getInterval().end, parent.getInterval().end.plus(maxOffset)));
+      Windows offsetIntersect = maxOffsetWin.intersection(opponentWins);
+      if (offsetIntersect.collect().isEmpty()) {
+        // Collect violations
+        violationWins = violationWins.union(maxOffsetWin);
+      }
+
+    }
+    return Violations.inside(violationWins);
+  }
+}
+```
+
 ## Separation Constraint
 
 - Report a violation if instances of an activity type are not separated by a specified duration
