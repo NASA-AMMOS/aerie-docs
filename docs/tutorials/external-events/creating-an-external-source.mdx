@@ -99,6 +99,33 @@ Create the following `JSON` files in an editor:
 }
 ```
 
+:::info Note
+
+This particular format applies to external sources being uploaded via the user interface. _If_ uploading by other means
+(like the CLI, or manually uploading to the `/uploadExternalSource` endpoint), make sure to include in the source header
+an additional field that specifies the derivation group. For example:
+
+```json
+{
+  "source": {
+    "key": "External_Events_Demo_00.json",
+    "source_type": "DemoType",
+    "valid_at": "2026-001T00:00:00Z",
+    "derivation_group": "DerivationGroupName",
+    "period": {
+      "start_time": "2026-001T00:00:00Z",
+      "end_time": "2026-007T00:00:00Z"
+    },
+    "attributes": {
+      "SourceExampleAttribute": "this is an example attribute"
+    }
+  },
+  ...
+}
+```
+
+:::
+
 `External_Events_Demo_01.json`:
 ```json
 {
