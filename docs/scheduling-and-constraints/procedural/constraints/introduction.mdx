@@ -1,13 +1,7 @@
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
-
 # Constraints
 
 Constraint procedures give you the power to write arbitrarily complex rules that can be checked against events, activities, and resources associated with models and/or plans.
 To create a constraint procedure, you simply need to create a simple java record with a single method that takes `Plan` and `SimulationResults` objects as arguments and returns a `Violations` timeline. Violations are a new type of timeline specific to constraints, that store `Violation` objects. You won't usually need to perform additional operations after creating a `Violations` timeline; usually you'll just return it. They can be created with some provided static constructor functions. For example:
-
-<Tabs groupId="lang">
-<TabItem value="java" label="Java">
 
 ```java
 @ConstraintProcedure
@@ -20,21 +14,6 @@ public class BatteryAboveZero implements Constraint {
   }
 }
 ```
-
-</TabItem>
-<TabItem value="kt" label="Kotlin">
-
-```kotlin
-@ConstraintProcedure
-class BatteryAboveZero: Constraint {
-  override fun run(plan: Plan, simResults: SimulationResults) = Violations.inside(
-    plan.resource("/battery_soc", Real.deserializer()).lessThan(0).highlightTrue()
-  )
-}
-```
-
-</TabItem>
-</Tabs>
 
 ## Constraint Basics
 
