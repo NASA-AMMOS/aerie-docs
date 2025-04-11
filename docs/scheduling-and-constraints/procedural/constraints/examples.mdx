@@ -48,7 +48,7 @@ public record HighRateModeMaxDuration(Duration maxDur) implements Constraint {
   public Violations run(Plan plan, SimulationResults simResults) {
     final var mode = simResults.resource("MagDataMode", Strings.deserializer() );
     Windows highRateWins = mode.highlightEqualTo("HIGH_RATE").filterLongerThan(maxDur);
-    return Violations.inside(new Windows(highRateWins));
+    return Violations.inside(highRateWins);
   }
 }
 ```
