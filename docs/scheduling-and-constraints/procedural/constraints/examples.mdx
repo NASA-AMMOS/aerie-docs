@@ -112,6 +112,33 @@ public record ActivityArgumentConstraint(double minValue, double maxValue) imple
 }
 ```
 
+## Time Window Constraint
+
+- Report a violation if any part of the activity is outside of a specified time window
+
+```java
+@ConstraintProcedure
+public record TimeWindowConstraint(Duration startDur, Duration endDur) implements Constraint {
+
+  @Override
+  public Violations run(Plan plan, SimulationResults simResults) {
+    Interval timeInt = Interval.between(startDur, endDur);
+
+    List<Instance<AnyInstance>> acts  = simResults.instances("CollectData").collect();
+
+    // Collector of violation windows
+    Windows violationWins = new Windows();
+    for (Instance<AnyInstance> act : acts) {
+      Interval violation = timeInt.intersection(act.getInterval());
+      if (!violation.isEmpty()) {
+        violationWins = violationWins.union(new Windows(violation));
+      }
+    }
+    return Violations.inside(violationWins);
+  }
+}
+```
+
 ## State Resource Relative Constraint
 
 - Report a violation if one state resource has a certain value within a specified duration from a state transition of another state resource. In the example below, the constraint is also ensuring that the same state is maintained after the transition to when the resource changes value.

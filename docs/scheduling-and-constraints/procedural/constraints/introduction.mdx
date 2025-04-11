@@ -3,19 +3,25 @@ import TabItem from '@theme/TabItem';
 
 # Constraints
 
-:::warning
-
-Procedural constraints aren't supported yet, although the interfaces are fully implemented. You should be able to run
-a constraint locally using the procedural-remote package, but they can't yet be integrated with Aerie.
-
-:::
-
-It's finally time to write a useful piece of code! Constraints are simple. They take a `Plan` and `SimulationResults`,
-and return a `Violations` timeline. Violations are a new type of timeline specific to constraints, that store `Violation`
-objects. You won't usually need to perform additional operations after creating a `Violations` timeline; usually you'll
-just return it. They can be created with some provided static constructor functions. For example:
+Constraint procedures give you the power to write arbitrarily complex rules that can be checked against events, activities, and resources associated with models and/or plans.
+To create a constraint procedure, you simply need to create a simple java record with a single method that takes `Plan` and `SimulationResults` objects as arguments and returns a `Violations` timeline. Violations are a new type of timeline specific to constraints, that store `Violation` objects. You won't usually need to perform additional operations after creating a `Violations` timeline; usually you'll just return it. They can be created with some provided static constructor functions. For example:
 
 <Tabs groupId="lang">
+<TabItem value="java" label="Java">
+
+```java
+@ConstraintProcedure
+public class BatteryAboveZero implements Constraint {
+  @Override
+  public Violations run( Plan plan, SimulationResults simResults) {
+    return Violations.inside(
+      plan.resource("/battery_soc", Real.deserializer()).lessThan(0).highlightTrue()
+    );
+  }
+}
+```
+
+</TabItem>
 <TabItem value="kt" label="Kotlin">
 
 ```kotlin
@@ -28,94 +34,20 @@ class BatteryAboveZero: Constraint {
 ```
 
 </TabItem>
-<TabItem value="java" label="Java">
-
-```java
-@ConstraintProcedure
-public class BatterAboveZero implements Constraint {
-  @NotNull
-  @Override
-  public Violations run(@NotNull Plan plan, @NotNull SimulationResults simResults) {
-    return Violations.inside(
-      plan.resource("/battery_soc", Real.deserializer()).lessThan(0).highlightTrue()
-    );
-  }
-}
-```
-
-</TabItem>
 </Tabs>
 
-## Generator Constraints
+## Constraint Basics
 
-For more complex constraints, it may be tedious to try to represent all the violations in a single `Violations` timeline,
-and easier to create violations more iteratively. In this case, you could simply add to a list of violations, then
-create a timeline at the end with `new Violations(violationsList)`, or you could use some helper functions provided by
-the `GeneratorConstraint` abstract class instead.
+When building a constraint procedure, the primary goal is to find windows of time within the plan that violate a constraint and then turn those windows into a list of
+constraints to be reported and visualized by Aerie. A few of the Aerie [Timelines](../timelines/introduction.mdx) objects will come in handy as you manipulate information available within the `Plan` and `SimulationResults` objects:
 
-:::tip
+- The `Windows` object provides a number of logical operations (e.g. union, intersection) that you can perform against sets of windows in order to converge on the set of violation windows you want to return. These objects are most useful when performing logic on activities.
+- The `Interval` object has similar functionality to `Windows`, but is often useful when you want to compare or perform operations one interval at a time
+- The `Booleans` object provides comparison operations (e.g. and, or) on other profiles, which is great when trying to combine resource constraints together to form a composite constraint (e.g. resource A is greater than X, but less than Y)
 
-Because of Kotlin's [extension function concept](https://kotlinlang.org/docs/extensions.html),
-the `GeneratorConstraint` class's ergonomics are much more helpful in Kotlin, and only provides a marginal benefit in Java.
+`SimResults.instance("nameOfActType")` and `SimResults.resource()` are the simplest way to get simulated activities and resource values from your plan to manipulate. These methods had a number of helper methods you can use to do further filtering or conversion to Windows (`.highlight()`), a List of Intervals (`.collect()`), or Boolean timelines (e.g. `.greaterThan()`).
 
-:::
-
-For example, to violate whenever `MyActivity` occurs when `/my/resource < 0`, you could do the following:
-
-<Tabs groupId="lang">
-<TabItem value="kt" label="Kotlin">
-
-```kotlin
-@ConstraintProcedure
-class MyConstraint: GeneratorConstraint() {
-  override fun generate(plan: Plan, simResults: SimulationResults) {
-    val myResource = simResults.resource("/my/resource", Real.deserializer()).cache()
-    for (activity in plan.directives("MyActivity")) {
-      if (myResource.sample(activity.startTime) < 0)
-        violate(Violation(activity.interval))
-    }
-  }
-}
-```
-
-</TabItem>
-<TabItem value="java" label="Java">
-
-```java
-@ConstraintProcedure
-public class MyConstraint extends GeneratorConstraint {
-  @Override
-  public void generate(@NotNull Plan plan, @NotNull SimulationResults simResults) {
-    final var myResource = simResults.resource("/my/resource", Real.deserializer()).cache();
-    for (final var activity: plan.directives("MyActivity")) {
-      if (myResource.sample(activity.startTime) < 0)
-        violate(Violation(activity.interval));
-    }
-  }
-}
-```
-
-</TabItem>
-</Tabs>
-
-Additionally, the `GeneratorConstraint` class provides some nice extension functions (all beginning with `violate...`)
-that you can apply to your timelines, which convert them into violations and automatically submit them. This only works
-as shown in Kotlin. You can call these functions in Java, but the syntax isn't any more ergonomic than just calling `violate(...)`
-normally.
-
-```kotlin
-@ConstraintProcedure
-class BatteryAboveZero: GeneratorConstraint() {
-  override fun generate(plan: Plan, simResults: SimulationResults) {
-    simResults.resource("/battery_soc", Real.deserializer())
-      .greaterThan(0)
-
-      // Only works in a generator constraint!
-      // Only works in Kotlin!
-      .violateOn(false)
-  }
-}
-```
+There are a number of examples of the use of these objects and methods [here](./examples.mdx).
 
 ## Violation Messages
 
@@ -124,52 +56,3 @@ but you have a few ways to change it.
 
 If you're creating a `Violations` timeline, you can call `violations.withDefaultMessage(message)`, which sets the message
 for those in the result that don't already have one.
-
-If you're writing a generator constraint, you can pass it as the last argument to any `violate` call, as in
-`violate(listOfViolations, messageForThisBatch)`. Or you can set a constraint-wide default by overriding the
-`defaultMessage` method:
-
-<Tabs groupId="lang">
-<TabItem value="kt" label="Kotlin">
-
-```kotlin
-@ConstraintProcedure
-class MyConstraint: GeneratorConstraint() {
-  override fun defaultMessage() = "MyActivity cannot start when /my/resource < 0"
-
-  override fun generate(plan: Plan, simResults: SimulationResults) {
-    val myResource = simResults.resource("/my/resource", Real.deserializer()).cache()
-    for (activity in plan.directives("MyActivity")) {
-      if (myResource.sample(activity.startTime) < 0)
-        violate(Violation(activity.interval))
-    }
-  }
-}
-```
-
-</TabItem>
-<TabItem value="java" label="Java">
-
-```java
-@ConstraintProcedure
-public class MyConstraint extends GeneratorConstraint {
-  @Override
-  public String defaultMessage() {
-    return "MyActivity cannot start when /my/resource < 0";
-  }
-
-  @Override
-  public void generate(@NotNull Plan plan, @NotNull SimulationResults simResults) {
-    final var myResource = simResults.resource("/my/resource", Real.deserializer()).cache();
-    for (final var activity: plan.directives("MyActivity")) {
-      if (myResource.sample(activity.startTime) < 0)
-        violate(Violation(activity.interval));
-    }
-  }
-}
-```
-
-</TabItem>
-</Tabs>
-
-The order of precedence is: individual violation messages > batch violation messages > default message.
