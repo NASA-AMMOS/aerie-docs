@@ -18,7 +18,10 @@ end to understand how it may change in the future.
 
 ## Writing an Action
 
-Actions must be written in **Javascript or Typescript**, though other languages may be supported in the future.
+Actions must be written in **Javascript or Typescript**, though other languages may be supported in the future. If you're
+unfamiliar with working on JS projects, it's a good idea to use an IDE such as [VSCode](https://code.visualstudio.com/) or
+[Webstorm](https://www.jetbrains.com/webstorm/) for editing code.
+
 We provide two resources for developers who want to write a new action:
 
 * **[aerie-action-template](https://github.com/NASA-AMMOS/aerie-action-template)**, a boilerplate template showing the structure of an action
@@ -77,7 +80,9 @@ export async function main(
 ) { /* action code here ...  */ }
 ```
 
-Actions are expected to by asynchronous, potentially long-running tasks - therefore `main` is expected to be an `async` function, or a function which returns a `Promise` which is `resolve`d when the action is done running.
+Actions are expected to by asynchronous, potentially long-running tasks - therefore `main` is expected to be an `async`
+function, or a function which returns a [`Promise` which is `resolve`d](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises)
+when the action is done running.
 * The first argument to `main` is `parameters` - the user-provided parameter values for this run, which will match the structure of your `parameterDefinitions`
 * The second argument is `settings` - the user-provided setting values, matching structure of `settingDefinitions`
 * The third argument is `actionsAPI`, which is an instance of the `ActionsAPI` class [defined in `aerie-actions`](https://github.com/NASA-AMMOS/aerie-actions/blob/main/src/index.ts#L94). This is your hook for accessing (reading and writing) files and sequences in your workspace, as well as any other helper functions provided by the package.
@@ -98,7 +103,7 @@ as long as it is serializable to JSON. Results are saved in the database and dis
 future, these results may be able to be passed to other actions as parameters, enabling pipelines of actions.
 
 If your action encounters a **failure**, you can indicate this in one of two ways:
-  * You can throw an error eg. `throw new Error('my message');` - or allow errors thrown by function calls to bubble up (don't catch them).
+  * You can throw an error eg. `throw new Error('my message');`. When making a call to a function that might fail, *don't* wrap it in a `try/catch`, just let it throw an error
   * Or you can `return { status: "FAILED", data: someResults }` with results related to the failure
 
 Either of these is better than "swallowing" fatal errors by eg. `catch`ing them and logging them, as they will cause the
@@ -116,7 +121,7 @@ such as authentication tokens, passwords or opcodes, that you do not want to be 
 
 The third argument passed to your `main` function is an instance of the `ActionsAPI` class [defined in `aerie-actions`](https://github.com/NASA-AMMOS/aerie-actions/blob/main/src/index.ts#L94). This object contains a connection to the Aerie database,
 and allows you to asynchronously **read from** and **write to** sequences in your workspace. More documentation for
-these functions can be found in the [`aerie-actions` repo](https://github.com/NASA-AMMOS/aerie-actions/blob/README.md),
+these functions can be found in the [`aerie-actions` repo](https://github.com/NASA-AMMOS/aerie-actions/blob/main/README.md),
 and examples can be found in the `aerie-action-template`. The basic methods are:
 
 ```js
@@ -146,7 +151,8 @@ npm run build
 ```
 
 If successful, this should create a built file `dist/action.js` (in the action-template folder) which can be uploaded to
-Aerie when you create an action. Whenever you change your action, you need to re-run `npm run build` to rebuild it.
+Aerie when you create an action. Whenever you change your action, you must re-run `npm run build` to rebuild it, and
+then reupload it to Aerie.
 
 ## Roadmap
 
