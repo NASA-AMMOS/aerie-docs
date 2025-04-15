@@ -14,7 +14,46 @@ More info about this decision and its intentions can be found in [ADR-0101 - Aer
 This document describes the *current state* of the Actions feature as it exists today. Check the roadmap section at the
 end to understand how it may change in the future.
 
-## Actions Demo
+## Using Actions
+
+This section demonstrates how to use Actions in the UI and assumes you *already have* an action file to use - you can download
+[this demo action](/assets/action.js) to use as an example, or follow instructions in the "Writing an Action" section below to build
+your own.
+
+Aerie actions live within the context of a **sequencing workspace**, so to begin, go to the Sequencing page and create
+a new workspace. More info on workspaces, dictionaries and parcels can be found in
+[the Sequence Editor docs](http://localhost:3000/aerie-docs/sequencing/editor/). With your workspace open, click the
+button labeled "Actions" at the top - this will show you the actions associated with your workspace, and all of the past
+runs of those actions - currently both empty lists.
+
+Once you're on the Actions page, click "New Action", give it a name ('test-action') and upload the `action.js` file
+for your action (the provided example, or the output of your build step). If this completes successfully, you should see
+your new action appear in the list on the left side of the page. Click on the row to see details about your action:
+- The **Runs** tab shows you all past runs of *this* action, currently none
+- The **Configure** tab gives you access to the *settings values* for your action. These are configuration settings defined by the action, which can be modified and saved to be used in subsequent runs.
+- The **Code** tab shows you the (compiled) source code of your action, ie. the contents of `action.js`
+
+*The rest of these instructions will assume you're using the example action - modify them as needed for your own
+settings/parameters.* The example action attempts to **make a request** to an external URL and return the response as its
+result. Go to the "Configure" page and, for the setting called "externalURL", enter "https://api.github.com". This will
+be used as the **base URL** for requests made by this action. Click Save to save your settings.
+
+Now we're ready to run the action for the first time - click the purple "Run" button in the top right of the page. This
+opens a modal dialog with a form for entering **parameters** for this run. Like settings, parameters are
+configuration options defined by the action - but unlike settings, they are required to be provided by the user on each
+run, rather than saved and persisted for all future runs. In this modal, for the parameter called "urlPath", enter
+"repos/NASA-AMMOS/aerie". This action appends the "urlPath" to the base "externalUrl" entered in settings
+to form a complete URL to request. Finally, click the "Run" button in the dialog window to start the run.
+
+This will take you to the **action run detail page** for this run, which will show information about the status of this
+particular run. After a few seconds, you should either see a green "success" status with results (showing information
+about the `aerie` repo from the Github API), or a red "failure" status. If you see a failure, check to make sure your
+settings and parameters were set correctly based on settings above.
+
+Finally, you can go back to the main Actions page for your workspace, which should show your just-completed run in the
+list and gives you access to the list of all past runs, for purposes of traceability. Each run saves the settings
+and parameters used for the run, as well as any results, logs and errors encountered during the run.
+
 
 ## Writing an Action
 
