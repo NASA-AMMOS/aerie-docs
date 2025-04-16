@@ -24,9 +24,9 @@ Actions related to the passage of simulation time are provided as static methods
 
 Actions related to spawning other activities are provided by the generated `ActivityActions` class, usually found under the generated package within your codebase:
 
-1. `spawn(activity)` - Spawn a new activity as a child of the currently-running activity at the current point in time. The child will initially see any effects caused by its parent up to this point. The parent will continue execution uninterrupted, and will not initially see any effects caused by its child.
+1. `spawn(mission, activity)` - Spawn a new activity as a child of the currently-running activity at the current point in time. The child will initially see any effects caused by its parent up to this point. The parent will continue execution uninterrupted, and will not initially see any effects caused by its child.
 
-1. `call(activity)` - Spawn a new activity as a child of the currently-running activity at the current point in time. The child will initially see any effects caused by its parent up to this point. The parent will halt execution until the child activity has completed.
+1. `call(mission, activity)` - Spawn a new activity as a child of the currently-running activity at the current point in time. The child will initially see any effects caused by its parent up to this point. The parent will halt execution until the child activity has completed.
 
 For example, consider a simple activity for running the on-board heaters called `RunHeater`:
 
@@ -40,14 +40,14 @@ public final class RunHeater {
 
   @EffectModel
   public void run(final Mission mission) {
-    spawn(new PowerOnHeater());
+    spawn(mission, new PowerOnHeater());
 
     final double totalEnergyUsed = durationInSeconds * energyConsumptionRate;
     mission.batteryCapacity.set(totalEnergyUsed);
 
     delay(durationInSeconds, Duration.SECONDS);
 
-    call(new PowerOffHeater());
+    call(mission, new PowerOffHeater());
   }
 }
 ```
@@ -75,14 +75,14 @@ record ComputedAttributes(
 
 @EffectModel
 public ComputedAttributes run(final Mission mission) { // Notice the new return type.
-  spawn(new PowerOnHeater());
+  spawn(mission, new PowerOnHeater());
 
   final double totalEnergyUsed = durationInSeconds * energyConsumptionRate;
   mission.batteryCapacity.set(totalEnergyUsed);
 
   delay(durationInSeconds, Duration.SECONDS);
 
-  call(new PowerOffHeater());
+  call(mission, new PowerOffHeater());
 
   return new ComputedAttributes(durationInSeconds, energyConsumptionRate);
 }
@@ -97,7 +97,7 @@ Computed attributes are not limited to records - they can be any type that Aerie
 public List<String> run(final Mission mission) {
   final var logs = new ArrayList<String>();
 
-  spawn(new PowerOnHeater());
+  spawn(mission, new PowerOnHeater());
   logs.add("Spawned PowerOnHeater");
 
   final double totalEnergyUsed = durationInSeconds * energyConsumptionRate;
@@ -107,7 +107,7 @@ public List<String> run(final Mission mission) {
   logs.add("Delaying for " + durationInSeconds + " seconds");
   delay(durationInSeconds, Duration.SECONDS);
 
-  call(new PowerOffHeater());
+  call(mission, new PowerOffHeater());
 
   return logs;
 }

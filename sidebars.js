@@ -132,18 +132,23 @@ const sidebars = {
           href: '/introduction/#fast-track',
         },
         'deployment/production-deployment',
-        'deployment/advanced-ui-custom-base-path',
-        'deployment/advanced-kubernetes',
-        'deployment/advanced-database-migrations',
-        'deployment/advanced-authentication',
-        'deployment/advanced-permissions',
-        'deployment/advanced-reverse-proxy',
-        'deployment/advanced-sso',
+        'deployment/upgrade-process',
+        {
+          type: 'doc',
+          id: 'deployment/advanced-database-migrations',
+          label: 'Database Migrations',
+        },
         {
           label: 'Environment Variables',
           type: 'link',
           href: 'https://github.com/NASA-AMMOS/aerie/blob/develop/deployment/Environment.md',
         },
+        'deployment/advanced-ui-custom-base-path',
+        'deployment/advanced-kubernetes',
+        'deployment/advanced-authentication',
+        'deployment/advanced-permissions',
+        'deployment/advanced-reverse-proxy',
+        'deployment/advanced-sso',
       ],
     },
     {
@@ -275,7 +280,6 @@ const sidebars = {
               ],
             },
             'scheduling-and-constraints/procedural/plan-and-sim-results',
-            'scheduling-and-constraints/procedural/constraints',
             {
               type: 'category',
               label: 'Scheduling',
@@ -284,6 +288,15 @@ const sidebars = {
                 type: 'doc',
               },
               items: ['scheduling-and-constraints/procedural/scheduling/examples'],
+            },
+            {
+              type: 'category',
+              label: 'Constraints',
+              link: {
+                id: 'scheduling-and-constraints/procedural/constraints/introduction',
+                type: 'doc',
+              },
+              items: ['scheduling-and-constraints/procedural/constraints/examples'],
             },
             'scheduling-and-constraints/procedural/parameters-and-invocations',
             // 'scheduling-and-constraints/procedural/running-externally'
@@ -374,6 +387,7 @@ const sidebars = {
       items: [
         'sequencing/editor',
         'sequencing/adaptation',
+        'sequencing/actions',
         {
           label: 'Seq JSON Schema',
           type: 'link',
@@ -489,6 +503,7 @@ const sidebars = {
     },
   ],
   upgradeGuides: [
+    'upgrade-guides/3-3-0-to-3-3-1',
     'upgrade-guides/3-2-0-to-3-3-0',
     'upgrade-guides/3-1-1-to-3-2-0',
     'upgrade-guides/3-1-0-to-3-1-1',

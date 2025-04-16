@@ -1,0 +1,220 @@
+# Aerie Actions
+
+:::danger
+Actions are a new *experimental feature* as of Aerie v3.4.0, and not yet recommended for use in production environments.
+Development is active, and the API may be subject to further change. Please let us know if you have feedback
+on their future development!
+:::
+
+Actions are *custom tasks* that developers can write and upload to an Aerie (Phoenix) Sequencing **workspace**, in order to
+traceably automate operations on the sequences and files within the workspace. Actions may *read from* and *write to* the contents of the
+workspace, and may communicate with other services to provide things such as translation, static checking or compilation.
+More info about this decision and its intentions can be found in [ADR-0101 - Aerie Actions](/overview/design/arch-decision-records/adr-0101-aerie-actions).
+
+This document describes the *current state* of the Actions feature as it exists today. Check the roadmap section at the
+end to understand how it may change in the future.
+
+## Using Actions
+
+This section demonstrates how to use Actions in the UI and assumes you *already have* an action file to use - you can download
+[this demo action](/assets/action.js) to use as an example, or follow instructions in the "Writing an Action" section below to build
+your own.
+
+Aerie actions live within the context of a **sequencing workspace**, so to begin, go to the Sequencing page and create
+a new workspace. More info on workspaces, dictionaries and parcels can be found in
+[the Sequence Editor docs](http://localhost:3000/aerie-docs/sequencing/editor/). With your workspace open, click the
+button labeled "Actions" at the top - this will show you the actions associated with your workspace, and all of the past
+runs of those actions - currently both empty lists.
+
+Once you're on the Actions page, click "New Action", give it a name ('test-action') and upload the `action.js` file
+for your action (the provided example, or the output of your build step). If this completes successfully, you should see
+your new action appear in the list on the left side of the page. Click on the row to see details about your action:
+- The **Runs** tab shows you all past runs of *this* action, currently none
+- The **Configure** tab gives you access to the *settings values* for your action. These are configuration settings defined by the action, which can be modified and saved to be used in subsequent runs.
+- The **Code** tab shows you the (compiled) source code of your action, ie. the contents of `action.js`
+
+*The rest of these instructions will assume you're using the example action - modify them as needed for your own
+settings/parameters.* The example action attempts to **make a request** to an external URL and return the response as its
+result. Go to the "Configure" page and, for the setting called "externalURL", enter `https://api.github.com`. This will
+be used as the **base URL** for requests made by this action. Click Save to save your settings.
+
+Now we're ready to run the action for the first time - click the purple "Run" button in the top right of the page. This
+opens a modal dialog with a form for entering **parameters** for this run. Like settings, parameters are
+options defined by the action - but unlike settings, they are required to be provided by the user on each
+run, rather than saved and persisted for all future runs. In this modal, for the parameter called "urlPath", enter
+`repos/NASA-AMMOS/aerie`. The example action appends the "urlPath" to the base "externalUrl" entered in settings
+to form a complete URL to request. Finally, click the "Run" button in the dialog window to start the run.
+
+This will take you to the **action run detail page** for this run, which will show information about the status of this
+particular run. After a few seconds, you should either see a green "success" status with results (showing information
+about the `aerie` repo from the Github API), or a red "failure" status. If you see a failure, check to make sure your
+settings and parameters were set correctly.
+
+Finally, you can go back to the main Actions page for your workspace, which should show your just-completed run in the
+list and gives you access to the list of all past runs, for purposes of traceability. Each run saves the settings
+and parameters used for the run, as well as any results, logs and errors encountered during the run.
+
+
+## Writing an Action
+
+Actions must be written in **Javascript or Typescript**, though other languages may be supported in the future. If you're
+unfamiliar with working on JS projects, it's a good idea to use an IDE such as [VSCode](https://code.visualstudio.com/) or
+[Webstorm](https://www.jetbrains.com/webstorm/) for editing code.
+
+We provide two resources for developers who want to write a new action:
+
+* **[aerie-action-template](https://github.com/NASA-AMMOS/aerie-action-template)**, a boilerplate template showing the structure of an action
+* The **[aerie-actions](https://github.com/NASA-AMMOS/aerie-actions)** JS package, a library of utilities used by actions
+
+We recommend starting a new action by forking or copying the **[aerie-action-template](https://github.com/NASA-AMMOS/aerie-action-template)**
+repository and using it as a starting point. Once you have a local copy, `cd` to it and run the following commands:
+
+* `nvm use` - (optional, but ensures you're using the correct `node` version. You may have to [install NVM](https://github.com/nvm-sh/nvm) first)
+* `npm install` to install dependencies
+* `npm run build` to make sure you are setup correctly to build
+
+Files in the `/dist` folder are generated and should not be modified directly - the action's source files are in the
+`/src` directory. Open [`src/index.ts`](https://github.com/NASA-AMMOS/aerie-action-template/blob/main/src/index.ts) in
+your code editor to start working on your action. You'll see at the top of the file the utilities that are imported
+from `aerie-actions`, which we'll discuss below.
+
+### Action parameters and settings
+
+Actions may define two types of configuration which may be provided by the user to affect the action's behavior:
+**parameters** and **settings**. In both cases, the action developer defines the *names* and *types* of expected parameters/settings
+in the action code, and the user may provide *values* for them at runtime. The difference between them is that
+the values of **settings** are saved in the database and used in subsequent runs - to be used for persistent configuration
+such as the URL of a service which does not change often - while **parameter** values are expected to be provided
+by the user on every run of the action.
+
+You must define your parameters and settings as shown in the template structure: the variables **must** be called `parameterDefinitions`
+and `settingDefinitions`, but you should replace the contents with your desired parameter/setting names and their types.
+For example, the code:
+```
+export const parameterDefinitions = {
+  myName: { type: "string" },
+  myAge: { type: "int" }
+} satisfies ActionParameterDefinitions;
+```
+defines two user-provided parameters, a string called `myName` and an integer called `myAge`. The full list of
+supported types can be found in the [aerie-actions value schema definition](https://github.com/NASA-AMMOS/aerie-actions/blob/main/src/types/schema.ts).
+If you are using Typescript, the next two lines should be left alone:
+```
+type MyActionParameters = ActionParameters<typeof parameterDefinitions>;
+type MyActionSettings = ActionSettings<typeof settingDefinitions>;
+```
+as these will ensure that your function is provided with correct TS types for the parameters & settings you defined.
+
+
+### The action `main` function
+
+Every action is expected to export a function called **`main`**, containing the main action code to be run
+when the action is invoked:
+
+```js
+export async function main(
+  parameters: MyActionParameters,
+  settings: MyActionSettings,
+  actionsAPI: ActionsAPI
+) { /* action code here ...  */ }
+```
+
+Actions are expected to by asynchronous, potentially long-running tasks - therefore `main` is expected to be an `async`
+function, or a function which returns a [`Promise` which is `resolve`d](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises)
+when the action is done running.
+* The first argument to `main` is `parameters` - the user-provided parameter values for this run, which will match the structure of your `parameterDefinitions`
+* The second argument is `settings` - the user-provided setting values, matching structure of `settingDefinitions`
+* The third argument is `actionsAPI`, which is an instance of the `ActionsAPI` class [defined in `aerie-actions`](https://github.com/NASA-AMMOS/aerie-actions/blob/main/src/index.ts#L94). This is your hook for accessing (reading and writing) files and sequences in your workspace, as well as any other helper functions provided by the package.
+
+### Results, Errors and Logs
+
+When your `main` function successfully completes, it should return an object that looks like:
+
+```
+return {
+  status: "SUCCESS",
+  data: someResults
+};
+```
+
+The `data` value in this object is referred to as the **result** of your action, and may be any type of JS object,
+as long as it is serializable to JSON. Results are saved in the database and displayed on the action run page. In the
+future, these results may be able to be passed to other actions as parameters, enabling pipelines of actions.
+
+If your action encounters a **failure**, you can indicate this in one of two ways:
+  * You can throw an error eg. `throw new Error('my message');`. When making a call to a function that might fail, *don't* wrap it in a `try/catch`, just let it throw an error
+  * Or you can `return { status: "FAILED", data: someResults }` with results related to the failure
+
+Either of these is better than "swallowing" fatal errors by eg. `catch`ing them and logging them, as they will cause the
+run to properly be reported as a failure in the database and UI.
+
+For non-fatal problems, or to log additional information, your action can use `console.warn()` and `console.log()` -
+the **contents of the logs will be captured**, saved and displayed alongside the run results.
+
+:::danger
+Be careful that you **do not `console.log()` any sensitive information**
+such as authentication tokens, passwords or opcodes, that you do not want to be persisted in the database in plaintext.
+:::
+
+### Using `actionsAPI` functions to read and write sequences
+
+The third argument passed to your `main` function is an instance of the `ActionsAPI` class [defined in `aerie-actions`](https://github.com/NASA-AMMOS/aerie-actions/blob/main/src/index.ts#L94). This object contains a connection to the Aerie database,
+and allows you to asynchronously **read from** and **write to** sequences in your workspace. More documentation for
+these functions can be found in the [`aerie-actions` repo](https://github.com/NASA-AMMOS/aerie-actions/blob/main/README.md),
+and examples can be found in the `aerie-action-template`. The basic methods are:
+
+```js
+// return a list of the names of all sequences in your workspace:
+const files = await actionsAPI.listSequences();
+// get the string contents of a sequence, given the sequence name
+const myFileContents = await actionsAPI.readSequence("my_seq");
+// overwrite the contents of a sequence with a new string, given the sequence name
+const writeResult = await actionsAPI.writeSequence("output_seq", "NEW CONTENTS");
+```
+
+:::caution
+
+It is important to `await` these functions (and any other `async` functions you call), or use another
+method (eg. `Promise.all`) to ensure that the `Promise`s they return are *resolved* or *rejected* **before**
+your `main` function returns/resolves. After the `main` Promise is resolved, the process running your Action may be
+terminated and any unprocessed results will be dropped.
+
+:::
+
+### Building your action
+
+When you are ready to upload your action to an Aerie workspace, run this build command:
+
+```
+npm run build
+```
+
+If successful, this should create a built file `dist/action.js` (in the action-template folder) which can be uploaded to
+Aerie when you create an action. Whenever you change your action, you must re-run `npm run build` to rebuild it, and
+then reupload it to Aerie.
+
+## Roadmap
+
+Aerie Actions are an **experimental feature** under active development. If you have feedback or ideas for their future
+development, [let us know!](http://localhost:3000/aerie-docs/#:~:text=quick%20start%E2%86%92-,Learn%20More,-Ask%20a%20question)
+
+Our near-term (Spring 2025) roadmap of upcoming changes to Actions includes:
+* More example actions & improved documentation
+* Patterns for **testing actions** - User should be able to write tests for their action including mocking & spying on the aerie-actions library (`expect(actions.readSequence).toHaveBeenCalledWith('mySequence')`).
+* Action **Cancellation** - Ability to stop a long-running action and kill its worker
+* Settle on our **allowed types** of parameters & add some new types, with associated UI for selecting them:
+  - sequence type parameter
+  - 'sequence list' type parameter
+  - 'secret' type?
+* Run an action **“on” a particular sequence** - If an action has a sequence-type parameter, you should be able to run it *from* the sequence editor with the active sequence as the parameter value
+* Secret storage? - Ability to securely store a setting that is a secret & not display it to end user
+* CAM auth token pass-through - If a user deploys Aerie on **CAM**, and writes an action which makes an HTTP call to another service in the same CAM "walled garden", we should provide a way to pass the token through, so we can be authenticated on the other service.
+* **Concurrency** - We don't plan to fully solve the concurrency problem yet, but we should allow *one action per workspace* to run concurrently instead of *one action per aerie deployment*
+* Rethink **bundling actions** - Currently no way to upload an action with any other configs or scripts to call, you can only upload a single JS file. Should we rethink this to allow a user to give us eg. a node script that calls a python script, packed into a zip file? May also be nice for our action format to have a place to specify version, eg. a manifest file.
+
+Our longer-term roadmap includes prospective features such as:
+
+* **Triggers/hooks** - a way to automatically run certain actions when certain things occur, such as a sequence being saved
+* **Annotation files** - workspaces should support "annotation files" which are associated with sequences, and contain line-numbered annotations to be displayed in the context of the sequence editor, to support eg. actions running a static checker and showing line-by-line results in the editor.
+* **Concurrency** - ability to run multiple actions in the same workspace at the same time, or allow the user to control whether or not this is possible
+* **Action pipelines** - connecting action runs together by piping the output results of one action into the input parameters of another.

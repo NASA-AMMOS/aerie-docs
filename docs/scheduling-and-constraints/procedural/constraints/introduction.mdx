@@ -1,0 +1,37 @@
+# Constraints
+
+Constraint procedures give you the power to write arbitrarily complex rules that can be checked against events, activities, and resources associated with models and/or plans.
+To create a constraint procedure, you simply need to create a simple java record with a single method that takes `Plan` and `SimulationResults` objects as arguments and returns a `Violations` timeline. Violations are a new type of timeline specific to constraints, that store `Violation` objects. You won't usually need to perform additional operations after creating a `Violations` timeline; usually you'll just return it. They can be created with some provided static constructor functions. For example:
+
+```java
+@ConstraintProcedure
+public class BatteryAboveZero implements Constraint {
+  @Override
+  public Violations run( Plan plan, SimulationResults simResults) {
+    return Violations.inside(
+      plan.resource("/battery_soc", Real.deserializer()).lessThan(0).highlightTrue()
+    );
+  }
+}
+```
+
+## Constraint Basics
+
+When building a constraint procedure, the primary goal is to find windows of time within the plan that violate a constraint and then turn those windows into a list of
+constraints to be reported and visualized by Aerie. A few of the Aerie [Timelines](../timelines/introduction.mdx) objects will come in handy as you manipulate information available within the `Plan` and `SimulationResults` objects:
+
+- The `Windows` object provides a number of logical operations (e.g. union, intersection) that you can perform against sets of windows in order to converge on the set of violation windows you want to return. These objects are most useful when performing logic on activities.
+- The `Interval` object has similar functionality to `Windows`, but is often useful when you want to compare or perform operations one interval at a time
+- The `Booleans` object provides comparison operations (e.g. and, or) on other profiles, which is great when trying to combine resource constraints together to form a composite constraint (e.g. resource A is greater than X, but less than Y)
+
+`SimResults.instance("nameOfActType")` and `SimResults.resource("nameOfResource", <deserializer>)` are the simplest way to get simulated activities and resource values from your plan to manipulate. These methods had a number of helper methods you can use to do further filtering or conversion to Windows (`.highlight()`), a List of Intervals (`.collect()`), or Boolean timelines (e.g. `.greaterThan()`).
+
+For more **examples** of the use of these objects and methods, see the [Procedural Constraints Examples](../examples) page.
+
+## Violation Messages
+
+The `Violation` class contains a `message` field, which will display to the user in the UI. It is `null` by default,
+but you have a few ways to change it.
+
+If you're creating a `Violations` timeline, you can call `violations.withDefaultMessage(message)`, which sets the message
+for those in the result that don't already have one. You can also set the message on a per-`Violation` basis by constructing each `Violation` object manually.

@@ -1,0 +1,241 @@
+# Examples
+
+This page provides various examples of constraint procedures to use as a reference when implementing your own constraints
+
+## Simple Numeric Resource Condition
+
+This constraint reports a violation when one resource (`RecordingRate`) goes above a parameterized numeric value (`threshold`). A set of violations is created in this example with the Violations.on() static method, which takes a `Booleans` profile (the first argument to the method) and creates violations during profile segments that are `true` (the second argument).
+
+```java
+@ConstraintProcedure
+public record RecordingRateThreshold(int threshold) implements Constraint {
+  @Override
+  public Violations run(Plan plan, SimulationResults simResults) {
+    final var rate = simResults.resource("RecordingRate", Real.deserializer());
+
+    return Violations.on(
+      rate.greaterThan(threshold),
+      true
+    );
+  }
+}
+```
+
+## Activity Mutual Exclusion
+
+This constraint reports a violation if an activity of a particular type overlaps with itself
+
+```java
+@ConstraintProcedure
+public record DataCollectionOverlap() implements Constraint {
+  @Override
+  public Violations run(Plan plan, SimulationResults simResults) {
+     return Violations.on(
+       simResults.instances("CollectData").countActive().greaterThan(1),
+       true);
+  }
+}
+```
+
+## State Resource Maximum Duration
+
+This constraint reports a violation if a resource (`MagDataMode`) is in a particular state (`HIGH_RATE`) for longer than a specified duration (`maxDur`). Violations are created using the Violations.inside() static method, which automatically creates violations from a `Windows` object.
+
+```java
+@ConstraintProcedure
+public record HighRateModeMaxDuration(Duration maxDur) implements Constraint {
+  @Override
+  public Violations run(Plan plan, SimulationResults simResults) {
+    final var mode = simResults.resource("MagDataMode", Strings.deserializer() );
+    Windows highRateWins = mode.highlightEqualTo("HIGH_RATE").filterLongerThan(maxDur);
+    return Violations.inside(highRateWins);
+  }
+}
+```
+
+## Activity-Resource Mutual Exclusion
+
+This constraint reports a violation if an activity (`Downlink`) overlaps with a specific resource condition (`Occultation > 0`)
+
+```java
+@ConstraintProcedure
+public record NoDownlinkDuringOccultations() implements Constraint {
+  @Override
+  public Violations run(Plan plan, SimulationResults simResults) {
+
+    Booleans occs = simResults.resource("Occultation", Real.deserializer()).greaterThan(0);
+    Booleans downlinks = simResults.instances("Downlink").active();
+
+    return Violations.on(
+      occs.and(downlinks),
+      true
+    );
+  }
+}
+```
+
+## Activity Minimum Duration
+
+This constraint reports a violation if activities of a certain type (`Downlink`) are below a minimum duration (`minDur`)
+
+```java
+@ConstraintProcedure
+public record DownlinkMinDuration(Duration minDur) implements Constraint {
+  @Override
+  public Violations run(Plan plan, SimulationResults simResults) {
+    return Violations.on(
+      simResults.instances("Downlink").filterShorterThan(minDur).active(),
+      true);
+  }
+}
+```
+
+## Activity Argument Constraint
+
+This constraint reports a violation if the value of a particular activity parameter is inside of a bounds. Note that activity parameter validations serve a similar function, but are intended to catch parameter issues prior to plan simulation and cannot catch violations of children activity instances generated during simulation.
+
+```java
+@ConstraintProcedure
+public record ActivityArgumentConstraint(double minValue, double maxValue) implements Constraint {
+  @Override
+  public Violations run(Plan plan, SimulationResults simResults) {
+     return Violations.on(
+       simResults.instances("CollectData").filter(false,
+         $ -> (
+           $.inner.arguments.get("rate").asReal().get() >= minValue &&
+           $.inner.arguments.get("rate").asReal().get() <= maxValue)).active(),
+       true);
+  }
+}
+```
+
+## Time Window Constraint
+
+This constraint reports a violation if any part of the activity is inside of a specified time window. Note that the time window is defined by two durations offset from the start of the plan
+
+```java
+@ConstraintProcedure
+public record TimeWindowConstraint(Duration startDur, Duration endDur) implements Constraint {
+
+  @Override
+  public Violations run(Plan plan, SimulationResults simResults) {
+    Interval timeInt = Interval.between(startDur, endDur);
+
+    List<Instance<AnyInstance>> acts  = simResults.instances("CollectData").collect();
+
+    // Collector of violation windows
+    Windows violationWins = new Windows();
+    for (Instance<AnyInstance> act : acts) {
+      Interval violation = timeInt.intersection(act.getInterval());
+      if (!violation.isEmpty()) {
+        violationWins = violationWins.union(new Windows(violation));
+      }
+    }
+    return Violations.inside(violationWins);
+  }
+}
+```
+
+## State Resource Relative Constraint
+
+This constraint reports a violation if one state resource has a certain value within a specified duration from a state transition of another state resource. In the example below, the constraint is also ensuring that the same state is maintained after the transition to when the resource changes value. This example ensures that an instrument (radar) has been on and warming up for at least `minDur` before collecting data (i.e. being in any other data mode other than off)
+
+```java
+@ConstraintProcedure
+public record MinWarmupDuration(Duration minDur) implements Constraint {
+  @Override
+  public Violations run(Plan plan, SimulationResults simResults) {
+    // Get windows of time when the radar is ON (since there are many on modes, look for when it is not OFF)
+    Windows radarOnTimes = simResults.resource("radarState", Strings.deserializer()).notEqualTo("OFF").highlightTrue();
+    // Get windows of time when the data collection is ON
+    Windows dataCollectOnTimes = simResults.resource("RadarDataMode", Strings.deserializer()).notEqualTo("OFF").highlightTrue();
+
+    // Collector of violation windows
+    Windows violationWins = new Windows();
+
+    // For the first part of each on-time interval up to the minimum duration, the radar should not be collecting data
+    // (since it should be warming up).
+    for (Interval onTime : radarOnTimes) {
+      // Create an interval representing the minimum time data collection should be off
+      Interval warmupWin = Interval.between(onTime.start,onTime.start.plus(minDur));
+      // Find times within the warmup interval when data collection is ON (our violations)
+      Windows tmpViolations = new Windows(warmupWin).intersection(dataCollectOnTimes);
+      // Collect violations
+      violationWins = violationWins.union(tmpViolations);
+    }
+    return Violations.inside(violationWins);
+  }
+}
+```
+
+## Sequential Constraint
+
+This constraint reports a violation if an activity of a certain type (`ReprioritizeData`) does not follow an activity of another type (`Downlink`) within a specified duration (`maxOffset`)
+
+```java
+@ConstraintProcedure
+public record ReprioritizeAfterDownlink(Duration maxOffset) implements Constraint {
+  @Override
+  public Violations run(Plan plan, SimulationResults simResults) {
+
+    List<Instance<AnyInstance>> parentActs  = simResults.instances("Downlink").collect();
+
+    Windows opponentWins = simResults.instances("ReprioritizeData").highlightAll();
+
+    // Collector of violation windows
+    Windows violationWins = new Windows();
+
+    // For each parent activity, determine if there is an opponent activity (or activities) within
+    // the time between the end of the parent activity and the maxOffset. If not, report a violation
+    for (Instance<AnyInstance> parent : parentActs) {
+      Windows maxOffsetWin = new Windows(Interval.between(parent.getInterval().end, parent.getInterval().end.plus(maxOffset)));
+      Windows offsetIntersect = maxOffsetWin.intersection(opponentWins);
+      if (offsetIntersect.collect().isEmpty()) {
+        // Collect violations
+        violationWins = violationWins.union(maxOffsetWin);
+      }
+
+    }
+    return Violations.inside(violationWins);
+  }
+}
+```
+
+## Separation Constraint
+
+This constraint reports a violation if instances of an activity type (`CollectData`) are not separated by a specified duration (`minSeparation`)
+
+```java
+@ConstraintProcedure
+public record DataCollectionSeparation(Duration minSeparation) implements Constraint {
+  @Override
+  public Violations run(Plan plan, SimulationResults simResults) {
+
+    List<Instance<AnyInstance>> acts  = simResults.instances("CollectData").collect();
+
+    List<Interval> actIntervals = new ArrayList<>();
+    for ( Instance<AnyInstance> act : acts) {
+      actIntervals.add(act.getInterval());
+    }
+
+    // Collector of violation windows
+    Windows violationWins = new Windows();
+
+    // For each activity, create an interval by adding minSeparation to each side
+    // of the activity. The intersection of that interval with other activities
+    // violate this separation constraint
+    for (int i = 0; i < actIntervals.size(); i++) {
+        Interval activity = actIntervals.get(i);
+        Interval sepInterval = Interval.between(activity.start.minus(minSeparation), activity.end.plus(minSeparation));
+        // Remove this activity before doing interval logic against all activities
+        List<Interval> tmpActs = new ArrayList<>(actIntervals);
+        tmpActs.remove(i);
+        Windows actsMinusThisAct = new Windows(tmpActs);
+        Windows tmpViolations = actsMinusThisAct.intersection(new Windows(sepInterval));
+        // Collect violations
+        violationWins = violationWins.union(tmpViolations);
+    }
+    return Violations.inside(violationWins);
+  }
+}
+```
