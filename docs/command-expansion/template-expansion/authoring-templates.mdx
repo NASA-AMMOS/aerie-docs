@@ -5,9 +5,9 @@ import templateHelpers from './assets/authoring-template-helpers.png';
 
 # Authoring Templates
 
-Template authoring follows a similar process to its predecessor/alternative of legacy expansion rule authoring.
+Template authoring follows a similar process to Typescript expansion rule authoring.
 
-To create a new sequence template (or to edit existing ones) navigate to the **Sequence Templates** page of Aerie.
+To create a new sequence template for an activity type (or to edit existing ones) navigate to the **Sequence Templates** page of Aerie.
 
 <figure>
   <img alt="Aerie UI - Templates Page" src={templatePage} />
@@ -16,10 +16,12 @@ To create a new sequence template (or to edit existing ones) navigate to the **S
 
 To create a new template, select `New Template`, and provide your template with:
 
-- a name,
-- a language (currently restricted to: `STOL`, `SeqN`, or `Text`, for CSTOL, SeqN, or plaintext respectively),
-- a parcel ID (to get the set of allowed commands), a model ID (to enable access to the activity types),
-- and then the activity type that this template is for.
+- a name
+- a sequencing language, currently restricted to: `STOL`, `SeqN`, or `Text`
+  - (this setting enables editor syntax highlighting for supported languages, but arbitrary languages may be used with the "Text" setting)
+- a parcel ID (to get the set of allowed commands from the dictionary)
+- a model ID (to enable access to the activity types)
+- and the activity type that this template is for
 
 To edit an existing template, mouse over it in the table and select the edit button.
 
@@ -28,7 +30,7 @@ To edit an existing template, mouse over it in the table and select the edit but
   <figcaption>Figure 2: Creating a new sequence template</figcaption>
 </figure>
 
-This editor has autocomplete functionality, whitespace formatting, and error visibility. There is also a panel that describes the available commands, one describing the template, and the ability to switch to editing a different sequence template.
+This editor has autocomplete functionality, whitespace formatting, and error visibility for supported languages. There is also a panel that describes the available commands, one describing the template, and the ability to switch to editing a different sequence template.
 
 <figure>
   <img alt="Aerie UI - Template Editor" src={templateEditor} />
@@ -37,16 +39,14 @@ This editor has autocomplete functionality, whitespace formatting, and error vis
 
 Finally, you can save your result, and you are now ready to expand using this template.
 
-## Using Mustache functionality
+## Using the Handlebars template language
 
-Templating is done in the [Mustache formatting language](https://mustache.github.io/mustache.5.html), more specifically making use of the [Handlebars API](https://handlebarsjs.com/guide/). This templating language allows users to weave variables from _some_ input (more on the input shortly) into a body of text. For example, if I had the following:
+Sequence templates are written in the [Handlebars template language](https://handlebarsjs.com/guide/). This language allows users to embed variables from _some_ input (more on the input shortly) into a body of text. For example, if I had the following:
 
 **Input**
 
 ```
-{
-  input: "bananas"
-}
+{ input: "bananas" }
 ```
 
 **Template**
@@ -63,25 +63,7 @@ and compiled these together using Handlebars, I would get as a result:
 I like to eat bananas.
 ```
 
-This has a lot of utility as far as expanding activities goes, because, as discussed in the [Introduction](./introduction), we can now directly and easily write a sequence with little template expressions that fill in certain mission model properties.
-
-To parrot our earlier example with this context, what was formerly:
-
-```
-export default function MyExpansion(props: {
-    activityInstance: ActivityType
-}): ExpansionReturn {
-    const { activityInstance } = props;
-    return [
-        C.BOOT_COPY_NOR_IMAGE("ZONE_0", "ZONE_1"),
-        A('2024-123T00:00:00').AVS_PCE_MEMORY_POKE(activityInstance.attributes.arguments.quantity, "string"),
-        C.EP_XFC_LV_CLOSE("XFC_A"),
-        C.DP_PRIORITIZE("STRING", activityInstance.attributes.arguments.quantity)
-    ];
-}
-```
-
-Now becomes:
+This is useful for expanding activities because, as discussed in the [Introduction](./introduction), it allows us directly write sequence templates with expressions, which more closely resemble the final expanded sequences than rules did. To reuse our earlier example, the template:
 
 ```
 C BOOT_COPY_NOR_IMAGE "ZONE_0" "ZONE_1"
@@ -90,7 +72,7 @@ C EP_XFC_LV_CLOSE "XFC_A"
 C DP_PRIORITIZE "STRING" {{ attributes.arguments.quantity }}
 ```
 
-and both compile to:
+compiles to this very similar looking result:
 
 **Result**
 
@@ -101,27 +83,29 @@ C EP_XFC_LV_CLOSE "XFC_A"
 C DP_PRIORITIZE "STRING" 5
 ```
 
-One remaining question is what precisely the structure of the input is. The above example should give a hint at it, but here is the input schema as a whole:
+## Template input data
+
+During expansion, Aerie goes through your plan looking for activities which have a template associated with them, and compiles the template with the following input data structure from the activity, which may be used in the template:
 
 ```
 {
-  id: number;
-  simulationDatasetId: number;
+  id: number;  // ID of the activity instance
+  simulationDatasetId: number; // ID of the associated simulation dataset
   simulationDataset: {
     simulation: {
-      planId: number
+      planId: number // ID of the associated plan
     }
   };
   attributes: {
-    arguments: { ... };
-    directiveId: number;
-    computed: { ... };
+    arguments: { ... }; // arguments provided to the activity
+    directiveId: number; // ID of the associated activity directive
+    computed: { ... }; // activity's computed attributes
   };
-  duration: Temporal.Duration;
-  startOffset: Temporal.Duration;
-  startTime: Temporal.Instant;
-  endTime: Temporal.Instant;
-  activityTypeName: string;
+  duration: Temporal.Duration; // duration of the activity
+  startOffset: Temporal.Duration; // start offset of the activity from its parent, or the beginning of the plan
+  startTime: Temporal.Instant;  // start time of the activity
+  endTime: Temporal.Instant;  // end time of the activity
+  activityTypeName: string;  // name of the associated activity type
 }
 ```
 
@@ -133,40 +117,15 @@ CMD {{ activityTypeName }} endsAt={{ endTime }} quantity={{ attributes.arguments
 
 The actual compilation of templates is discussed in [Expanding Templates](../expanding-templates).
 
-### In-AERIE Helpers
+## Template Helpers
 
-We also introduce with Mustache formatting the notion of helpers. Mustache helper functions (discussed in-depth in the Handlebars documentation [here](https://handlebarsjs.com/guide/builtin-helpers.html)), allow for a user to invoke a function on parameters to produce a specific value. For example, if I had a helper that adds two numbers, then I would have:
+We also introduce with Handlebars formatting the notion of helpers. Helper functions (discussed in the Handlebars documentation [here](https://handlebarsjs.com/guide/builtin-helpers.html)), allow a user to invoke a function with arguments and produce a result in the template.
+Aerie defines 4 helpers for use in templates. User-defined helpers are not yet supported, so only these 4 are available at the moment.
 
-**Input**
-
-```
-{
-  input: {
-    a: 1,
-    b: 2
-  }
-}
-```
-
-**Template**
-
-```
-I ate {{ add input.a input.b }} bananas.
-```
-
-which compiles to:
-
-**Result**
-
-```
-I ate 3 bananas.
-```
-
-We have defined in AERIE 4 helpers, currently. User-defined helpers do not yet exist, so only these 4 are available at the moment.
-
-#### `add-time`
+### `add-time`
 
 This helper allows a user to compute a new time string (that is either STOL or SeqN compatible) from an existing one, and a duration to be added to that time. For example:
+
 **Input**
 
 ```
@@ -189,7 +148,7 @@ This helper allows a user to compute a new time string (that is either STOL or S
 A{{ add-time startTime attributes.arguments.growingDuration }}
 ```
 
-which compiles to:
+compiles to:
 
 **Result**
 
@@ -197,9 +156,10 @@ which compiles to:
 A2024-001T01:00:00
 ```
 
-#### `subtract-time`
+### `subtract-time`
 
 This helper allows a user to compute a new time string (that is either STOL or SeqN compatible) from an existing one, and a duration to be subtracted from that time. For example:
+
 **Input**
 
 ```
@@ -230,8 +190,9 @@ which compiles to:
 A2023-365T23:00:00
 ```
 
-#### `format-as-date`
-This helper allows a user to format a date-like string to whatever language is necessary. For example, if I want STOL-like dates (which use `/` instead of a `T`, and include the time zone abbrevriation) but my input is as such:
+### `format-as-date`
+This helper allows a user to format a date-like string input in the date format defined in the target sequencing language. For example, if I want STOL-like dates (which use `/` instead of a `T`, and include the time zone abbreviation) but my input is:
+
 **Input**
 
 ```
@@ -258,12 +219,13 @@ CMD AT=2025-001/00:00:00Z
 ```
 
 :::info Note
-If the sequencing language is `Text`, it is preferred that users include the Zulu time abbreviation. Currently, if it is left out, and the date is formatted as a YYYY-MM-DD string, the date is automatically converted to the current time zone, which produces some inconsistency in output.
+If the sequencing language is `Text`, it is preferred that users include the Zulu time abbreviation in their input data. Currently, if it is left out, and the date is formatted as a YYYY-MM-DD string, the date is automatically converted to the current time zone, which produces some inconsistency in output.
 :::
 
-#### `flatten`
+### `flatten`
 
-This helper allows a user to format arrays correctly. SeqN array formatting looks a little different than conventional array formatting in Mustache/Handlebars, which we illustrate below:
+This helper allows a user to format arrays correctly according to the target sequencing language. SeqN array formatting looks a little different than conventional array formatting in Handlebars, which we illustrate below:
+
 **Input**
 
 ```
@@ -285,7 +247,7 @@ This helper allows a user to format arrays correctly. SeqN array formatting look
 Unflattened: {{ firstArraySet }}; Flattened: {{ flatten firstArraySet }}
 ```
 
-which provides me with:
+compiles to:
 
 **Result**
 
@@ -302,55 +264,35 @@ Putting this all together in AERIE, we might have the following:
   <figcaption>Figure 4: A sequence template using helpers</figcaption>
 </figure>
 
-### Other Notes
+## Other Notes
 
-There are some quirks here, which can be uncovered by looking through the Handlebars documentation. We will list some of the least intuitive ones, however, any quirks that are noticed by users not listed here should be cross-referenced with the real documentation as our listing here cannot be comprehensive.
+There are some quirks to our application of the Handlebars language to sequence templates. Some of the least intuitive parts are listed below, please refer to the official [Handlebars documentation](https://handlebarsjs.com/guide/) for language details before filing an issue for any quirks you may notice.
 
-#### Helpers
+#### Missing inputs/helpers
 
-One cannot directly write an input that's not in the input object (or in our case, not an existing property of a simulated activity). The following is invalid:
-
-**Input**
-
-```
-<empty>
-```
+If you refer to an input variable or helper that is not present in the input object or the helpers library, it is considered invalid and will produce an empty string in the compiled output, for example:
 
 **Template**
 
 ```
-I ate {{ add 1 2 }} bananas.
+ECHO "{{ badInputVariable }}"
 ```
 
-Similarly, if a non-existent argument (or helper) is used in a template expression, nothing shows up in the result:
-
-**Input**
-
-```
-<empty>
-```
-
-**Template**
-
-```
-I work at {{ company }}.
-```
-
-(which compiles to):
+compiles to
 
 **Result**
 
 ```
-I work at .
+ECHO ""
 ```
 
 #### HTML/XML-like String Escaping
 
-HTML escaping (should any inputs coming from a simulated activity have XML-like strings) is automatic in Handlebars. That is, if we have:
+HTML string escaping (should any inputs coming from a simulated activity have XML-like strings) is automatic in Handlebars. That is, if we have:
 
 **Input**
 ```
-{ 
+{
   name: "<name>"
 }
 ```
@@ -371,7 +313,7 @@ This can be avoided by using triple brackets:
 
 **Input**
 ```
-{ 
+{
   name: "<name>"
 }
 ```
@@ -381,22 +323,22 @@ This can be avoided by using triple brackets:
 I am {{{ name }}}.
 ```
 
-it will compile to:
+will compile to:
 
 **Result**
 ```
 I am <name>.
 ```
 
-However, helpers are still applied, even in triple brackets. So something like `{{{ format-as-date input.date }}}` will still call `format-as-date` on `input.date`, but if the result is an XML-like string, those brackets simply won't be escaped like in the above example.
+Helper functions will still be correctly applied to expressions in triple brackets.
 
 #### Arrays and Objects
 
-Arrays and objects also have particular behavior. There currently exists no well-defined (as there haven't been good use cases yet) behavior for objects, so the default behavior of resolving to the string format `[Object object]` for any given object is used. For arrays, if `flatten` _isn't_ used, the array flattens as a list of comma-separated elements WITHOUT brackets. That is:
+Arrays and objects also have particular behavior. There currently exists no well-defined behavior for objects, so the default behavior of resolving to the string `[Object object]` for any given object is used. For arrays, if the `flatten` helper _isn't_ used, the array is serialized as a list of comma-separated elements WITHOUT brackets. That is:
 
 **Input**
 ```
-{ 
+{
   array: [1, 2, 3],
   object: {
     arbitrary: {

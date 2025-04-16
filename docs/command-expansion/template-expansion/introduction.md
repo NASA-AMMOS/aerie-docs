@@ -1,14 +1,14 @@
 # Sequence Templates
 
-:::caution
-This is an experimental feature.
+:::danger
+Template Expansion is an *experimental feature* as of Aerie v3.4.0.
+Development is active, and the API may be subject to further change. Please let us know if you have feedback
+on its future development!
 :::
 
-Sequence templates introduce an alternative way to expand activity types into a set of commands, using templates, instead of typescript rules. They make use of the <a href="https://mustache.github.io/mustache.5.html">Mustache</a> templating language.
+Sequence templates introduce an alternative way to expand activities into a set of commands, using templates instead of [Typescript rules](../../expansion-rules). They make use of the <a href="https://mustache.github.io/mustache.5.html">Mustache</a> templating language.
 
-This feature was introduced with the goal of providing users with a more straightfoward and intuitive tool for expansion, that's both easier to use and to trace to the expanded sequence. 
-
-For example, using traditional expansion rules, the `ThrowBanana` activity might have its expansion defined as such:
+This feature was introduced with the goal of providing users with a more straightforward and intuitive tool for expansion, for simpler rules which do not require the power of a procedural programming language. For example, using traditional [expansion rules](../../expansion-rules), the `ThrowBanana` activity might have its expansion defined like this:
 
 ```
 export default function MyExpansion(props: {
@@ -24,7 +24,7 @@ export default function MyExpansion(props: {
 }
 ```
 
-We propose a method that allows users to instead specify the `ThrowBanana` expansion using the following _template_:
+Sequence template expansion allows users to instead specify the `ThrowBanana` expansion using the following _template_:
 
 ```
 C BOOT_COPY_NOR_IMAGE "ZONE_0" "ZONE_1"
@@ -43,25 +43,24 @@ C DP_PRIORITIZE "STRING" 5
 ```
 
 ## Configuration
-In order to use sequence templating instead of sequence rules (or "legacy" expansion), some configuration files need to be updated.
+In order to use sequence templates instead of the existing Typescript EDSL sequence expansion rules, you need to make a configuration change to your `aerie-ui` container.
 
 :::caution
-Sequence templating and legacy expansion are exclusive of each other. They cannot coexist in the same instance of AERIE.
+Sequence templating and EDSL rules are exclusive of each other. They cannot coexist in the same instance of Aerie.
 :::
 
-If you are running `aerie-ui` locally, then within the `aerie-ui` directory, navigate to `{aerie-ui path}/.env` and update the variable `PUBLIC_SEQUENCING_MODE` to `templating`, instead of its default (`legacy`). Then redeploy (or refresh) the server.
+If you are running `aerie-ui` locally, then within the `aerie-ui` directory, navigate to `{aerie-ui path}/.env` and update the variable `PUBLIC_SEQUENCING_MODE` to `templating`, instead of its default (`legacy`). Then restart the server process.
 
 If you are running `aerie` in docker, then within the `aerie` directory, navigate to `{aerie path}/docker-compose.yml`, and update the variable `PUBLIC_SEQUENCING_MODE` under the `aerie-ui` container's settings to `templating`, instead of its default (`legacy`). Then, redeploy the container.
 
 If you are accessing `aerie` remotely via an externally managed host, please reach out to that system's administrator about changing the deployment configuration.
 
-## Sequence Templates in AERIE
-After having enabled sequence templates, you are ready to author your own templates and expand with them. Prior to doing so, however, it might be instructive to provide a brief discussion of how these templates work, and what they require (in terms of a command dictionary, mission models, and such).
+## Sequence Templates in Aerie
+After having enabled sequence templates, you are ready to author your own templates and expand with them. Prior to doing so, however, it might be instructive to provide a brief discussion of what these templates require and how they differ from Typescript expansion rules:
 
-Much like legacy expansion's rules, sequence templates require a mission model and some link to command dictionaries. This is so that sequence templates have access to (and can be linked to) activity types as well as any commands in the defined dictionaries. 
+* Like Typescript rules, sequence templates must be associated with a [**mission model**](/mission-modeling/introduction) and **a command dictionary/dictionaries** (via a [**parcel**](/sequencing/editor/#parcel)), since they directly refer to activity types defined in the model, and commands in the dictionaries.
+* Like Typescript rules, you should only define **one template per activity type** in your model.
+* Sequence templates **do not use [expansion sets](../../expansion-sets)** - instead they are *directly* associated with a mission model and a parcel, and their scope is mission-model-wide instead of expansion-set wide.
+* As a result, instead of explicitly assigning an expansion set to a plan, sequence templates are **implicitly assigned to a plan** (and its simulation outputs) based on the **mission model**. Any plan using a given model will have the same sequence templates associated with it.
 
-That being said, sequence templates do _NOT_ make use of the notion of expansion sets, although the rule of one rule/template per activity type still remains. Therefore, the scope of a template is not expansion-set-wide, but rather mission-model-wide. Similarly, instead of associating a parcel with an expansion set, and then creating expansion rules within that set, with sequence templates we directly associate the parcel with the sequence template. In doing so, we assign to the sequence template a set of commands that it has access to. 
-
-Finally, while to associate legacy sequencing rules with simulation output from a plan one would need to select the expansion set to use, sequence templates are instead implicitly assigned to a plan (and its simulation outputs) based on the mission model. Any plan using a given model will always have the same sequence templates associated with it, as a result.
-
-That being said, anything as far as sequence or sequence filter creation is the same across both the legacy and templating expansion systems.
+All other concepts related to sequences and sequence filter creation are the same in both systems.
