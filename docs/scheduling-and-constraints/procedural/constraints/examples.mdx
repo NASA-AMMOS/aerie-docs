@@ -4,7 +4,7 @@ This page provides various examples of constraint procedures to use as a referen
 
 ## Simple Numeric Resource Condition
 
-This constraint reports a violation when one resource (`RecordingRate`) goes above a parameterized numeric value (`threshold`)
+This constraint reports a violation when one resource (`RecordingRate`) goes above a parameterized numeric value (`threshold`). A set of violations is created in this example with the Violations.on() static method, which takes a `Booleans` profile (the first argument to the method) and creates violations during profile segments that are `true` (the second argument).
 
 ```java
 @ConstraintProcedure
@@ -23,7 +23,7 @@ public record RecordingRateThreshold(int threshold) implements Constraint {
 
 ## Activity Mutual Exclusion
 
-- Report violation if activity of a particular type overlaps with itself
+This constraint reports a violation if an activity of a particular type overlaps with itself
 
 ```java
 @ConstraintProcedure
@@ -39,7 +39,7 @@ public record DataCollectionOverlap() implements Constraint {
 
 ## State Resource Maximum Duration
 
-- Report a violation if resource is in a state for longer than specified duration
+This constraint reports a violation if a resource (`MagDataMode`) is in a particular state (`HIGH_RATE`) for longer than a specified duration (`maxDur`). Violations are created using the Violations.inside() static method, which automatically creates violations from a `Windows` object.
 
 ```java
 @ConstraintProcedure
@@ -55,7 +55,7 @@ public record HighRateModeMaxDuration(Duration maxDur) implements Constraint {
 
 ## Activity-Resource Mutual Exclusion
 
-- Report a violation if an activity overlaps with a specific resource condition
+This constraint reports a violation if an activity (`Downlink`) overlaps with a specific resource condition (`Occultation > 0`)
 
 ```java
 @ConstraintProcedure
@@ -76,7 +76,7 @@ public record NoDownlinkDuringOccultations() implements Constraint {
 
 ## Activity Minimum Duration
 
-- Report a violation if activities of a certain type are below a minimum duration (e.g. downlink)
+This constraint reports a violation if activities of a certain type (`Downlink`) are below a minimum duration (`minDur`)
 
 ```java
 @ConstraintProcedure
@@ -92,7 +92,7 @@ public record DownlinkMinDuration(Duration minDur) implements Constraint {
 
 ## Activity Argument Constraint
 
-- Report a violation if the value of a particular activity parameter is outside of a bounds. Note that activity parameter validations serve a similar function, but are intended to catch parameter issues prior to plan simulation and cannot catch violations of children activity instances generated during simulation.
+This constraint reports a violation if the value of a particular activity parameter is inside of a bounds. Note that activity parameter validations serve a similar function, but are intended to catch parameter issues prior to plan simulation and cannot catch violations of children activity instances generated during simulation.
 
 ```java
 @ConstraintProcedure
@@ -111,7 +111,7 @@ public record ActivityArgumentConstraint(double minValue, double maxValue) imple
 
 ## Time Window Constraint
 
-- Report a violation if any part of the activity is outside of a specified time window
+This constraint reports a violation if any part of the activity is inside of a specified time window. Note that the time window is defined by two durations offset from the start of the plan
 
 ```java
 @ConstraintProcedure
@@ -138,8 +138,7 @@ public record TimeWindowConstraint(Duration startDur, Duration endDur) implement
 
 ## State Resource Relative Constraint
 
-- Report a violation if one state resource has a certain value within a specified duration from a state transition of another state resource. In the example below, the constraint is also ensuring that the same state is maintained after the transition to when the resource changes value.
-- This example ensures that an instrument (radar) has been on and warming up for at least `minDur` before collecting data (i.e. being in any other data mode other than off)
+This constraint reports a violation if one state resource has a certain value within a specified duration from a state transition of another state resource. In the example below, the constraint is also ensuring that the same state is maintained after the transition to when the resource changes value. This example ensures that an instrument (radar) has been on and warming up for at least `minDur` before collecting data (i.e. being in any other data mode other than off)
 
 ```java
 @ConstraintProcedure
@@ -171,7 +170,7 @@ public record MinWarmupDuration(Duration minDur) implements Constraint {
 
 ## Sequential Constraint
 
-- Report a violation if an activity of a certain type does not follow an activity of another type within a specified duration
+This constraint reports a violation if an activity of a certain type (`ReprioritizeData`) does not follow an activity of another type (`Downlink`) within a specified duration (`maxOffset`)
 
 ```java
 @ConstraintProcedure
@@ -204,7 +203,7 @@ public record ReprioritizeAfterDownlink(Duration maxOffset) implements Constrain
 
 ## Separation Constraint
 
-- Report a violation if instances of an activity type are not separated by a specified duration
+This constraint reports a violation if instances of an activity type (`CollectData`) are not separated by a specified duration (`minSeparation`)
 
 ```java
 @ConstraintProcedure
