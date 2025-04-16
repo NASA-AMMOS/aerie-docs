@@ -149,7 +149,7 @@ public record MinWarmupDuration(Duration minDur) implements Constraint {
     // Get windows of time when the radar is ON (since there are many on modes, look for when it is not OFF)
     Windows radarOnTimes = simResults.resource("radarState", Strings.deserializer()).notEqualTo("OFF").highlightTrue();
     // Get windows of time when the data collection is ON
-    Windows dataCollectOffTimes = simResults.resource("RadarDataMode", Strings.deserializer()).notEqualTo("OFF").highlightTrue();
+    Windows dataCollectOnTimes = simResults.resource("RadarDataMode", Strings.deserializer()).notEqualTo("OFF").highlightTrue();
 
     // Collector of violation windows
     Windows violationWins = new Windows();
@@ -160,7 +160,7 @@ public record MinWarmupDuration(Duration minDur) implements Constraint {
       // Create an interval representing the minimum time data collection should be off
       Interval warmupWin = Interval.between(onTime.start,onTime.start.plus(minDur));
       // Find times within the warmup interval when data collection is ON (our violations)
-      Windows tmpViolations = new Windows(warmupWin).intersection(dataCollectOffTimes);
+      Windows tmpViolations = new Windows(warmupWin).intersection(dataCollectOnTimes);
       // Collect violations
       violationWins = violationWins.union(tmpViolations);
     }
