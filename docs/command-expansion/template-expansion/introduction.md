@@ -49,9 +49,9 @@ In order to use sequence templates instead of the existing Typescript EDSL seque
 Sequence templating and EDSL rules are exclusive of each other. They cannot coexist in the same instance of Aerie.
 :::
 
-If you are running `aerie-ui` locally, then within the `aerie-ui` directory, navigate to `{aerie-ui path}/.env` and update the variable `PUBLIC_SEQUENCING_MODE` to `templating`, instead of its default (`legacy`). Then restart the server process.
+If you are running `aerie-ui` locally, then within the `aerie-ui` directory, navigate to `{aerie-ui path}/.env` and update the variable `PUBLIC_COMMAND_EXPANSION_MODE` to `templating`, instead of its default (`legacy`). Then restart the server process.
 
-If you are running `aerie` in docker, then within the `aerie` directory, navigate to `{aerie path}/docker-compose.yml`, and update the variable `PUBLIC_SEQUENCING_MODE` under the `aerie-ui` container's settings to `templating`, instead of its default (`legacy`). Then, redeploy the container.
+If you are running `aerie` in docker, then within the `aerie` directory, navigate to `{aerie path}/docker-compose.yml`, and update the variable `PUBLIC_COMMAND_EXPANSION_MODE` under the `aerie-ui` container's settings to `templating`, instead of its default (`legacy`). Then, redeploy the container.
 
 If you are accessing `aerie` remotely via an externally managed host, please reach out to that system's administrator about changing the deployment configuration.
 
