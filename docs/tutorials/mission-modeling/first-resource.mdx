@@ -3,7 +3,7 @@
 We will begin building our SSR model by creating a single resource, `RecordingRate`, to track the rate at which data is being written to the SSR over time. As a reminder, a **Resource** is any measurable quantity whose behavior we want to track over the course of a plan. Then, we will create a simple activity, `CollectData`, that updates the `RecordingRate` by a user-specified rate for a user-specified duration. This activity is intended to represent an on-board camera taking images and writing data to the spacecraft SSR.
 
 Although we could define the `RecordingRate` resource directly in the pre-provided top-level `Mission` class, we'd like to keep that class as simple as possible and delegate most of model's behavior definition to other, more focused classes.
-With this in mind, let's create a new file in `missionmodel/main/java/missionmodel` directory called `DataModel.java` with an empty class definition (we will eventually instantiate this new class within the `Mission` class, but that isn't necessary now).
+With this in mind, let's create a new file in `missionmodel/src/main/java/missionmodel` directory called `DataModel.java` with an empty class definition (we will eventually instantiate this new class within the `Mission` class, but that isn't necessary now).
 
 In the `DataModel` class, declare the `RecordingRate` resource by adding a single line to the `DataModel` class you just made:
 
