@@ -382,7 +382,8 @@ const sidebars = {
       type: 'category',
       label: 'Sequencing',
       link: {
-        type: 'generated-index',
+        id: 'sequencing/introduction',
+        type: 'doc',
       },
       items: [
         'sequencing/editor',
