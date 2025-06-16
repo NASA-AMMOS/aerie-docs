@@ -9,7 +9,7 @@ It's a good idea to keep regular backups of your Aerie instance, and to make a b
 
 ## Upgrade Guide
 
-Before upgrading, determine the version you are upgrading *from* and *to*. Go to the [Upgrade Guides](/upgrade-guides/3-2-0-to-3-3-0/) section of the docs, and read through every guide between your old version and the new version you're updating to. These will describe any breaking changes that occurred between versions, and will outline any changes you need to make to your configuration. Look out for guides which are noted as "Upgrade Checkpoint" versions - if you encounter one, you will first need to complete an upgrade to that version before continuing to your desired version (or the next checkpoint).
+Before upgrading, determine the version you are upgrading *from* and *to*. Go to the [Upgrade Guides](/upgrade-guides/3-2-0-to-3-3-0/) section of the docs, and read through every guide between your old version and the new version you're updating to. These will describe any breaking changes that occurred between versions, and will outline any changes you need to make to your configuration. Look out for guides which are noted as **"Upgrade Checkpoint"** versions (e.g. [v2.8.0](/upgrade-guides/2-7-1-to-2-8-0/)) - if you encounter one, you will first need to complete an upgrade to that version before continuing to your desired version (or the next checkpoint).
 
 Once you're prepared, follow these instructions to upgrade:
 
