@@ -299,6 +299,7 @@ const sidebars = {
               items: ['scheduling-and-constraints/procedural/constraints/examples'],
             },
             'scheduling-and-constraints/procedural/parameters-and-invocations',
+            'scheduling-and-constraints/procedural/debugging',
             // 'scheduling-and-constraints/procedural/running-externally'
           ],
         },
