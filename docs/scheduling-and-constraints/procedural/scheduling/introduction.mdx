@@ -122,7 +122,7 @@ class MyActivityEveryHour: Goal {
 
 ```java
 @SchedulingProcedure
-public class MyActivityEveryHour implements Goal {
+public record MyActivityEveryHour() implements Goal {
   @Override
   public void run(EditablePlan plan) {
     for (final var time: plan.totalBounds().step(Duration.HOUR)) {
@@ -177,7 +177,7 @@ class MyActivityEveryHour: Goal {
 
 ```java
 @SchedulingProcedure
-public class MyActivityEveryHour implements Goal {
+public record MyActivityEveryHour() implements Goal {
   @Override
   public void run(EditablePlan plan) {
     // This produces a Booleans profile that is true at the instant of a MyActivity directive.
