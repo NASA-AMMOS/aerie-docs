@@ -180,6 +180,7 @@ const sidebars = {
         'mission-modeling/advanced-incons',
         'mission-modeling/advanced-the-merlin-interface',
         'mission-modeling/activity-types/durations',
+        'mission-modeling/testing-and-debugging',
       ],
     },
     {

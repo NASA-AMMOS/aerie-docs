@@ -1,0 +1,64 @@
+# Testing and Debugging
+
+While developing your mission model, you'll likely need to do some testing and debugging to ensure your model is behaving as expected. In addition to standard unit testing, you may want to run an "end to end" test by testing your full model against a plan and simulating it.
+
+There are two recommended methods you can use in order to perform such tests:
+
+1. Create standalone tests in Java, and then run those tests locally in your IDE. This option does not require you to stand up Aerie containers and interact with an Aerie deployment.
+2. Perform remote debugging against a deployed version of Aerie. In this option, you can attach your IDE with your model code to Aerie and then debug just like you would with a unit test.
+
+Below are instructions on how to setup each option. Note that these instructions assume the use of junit as the testing framework and IntelliJ as the IDE. Instructions would likely look similar for other testing frameworks and IDEs.
+
+### Standalone Testing Procedures
+
+Once you have developed your model, create a standalone test in java with a similar structure to [this example](https://github.com/NASA-AMMOS/aerie-modeling-tutorial/blob/main/missionmodel/src/test/java/missionmodel/ModelSimulationTests.java) found in the mission modeling tutorial.
+
+:::note
+
+The example test use some utilities from java packages that your build may not depend on yet. Take a look at the [`build.gradle`](https://github.com/NASA-AMMOS/aerie-modeling-tutorial/blob/main/missionmodel/build.gradle) file in the `missionmodel` directory of the [mission modeling tutorial](https://github.com/NASA-AMMOS/aerie-modeling-tutorial) to see what dependencies exist.
+
+:::
+
+Looking at the example test, you'll notice a `beforeAll()` method that instantiates a mission model with a particular simulation configuration and instantiates a simulation utility to assist allow plan simulation within individual tests.
+
+There is a `beforeEach()` method that creates an empty plan for individual tests to begin with. This plan is editable so that you can build up an example plan using methods like `plan.create()`
+
+The creation of activities within the empty plan occurs in the method/s annotated with `@Test`, which is usually followed by some assertions checking the plan results against an expected value. Plans are simulated at any time during a test with a `plan.simulate()`.
+
+Once you have built your test, you can debug your procedure using an IDE just like you would with any other code in a standard java application.
+
+### Remotely Debugging Procedures
+
+Prior to starting up Aerie, make the following modifications to your [`docker-compose.yml`](/deployment/introduction/#docker-composeyml) file:
+
+- Find any containers with the name `aerie_merlin_worker_*` (for a basic deployment, you might just have one of these) and add the following line under the `JAVA_OPTS:` sub-section:
+
+`-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005`
+
+- Add an additional port entry to the `ports:` sub-section ending in `:5005` (same port number as the line above) while ensuring the first port number remains unique between containers. For example:
+
+`ports: ["27189:8080", "5006:5005"]`
+
+where `5006:5005` would be `5007:5005` for a second `aerie_merlin_worker_` container and so on
+
+:::info
+
+Below is a breakdown of the line above in case you are interested:
+
+- `-agentlib:jdwp=...`: tells the JVM to load the JDWP (Java Debug Wire Protocol) agent library, which enables debugging.
+- `transport=dt_socket`: use a socket transport for debugging (as opposed to shared memory).
+- `server=y`: tells the JVM to act as the debug server — it will listen for debugger connections.
+- `suspend=n`: tells the JVM not to suspend on start-up so the app (Aerie) will start running immediately.
+- `address=*:5005`: Listen on port 5005 on all interfaces (including inside a container), which allows external debuggers to connect.
+
+:::
+
+Next, if you haven't already, open your project with your model in it in IntelliJ and select Run -> Edit Configurations from the menu bar. In the Run/Debug Configurations dialog that comes up, click the plus sign on the toolbar. The list shows the run/debug configuration templates. Select "Remote JVM Debug" to create a new debug configuration. Give your configuration a name such a "AerieModelDebugger" and ensure your settings look like the screenshot below (note you may have to change your host if you are not deploying locally).
+
+![Remote Debug Configuration](assets/remote-debug-config.png)
+
+Verify that the line under "Command line arguments for remote JVM:" matches the line you put in the `docker_compose.yml` earlier. Click "OK" to complete your new configuration. You should notice that your configuration appears near the top right corner of the window along with any other run/debug configurations you may have.
+
+Once you are ready, startup your Aerie instance and go to the plan you'd like to debug your model against. Before simulating in the Aerie instance, go to your IDE and start your remote debugger by hitting the bug icon next to your configuration in the right corner of the window. Put any breakpoints that you would like within the model code itself.
+
+Finally, run a simulation via the Aerie UI (or a third party client). If everything is working correctly, the breakpoints in your IDE should catch the execution of the model and you can debug like normal.
