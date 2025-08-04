@@ -79,7 +79,7 @@ Users should use the following `aerie-gateway` route to upload their External So
   <figcaption>Request headers & body for the 'uploadExternalSource' route</figcaption>
 </figure>
 
-When uploading through Aerie's UI, the External Source & it's contained External Events are packaged together in a single `JSON` file which adheres to the meta-schema defined [here](https://github.com/NASA-AMMOS/aerie-gateway/blob/develop/src/schemas/external-event-validation-schemata.ts). **However**, the Gateway route accepts the content of the two top-level fields (`source` and `events`) separately as the request body.
+When uploading through Aerie's UI, the External Source & it's contained External Events are packaged together in a single `JSON` file which adheres to the meta-schema defined [here](https://github.com/NASA-AMMOS/aerie-gateway/blob/develop/src/schemas/external-event-validation-schemata.ts). A `derivation_group_name` can be passed in as an argument with the request which will override any value for `derivation_group_name` in the External Source. This argument can be ignored if there is a value for `derivation_group_name` in the External Source.
 
 :::info Note
 
@@ -91,32 +91,32 @@ Uploading a simple definition of an External Source with a single External Event
 
 **Example Input**
 
-`source`
+`external_source_file`
 ```json
 {
-  "attributes": { "example": "Example attribute" },
-  "derivation_group_name": "ExampleSource Default",
-  "key": "ExampleSource:1",
-  "period": {
-    "end_time": "2024-008T00:00:00Z",
-    "start_time": "2024-001T00:00:00Z"
-  },
-  "source_type_name": "ExampleSource",
-  "valid_at": "2024-001T00:00:00Z"
-}
-```
-
-`events`
-```json
-[
-  {
+  "source": {
     "attributes": { "example": "Example attribute" },
-    "duration": "00:00:01",
-    "event_type_name": "ExampleEvent",
-    "key": "ExampleEvent:1",
-    "start_time": "2024-002T00:00:00Z"
+    "derivation_group_name": "ExampleSource Default",
+    "key": "ExampleSource:1",
+    "period": {
+      "end_time": "2024-008T00:00:00Z",
+      "start_time": "2024-001T00:00:00Z"
+    },
+    "source_type_name": "ExampleSource",
+    "valid_at": "2024-001T00:00:00Z"
+  },
+  "events": {
+    [
+      {
+        "attributes": { "example": "Example attribute" },
+        "duration": "00:00:01",
+        "event_type_name": "ExampleEvent",
+        "key": "ExampleEvent:1",
+        "start_time": "2024-002T00:00:00Z"
+      }
+    ]
   }
-]
+}
 ```
 
 **Example Output**
