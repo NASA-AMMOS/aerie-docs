@@ -57,7 +57,8 @@ Create the following `JSON` files in an editor:
 {
   "source": {
     "key": "External_Events_Demo_00.json",
-    "source_type": "DemoType",
+    "source_type_name": "DemoType",
+    "derivation_group_name": "DemoType Default",
     "valid_at": "2026-001T00:00:00Z",
     "period": {
       "start_time": "2026-001T00:00:00Z",
@@ -70,7 +71,7 @@ Create the following `JSON` files in an editor:
   "events": [
     {
       "key": "DemoType/SampleTypeA/1",
-      "event_type": "SampleTypeA",
+      "event_type_name": "SampleTypeA",
       "start_time": "2026-001T12:00:00Z",
       "duration": "02:00:00",
       "attributes": {
@@ -79,7 +80,7 @@ Create the following `JSON` files in an editor:
     },
     {
       "key": "DemoType/SampleTypeA/2",
-      "event_type": "SampleTypeA",
+      "event_type_name": "SampleTypeA",
       "start_time": "2026-002T00:00:00Z",
       "duration": "01:00:00",
       "attributes": {
@@ -88,7 +89,7 @@ Create the following `JSON` files in an editor:
     },
     {
       "key": "DemoType/SampleTypeA/3",
-      "event_type": "SampleTypeA",
+      "event_type_name": "SampleTypeA",
       "start_time": "2026-003T12:00:00Z",
       "duration": "03:00:00",
       "attributes": {
@@ -109,9 +110,9 @@ an additional field that specifies the derivation group. For example:
 {
   "source": {
     "key": "External_Events_Demo_00.json",
-    "source_type": "DemoType",
+    "source_type_name": "DemoType",
     "valid_at": "2026-001T00:00:00Z",
-    "derivation_group": "DerivationGroupName",
+    "derivation_group_name": "DerivationGroupName",
     "period": {
       "start_time": "2026-001T00:00:00Z",
       "end_time": "2026-007T00:00:00Z"
@@ -131,7 +132,8 @@ an additional field that specifies the derivation group. For example:
 {
   "source": {
     "key": "External_Events_Demo_01.json",
-    "source_type": "DemoType",
+    "source_type_name": "DemoType",
+    "derivation_group_name": "DemoType Default",
     "valid_at": "2026-004T11:00:00Z",
     "period": {
       "start_time": "2026-004T11:00:00Z",
@@ -144,7 +146,7 @@ an additional field that specifies the derivation group. For example:
   "events": [
     {
       "key": "DemoType/SampleTypeB/1",
-      "event_type": "SampleTypeB",
+      "event_type_name": "SampleTypeB",
       "start_time": "2026-004T12:00:00Z",
       "duration": "01:00:00",
       "attributes": {
@@ -153,7 +155,7 @@ an additional field that specifies the derivation group. For example:
     },
     {
       "key": "DemoType/SampleTypeB/2",
-      "event_type": "SampleTypeB",
+      "event_type_name": "SampleTypeB",
       "start_time": "2026-009T20:00:00Z",
       "duration": "03:00:00",
       "attributes": {

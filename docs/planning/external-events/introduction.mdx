@@ -70,6 +70,12 @@ The need for these became apparent after an exploration of External Events imple
   <figcaption><i>Figure 2: External Events - External Events with resources and activities</i></figcaption>
 </figure>
 
+:::info Note
+
+Currently, External Events are *not* accessible to the procedural constraints engine. However, this is in the planned scope for External Events, and future releases will add this capability
+
+:::
+
 ### External Sources
 **External Sources** represent a collection of External Events. When we upload External Events, we can only do so by uploading them in an External Source.
 
@@ -99,9 +105,13 @@ The `source` field includes the following fields, where **all** are required:
   * Typically a filename or combination of details about the source itself (i.e., an external version number, spacecraft identifier, etc.)
   * **Example**: `ExampleExternalSource:example-external-source.json`
 
-* `type`
-  * Used to classify the External Source, and categorize for grouping/filtering within the UI & Derivation Groups (see [External Source Types](#external-source-types) for more information)
+* `source_type_name`
+  * Used to classify the External Source, categorize for grouping/filtering within the UI & Derivation Groups (see [External Source Types](#external-source-types) for more information), and applying the schema defined for the type to the attributes of the External Source being uploaded (see [Attributes](../external-events-attributes/) for more information)
   * **Example**: `ExampleSourceType`
+
+* `derivation_group_name`
+  * Defines the Derivation Group that this External Source should become a part of once uploaded. See [Derivation](#derivation) for more information.
+  * **Example**: `ExampleSourceType Default`
 
 * `valid_at`
   * Similar to a version number, though it describes at exactly what real-world time a file becomes *valid*
@@ -147,7 +157,7 @@ Events are represented as a set of objects contained in a list, and each event h
   * Currently has no restrictions or requirements
   * **Example**: `ExampleEvent:1/sc/sc1:1:X/1`
 
-* `event_type`
+* `event_type_name`
   * Used to classify the External Event, and categorize for grouping/filtering within the UI & Derivation Groups (see [External Event Types](#external-event-types) for more information)
   * **Example**: `GroundContact`
 
@@ -257,7 +267,8 @@ The example represents a week-long weather forecast where each event is the repo
 {
     "source": {
         "key": "WEATHER_2024001_2024008_IDEAL.V00.json",
-        "source_type": "Weather",
+        "source_type_name": "Weather",
+        "derivation_group_name": "Weather Default",
         "valid_at": "2024-001T00:00:00Z",
         "period": {
             "start_time": "2024-001T00:00:00Z",
@@ -272,7 +283,7 @@ The example represents a week-long weather forecast where each event is the repo
     "events": [
         {
             "key": "W/Day/001",
-            "event_type": "WeatherReport",
+            "event_type_name": "WeatherReport",
             "start_time": "2024-001T00:00:00Z",
             "duration": "24:00:00",
             "attributes": {
@@ -289,7 +300,7 @@ The example represents a week-long weather forecast where each event is the repo
         },
         {
             "key": "W/Day/002",
-            "event_type": "WeatherReport",
+            "event_type_name": "WeatherReport",
             "start_time": "2024-002T00:00:00Z",
             "duration": "24:00:00",
             "attributes": {
@@ -306,7 +317,7 @@ The example represents a week-long weather forecast where each event is the repo
         },
         {
             "key": "W/Day/003",
-            "event_type": "WeatherReport",
+            "event_type_name": "WeatherReport",
             "start_time": "2024-003T00:00:00Z",
             "duration": "24:00:00",
             "attributes": {
@@ -323,7 +334,7 @@ The example represents a week-long weather forecast where each event is the repo
         },
         {
             "key": "W/Day/004",
-            "event_type": "WeatherReport",
+            "event_type_name": "WeatherReport",
             "start_time": "2024-004T00:00:00Z",
             "duration": "24:00:00",
             "attributes": {
@@ -340,7 +351,7 @@ The example represents a week-long weather forecast where each event is the repo
         },
         {
             "key": "W/Day/005",
-            "event_type": "WeatherReport",
+            "event_type_name": "WeatherReport",
             "start_time": "2024-005T00:00:00Z",
             "duration": "24:00:00",
             "attributes": {
@@ -357,7 +368,7 @@ The example represents a week-long weather forecast where each event is the repo
         },
         {
             "key": "W/Day/006",
-            "event_type": "WeatherReport",
+            "event_type_name": "WeatherReport",
             "start_time": "2024-006T00:00:00Z",
             "duration": "24:00:00",
             "attributes": {
@@ -374,7 +385,7 @@ The example represents a week-long weather forecast where each event is the repo
         },
         {
             "key": "W/Day/007",
-            "event_type": "WeatherReport",
+            "event_type_name": "WeatherReport",
             "start_time": "2024-007T00:00:00Z",
             "duration": "24:00:00",
             "attributes": {
