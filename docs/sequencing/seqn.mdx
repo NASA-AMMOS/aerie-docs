@@ -9,7 +9,7 @@ In an operational context, SeqN serves to:
 - present uplink products in a human-readable, easy-to-write format
 - associate additional information with commands/command sequences for ground processes including command modeling and expansion
 
-It is designed to largely have parity with the [SeqJSON format](https://github.com/NASA-AMMOS/seq-json-schema), although it may be translated to any sequence interchange format with similar constructs. This document describes the SeqN syntax in detail and establishes conventional semantics for SeqN/SeqJSON constructs.
+It is designed to largely maintain parity with the [SeqJSON format](https://github.com/NASA-AMMOS/seq-json-schema), although it may be translated to any sequence interchange format with similar constructs. This document describes the SeqN syntax in detail and establishes conventional semantics for SeqN/SeqJSON constructs.
 
 ## Sequencing Concepts
 
@@ -17,11 +17,11 @@ A sequencing language is coupled to the ways a spacecraft can be commanded. SeqN
 
 ### Sequences and Real-time Commanding
 
-SeqN expresses commands in one of two ways: either with or without timing information. A **sequence** is list of commands with timing information for when each command should be executed by Flight Software. In contrast, **real-time commands** are executed as soon as they reach their execution target and lack timing information. Sequence timing is further described in [Time Tags](#time-tags), and two forms of real-time commanding are discussed in [Immediate Commands](#immediate-commands) and [Hardware Commands](#hardware-commands).
+SeqN expresses commands in one of two ways: either with or without timing information. A **sequence** is a list of commands with timing information for when each command should be executed by Flight Software. In contrast, **real-time commands** are executed as soon as they reach their execution target and lack timing information. Sequence timing is further described in [Time Tags](#time-tags), and two forms of real-time commanding are discussed in [Immediate Commands](#immediate-commands) and [Hardware Commands](#hardware-commands).
 
 ### Sequence Engines
 
-Sequencing Flight Software can be capable of executing multiple sequences at once. Each venue for sequence execution is called a **sequence engine**. SeqN supports the concept of an **engine ID** as a numeric identifier for sequence engines. Frequently, an engine ID of -1 is used to indicate "any engine" instead of specifying a particular engine. Sequence engines are principally concerned in the [Load and Activate](#load-and-activate) steps.
+Sequencing Flight Software may be capable of executing multiple sequences at once. Each venue for sequence execution is called a **sequence engine**. SeqN supports the concept of an **engine ID** as a numeric identifier for sequence engines. Frequently, an engine ID of -1 is used to indicate "any engine" instead of specifying a particular engine. Sequence engines are principally involved in the [Load and Activate](#load-and-activate) steps.
 
 ### Ground Modeling
 
@@ -29,11 +29,11 @@ While SeqN is principally a language to express commands for execution onboard a
 
 ## File Structure
 
-SeqN files are newline-delimited lists of directives, directive blocks, and one of steps, immediate commands, or hardware commands. Comments begin with the `#` character and may be used on a full line or inline.
+SeqN files are newline-delimited lists of **directives**, **directive blocks**, and **one of**: steps, immediate commands, or hardware commands. Comments begin with the `#` character and may be used on a full line or inline.
 
 ## Directives and Directive Blocks
 
-Directives and directive blocks are reserved keywords to express special types and metadata in SeqN. The following tables describe the directives and directive blocks available in SeqN, including the scope where each is allowed to be used and links to sections with more information where appropriate. Most directives are scoped to "top-level," meaning they are only used at the top of the SeqN file prior to any commands.
+Directives and directive blocks are reserved keywords to express structured metadata and control constructs in SeqN. The following tables describe the directives and directive blocks available in SeqN, including the scope where each is allowed to be used and links to sections with more information where appropriate. Most directives are scoped to "top-level," meaning they are only used at the top of the SeqN file prior to any commands.
 
 | Directive                                  | Description                                                                                                                                                      | Scope                                                                               |
 | :----------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------- |
@@ -65,7 +65,7 @@ R00:01:00 CMD_CAPTURE_IMAGE 0.067 3 "HI_RES"
 
 ### Load and Activate
 
-The `@LOAD` and `@ACTIVATE` step types are used to invoke another sequence. Both use a function call parentheses syntax to specify the invocable identifier of the sequence being loaded, followed by arguments (see [Arguments](#arguments)). And engine ID and sequence epoch may optionally be provided. The invocable identifier generally varies by Flight Software but may be, e.g., the path to the sequence file on the onboard file system.
+The `@LOAD` and `@ACTIVATE` step types are used to invoke another sequence. Both use a function call parentheses syntax to specify the invocable identifier of the sequence being loaded, followed by arguments (see [Arguments](#arguments)). An engine ID and sequence epoch may optionally be provided. The invocable identifier generally varies by Flight Software but may be, e.g., the path to the sequence file on the onboard file system.
 
 These two step types are identical in syntax, but semantically the `@LOAD` step loads the sequence into the engine without beginning execution, whereas `@ACTIVATE` loads and executes the sequence as fast as possible.
 
@@ -113,7 +113,7 @@ A SeqN file, by default, enumerates the steps of a single sequence. Under condit
 
 A request is a construct to group steps, generally used to accomplish a particular mission-relevant goal. Requests may be merged or otherwise mutated by sequence build tools. For example, multiple requests authored by different mission stakeholders may be merged into a single sequence product.
 
-A SeqN file can contain zero or more requests, as specified using a request directive block. Lines within the request block begin and end directives are interpreted as steps belonging to the request. Each request requires a string name and may include `@METADATA` directives following the request end directive to specify arbitrary metadata.
+A SeqN file can contain zero or more requests, as specified using a request directive block. Lines within the request block between the begin and end directives are interpreted as steps belonging to the request. Each request requires a string name and may include `@METADATA` directives following the request end directive to specify arbitrary metadata.
 
 Requests may be combined with regular sequence steps.
 
@@ -170,7 +170,7 @@ A SeqN sequence can contain arbitrary metadata belonging to any of the full sequ
 
 C CMD_NOOP
 @METADATA "step_level_key" "value"
-# Applies to the preceding commmand
+# Applies to the preceding command
 
 C @REQUEST_BEGIN("request.name")
   C CMD_NOOP
@@ -187,7 +187,7 @@ Ground simulators which execute sequence files may accept special instructions t
 
 ## Arguments
 
-Arguments to commands and sequences are whitespace-delimited positional lists of literals and symbols. Symbols may be declared local variables, declared input parameters, or global symbols. SeqN supports the following
+Arguments to commands and sequences are whitespace-delimited positional lists of literals and symbols. Symbols may be declared local variables, declared input parameters, or global symbols. SeqN supports the following argument types:
 
 ### Numeric Arguments
 
@@ -219,7 +219,7 @@ C RADIO_POWER "RADIO_ONE" "ENABLE"
 
 Repeat arguments are flat, square-bracketed lists of the repeated arguments separated by whitespace.
 
-The number of arguments contained in the brackets must be a multiple of the expected number of repeat arguments, as specified in the dictionary. They must have opening and closing brackets even if the argument is empty.
+The number of arguments contained in the brackets must be a multiple of the expected number of repeat arguments, as specified in the dictionary. Repeat arguments must include brackets even if the argument is empty.
 
 ```
 R00:00:01 DDM_DMP_EHA_HISTORY ["AVS" 0 0] 0
@@ -229,7 +229,7 @@ R00:00:01 DDM_UPDATE_NUM_TSR 0 "AVS" 1 "ALWAYS" "5 seconds" [] "RT_REC" "LOW" [ 
 
 ### Symbol Arguments
 
-For Sequencing Flight Software which allows the usage of variables in place of argument literals, SeqN supports "symbol"-type arguments. These argument values are simply the simple name, unquoted, used as a positional argument. The name of the variable may be a declared local/input parameter (see [Sequence Variables](#sequence-variables)) or a global variable name. Symbols names must begin with an ASCII letter (A-Z, a-z) and may contain ASCII letters, digits 0-9, underscores, and hyphens.
+For Sequencing Flight Software which allows the usage of variables in place of argument literals, SeqN supports "symbol"-type arguments. These argument values are just the name of the symbol, unquoted, used as a positional argument. The name of the variable may be a declared local/input parameter (see [Sequence Variables](#sequence-variables)) or a global variable name. Symbol names must begin with an ASCII letter (A-Z, a-z) and may contain ASCII letters, digits (0-9), underscores, and hyphens.
 
 ```
 @INPUT_PARAMS_BEGIN
@@ -247,13 +247,13 @@ Steps can be timed in several different ways. A SeqN step time tag begins with o
 
 Absolute time tags specify a UTC time when the step should be executed.
 
-Time value format: `<YYY>-<DDD>T<HH>:<MM>:<SS>[.<sss>]`
+Time value format: `<YYYY>-<DDD>T<HH>:<MM>:<SS>[.<sss>]`
 
 - `A2030-125T00:30:30`
 
 ### `R`: Relative
 
-Relative time tags specify a duration from the previous step's start at which to execute the given step. Command relative times are unsigned and are by definition always positive.
+Relative time tags specify a duration from the previous step's start at which to execute the given step. Command relative times are unsigned and always positive.
 
 Time value format: `[<DDD>T]<HH>:<MM>:<SS>[.<sss>]` or number of seconds
 
@@ -267,7 +267,7 @@ Examples:
 
 Epoch-relative times specify a duration before or after a parameterized sequence epoch to dispatch the command. In order for these time tags to be evaluated, an onboard epoch with a value known by Sequencing Flight Software must be passed during sequence invocation.
 
-Epoch relative times are signed and can be positive or negative. The "days" component may only be included for durations greater than one day.
+Epoch-relative times are signed and can be positive or negative. The "days" component may only be included for durations greater than one day.
 
 Time value format: `[+|-][<DDD>T]<HH>:<MM>:<SS>[.<sss>]` or number of seconds
 
@@ -282,7 +282,7 @@ Examples:
 
 ### `B`: Block-Relative
 
-Block-relative times specify a duration before or after the start time of the current "block" at which the command should execute. In the context of sequence steps, the "block" refers to the sequence. In the context of requests, the "block" refers to the request. Block relative times are signed and can be positive or negative. The "days" component may only be included for durations greater than one day.
+Block-relative times specify a duration before or after the start time of the current "block" at which the command should execute. In the context of sequence steps, the "block" refers to the sequence. In the context of requests, the "block" refers to the request. Block-relative times are signed and can be positive or negative. The "days" component may only be included for durations greater than one day.
 
 Time value format: `[+|-][<DDD>T]<HH>:<MM>:<SS>[.<sss>]` or number of seconds
 
@@ -297,7 +297,7 @@ Examples:
 
 ### `C`: Command Completion
 
-The only non-deterministic timing type, command completion waits to execute the current step after the previous step has been completed (according to some criteria known to the sequencing software).
+This is the only non-deterministic timing type - it executes the current step once the *previous step has been completed*, according to some criteria known to the sequencing software.
 
 - `C`
 
