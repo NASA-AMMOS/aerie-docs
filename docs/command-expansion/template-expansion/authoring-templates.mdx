@@ -122,9 +122,17 @@ The actual compilation of templates is discussed in [Expanding Templates](../exp
 We also introduce with Handlebars formatting the notion of helpers. Helper functions (discussed in the Handlebars documentation [here](https://handlebarsjs.com/guide/builtin-helpers.html)), allow a user to invoke a function with arguments and produce a result in the template.
 Aerie defines 4 helpers for use in templates. User-defined helpers are not yet supported, so only these 4 are available at the moment.
 
+Template helpers for times output according to the configured language. The time formats for the supported languages are:
+
+| Language | Format                         |
+| :------- | :----------------------------- |
+| STOL     | `YYYY-DDD/HH:MM:SS[.sss]`      |
+| SeqN     | `YYYY-DDDTHH:MM:SS[.sss[sss]]` |
+| Text     | ISO8601                        |
+
 ### `add-time`
 
-This helper allows a user to compute a new time string (that is either STOL or SeqN compatible) from an existing one, and a duration to be added to that time. For example:
+This helper allows a user to compute a new time string from an existing one and a duration to be added to that time. For example:
 
 **Input**
 
@@ -158,7 +166,7 @@ A2024-001T01:00:00
 
 ### `subtract-time`
 
-This helper allows a user to compute a new time string (that is either STOL or SeqN compatible) from an existing one, and a duration to be subtracted from that time. For example:
+This helper allows a user to compute a new time string from an existing one and a duration to be subtracted from that time. For example:
 
 **Input**
 
@@ -191,7 +199,8 @@ A2023-365T23:00:00
 ```
 
 ### `format-as-date`
-This helper allows a user to format a date-like string input in the date format defined in the target sequencing language. For example, if I want STOL-like dates (which use `/` instead of a `T`, and include the time zone abbreviation) but my input is:
+
+This helper formats a time value such as activity start time into the correct format for the template's specified sequencing language. For example, given a template configured for STOL, the start time may be formatted as follows:
 
 **Input**
 
@@ -202,15 +211,11 @@ This helper allows a user to format a date-like string input in the date format 
 }
 ```
 
-then I can write my template as:
-
 **Template**
 
 ```
 CMD AT={{ format-as-date startTime }}
 ```
-
-which provides me with:
 
 **Result**
 
