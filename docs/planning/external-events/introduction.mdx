@@ -133,10 +133,11 @@ The `source` field includes the following fields:
       ...
     ```
 
-* `attributes` (required)
+* `attributes` (optional)
   * An object that includes additional data relevant to the External Source in question.
-  * Must follow the schema as defined by the External Source Type
+  * In order for an External Source to have attributes, its source type must define a schema for those attributes.
   * For a Weather Forecast file, this may include details about the location, which version this file is, and notes about what changed between this version and the last.
+  * The `attributes` key can be omitted for sources whose type has no attributes.
   * ***Example***
     ```json
     ...,
@@ -152,28 +153,28 @@ The `source` field includes the following fields:
 
 Events are represented as a set of objects contained in a list, and each event has the following fields:
 
-* `key`
+* `key` (required)
   * Unique identifier for the External Event
     * Uniqueness is required within the External Source, but **not** across different External Sources. For more information, see [derivation](#derivation)
-  * Currently has no restrictions or requirements
   * **Example**: `ExampleEvent:1/sc/sc1:1:X/1`
 
-* `event_type_name`
+* `event_type_name` (required)
   * Used to classify the External Event, and categorize for grouping/filtering within the UI & Derivation Groups (see [External Event Types](#external-event-types) for more information)
   * **Example**: `GroundContact`
 
-* `start_time`
+* `start_time` (required)
   * Specifies the start time of the External Event within simulation/plan time
   * **Example**: `2022-001T00:00:00Z`
 
-* `duration`
+* `duration` (required)
   * Specifies how long the External Event lasts in simulation/plan time (represented in `HH:MM:SS`)
-  * This value may be 0 to represent an instantaneous event (ex: time of sunrise/sunset)
+  * This value may be `00:00:00` to represent an instantaneous event (ex: time of sunrise/sunset)
   * **Example**: `00:30:00`
 
-* `attributes`
+* `attributes` (optional)
   * Similar to attributes for External Sources, this property lists various characteristics of a given event not directly implied by the above fields' values.
   * Must follow the schema as defined by the External Event Type
+  * If the External Event Type does not define an attributes schema, this key may be omitted.
   * For a Weather Forecast file, a given event may require properties detailing the likelihood of precipitation, or the wind speed.
   * **Example:**
     ```json
@@ -187,7 +188,7 @@ Events are represented as a set of objects contained in a list, and each event h
 
 ##### Full External Source & Event Types Example
 
-The following is a full example of a valid, `JSON` representation of an External Source Type and External Event Type. The type definitions **must** be uploaded to Aerie *prior* to attempting to use them in an External Source and/or External Event(s)!
+The following is a full example of a valid, `JSON` representation of an External Source Type and External Event Type. The type definitions must be uploaded to Aerie prior to attempting to use them in an External Source and/or External Event(s).
 
 The example represents the definitions for a weather forecast source & event.
 
@@ -406,7 +407,7 @@ The example represents a week-long weather forecast where each event is the repo
 ```
 :::info Note
 
-Currently, External Sources only accept a `start_time` and an `end_time`, whereas External Events accept only a `start_time` and a `duration`. This is largely due to simplicity in implementation.
+External Sources expect a `start_time` and an `end_time`, whereas External Events expect a `start_time` and a `duration`.
 
 :::
 
@@ -581,24 +582,24 @@ The External Source Manager page handles the uploading & inspection of External 
   <figcaption><i>Figure 8: External Source Manager</i></figcaption>
 </figure>
 
-#### Creating External Source Types and External Event Types
-While derivation groups are automatically created when a user uploads a source file (detailed below), External Source and Event Types require special handling, as they specify allowable attributes as well.
+#### Defining External Source Types and External Event Types
+In order to use attributes in External Sources or Events, the corresponding Source and Event Type schemas must first be defined in a schema file. You can find more about the structure of schema files [here](../external-events-attributes).
 
-To create these types, navigate to the `Types` tab in the External Source Manager.
+To upload a schema file, navigate to the `Types` tab in the External Source Manager.
 
 <figure>
   <img alt="Figure 9: External Source and Event Types Page" src={externalSourceManagerTypesPage} />
   <figcaption><i>Figure 9: External Source and Event Types Page</i></figcaption>
 </figure>
 
-Here, the existing types can be inspected for their contents. Most interestingly, we can discern what attributes are available for a given type. Here, we see the `Weather` source type has 3 attributes: `version` (a number), `location` (a string), and `changelog` (a string).
+Use the left pane to upload a new schema file.
+
+This page displays all of the types that have been defined and the attributes they have. Here, we see the `Weather` source type has three attributes: `version` (a number), `location` (a string), and `changelog` (a string).
 
 <figure>
   <img alt="Figure 10: Detail on a given External Source Type" src={externalSourceManagerTypesExpanded} />
   <figcaption><i>Figure 10: Detail on a given External Source Type</i></figcaption>
 </figure>
-
-To create any of these sources, a user must upload a [JSON Schema](https://json-schema.org/learn/getting-started-step-by-step) to AERIE. We go in depth on how to write these schemas [here](../external-events-attributes).
 
 #### Uploading an External Source
 The main view allows users to upload External Sources. Most of these fields autofill and are immutable once parsed - except the Derivation Group which will be autofilled in the style of `external_source_type Default`, but can be edited by the user before upload.
