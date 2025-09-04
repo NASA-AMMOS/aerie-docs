@@ -1,8 +1,8 @@
 # External Event and Source Attributes
 
-This page describes the format for files describing External Source Types and External Event Types. These files detail the allowed attributes that each of these components are required and allowed to have (i.e. the attributes defined in a file, and only those, are eligible to be included in a definition). 
+This page describes the format for files that define External Source Types and External Event Types. These files detail the attributes that External Sources and External Events corresponding to those types are required or allowed to have. Any additional attributes not specified in these files will be rejected.
 
-Both External Source Types and External Event Types can be detailed in the same file, which has the following general outline:
+Both External Source Types and External Event Types can be defined in the same file, which has the following general outline:
 
 ```json
 {
@@ -27,13 +27,12 @@ Both External Source Types and External Event Types can be detailed in the same 
 }
 ```
 
-Any number of source and event types can be provided in a given file. **At present, there is no explicit tying of external event and source types. That is, a given source type doesn't specify what event types are legal to be included yet.**
-
-We will now elaborate on the details of the actual event and source types, to make it clear how to define allowable/required attributes. In any case, a review of [JSON Schema](https://json-schema.org/learn/getting-started-step-by-step) would be instrumental in making sense of the following sections.
+Any number of source and event types can be provided in a given file. Note that any source can contain events of any type.
 
 ## External Types
+The full structure of External Source and Event types is detailed below. These are defined as nested JSON Schemas. Refer to JSON Schema docs [here](https://json-schema.org/learn/getting-started-step-by-step).
 
-An external source type definition might look like the following:
+This is an example of an **External Source Type** definition, nested within `source_types`:
 
 ```json
 ...
@@ -58,9 +57,9 @@ An external source type definition might look like the following:
 }
 ```
 
-This is an example of an object nested within `source_types`, and describes the attributes allowed for a `Weather` source. In this file, following JSON Schema syntax, the attributes of a `Weather` object are described - we desire an object, with 3 required fields: `location` (a string), `version` (a number), and `changelog` (a string). Additional JSON Schema functionality can be added to these properties as well, like a `pattern` specification, which restricts strings for a give field to follow a regex. These objects also bear an implied `additionalProperties: false`, meaning only these properties can be provided; any extras will be rejected.
+ In this file, following JSON Schema syntax, the attributes of a `Weather` Source are described - it must be an object, with 3 required fields: `location` (a string), `version` (a number), and `changelog` (a string). No other attributes will be allowed. Additional JSON Schema functionality can be added to these properties as well, like a `pattern` specification, which restricts strings for a given field to follow a regex.
 
-Event type attribute specifications function similarly:
+**External Event Type** attribute specifications function similarly:
 
 ```json
 "WeatherReport": {
@@ -70,24 +69,24 @@ Event type attribute specifications function similarly:
         "daily_high": {
             "type": "object",
             "properties": {
-            "value": {
-                "type": "number"
-            },
-            "units": {
-                "type": "string"
-            }
+                "value": {
+                    "type": "number"
+                },
+                "units": {
+                    "type": "string"
+                }
             },
             "required": ["units", "value"]
         },
         "daily_low": {
             "type": "object",
             "properties": {
-            "value": {
-                "type": "number"
-            },
-            "units": {
-                "type": "string"
-            }
+                "value": {
+                    "type": "number"
+                },
+                "units": {
+                    "type": "string"
+                }
             },
             "required": ["units", "value"]
         },
@@ -98,7 +97,7 @@ Event type attribute specifications function similarly:
 }
 ```
 
-For completeness, we can show that a complete file then looks like the following:
+A complete file looks like the following:
 
 ```json
 {
@@ -161,4 +160,4 @@ For completeness, we can show that a complete file then looks like the following
 }
 ```
 
-As can be seen, nested objects are very much fair play in these attribute definitions. The primary requirement is an adherence to JSON Schema syntax. Should a planner fail to do so in creating one of these files, they will be met with a rejection from AERIE as well as a specification of where their attribute specification was wrong.
+Note that this structure provides the full expressiveness of JSON Schema syntax, allowing users to define attributes as simple primitives or complex nested structures.
