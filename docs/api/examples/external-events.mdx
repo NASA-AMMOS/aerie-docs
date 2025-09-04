@@ -1,6 +1,3 @@
-import uploadExternalSourceEventTypes from '../assets/external-events-uploadExternalSourceEventTypes.png';
-import uploadExternalSource from '../assets/external-events-uploadExternalSource.png';
-
 # External Events
 
 Refer to [External Events](../../../planning/external-events/introduction) for more information on External Events & Sources.
@@ -10,11 +7,7 @@ External Events & their respective External Sources utilize routes located on [`
 
 
 ### Creating External Source & Event Types
-Users should use the following `aerie-gateway` route to upload their "types" file:
-<figure>
-  <img alt="Request headers & body for the 'uploadExternalSourceEventTypes' route" src={uploadExternalSourceEventTypes} />
-  <figcaption>Request headers & body for the 'uploadExternalSourceEventTypes' route</figcaption>
-</figure>
+Users should use the `/uploadExternalSourceEventTypes` route in `aerie-gateway` to upload their "types" file.
 
 When uploading through Aerie's UI, External Source & Event types are packaged together in a single `JSON` file which adheres to the meta-schema defined [here](https://github.com/NASA-AMMOS/aerie-gateway/blob/develop/src/schemas/external-event-validation-schemata.ts). **However**, the Gateway route accepts the content of the two top-level fields (`event_types` and `source_types`) separately as the request body.
 
@@ -73,17 +66,13 @@ Uploading a simple definition of a single External Source Type (`ExampleSource`)
 ```
 
 ### Creating an External Source
-Users should use the following `aerie-gateway` route to upload their External Sources file:
-<figure>
-  <img alt="Request headers & body for the 'uploadExternalSource' route" src={uploadExternalSource} />
-  <figcaption>Request headers & body for the 'uploadExternalSource' route</figcaption>
-</figure>
+Users should use the `uploadExternalSource` route in `aerie-gateway` to upload their External Sources file.
 
 When uploading through Aerie's UI, the External Source & it's contained External Events are packaged together in a single `JSON` file which adheres to the meta-schema defined [here](https://github.com/NASA-AMMOS/aerie-gateway/blob/develop/src/schemas/external-event-validation-schemata.ts). A `derivation_group_name` can be passed in as an argument with the request which will override any value for `derivation_group_name` in the External Source. This argument can be ignored if there is a value for `derivation_group_name` in the External Source.
 
 :::info Note
 
-In order to upload an External Source, the **External Source Type** and **External Event Type** **must** exist. For uploading types, see [above](#creating-external-source--event-types).
+In order to upload an External Source, the **External Source Type** and **External Event Type** must exist. For uploading types, see [above](#creating-external-source--event-types).
 
 :::
 
