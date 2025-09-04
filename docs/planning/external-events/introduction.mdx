@@ -97,28 +97,29 @@ There are two parts to each External Source: 1) a `source` header and 2) a colle
 
 ##### Source
 
-The `source` field includes the following fields, where **all** are required:
+The `source` field includes the following fields:
 
-* `key`
+* `key` (required)
   * Unique identifier for the External Source
   * Uniqueness must hold across the **Derivation Group** that it is a a part of
   * Typically a filename or combination of details about the source itself (i.e., an external version number, spacecraft identifier, etc.)
   * **Example**: `ExampleExternalSource:example-external-source.json`
 
-* `source_type_name`
+* `source_type_name` (required)
   * Used to classify the External Source, categorize for grouping/filtering within the UI & Derivation Groups (see [External Source Types](#external-source-types) for more information), and applying the schema defined for the type to the attributes of the External Source being uploaded (see [Attributes](../external-events-attributes/) for more information)
   * **Example**: `ExampleSourceType`
 
-* `derivation_group_name`
+* `derivation_group_name` (optional)
   * Defines the Derivation Group that this External Source should become a part of once uploaded. See [Derivation](#derivation) for more information.
+  * If `derivation_group_name` is omitted in the source file, it will need to be specified on upload.
   * **Example**: `ExampleSourceType Default`
 
-* `valid_at`
+* `valid_at` (required)
   * Similar to a version number, though it describes at exactly what real-world time a file becomes *valid*
   * Can be sorted and ordered like a version number, but additionally provides extreme detail about when it can/should be utilized which plays a key role in [derivation](#derivation)
   * **Example**: `2022-001T00:00:00Z`
 
-* `period`
+* `period` (required)
   * Specifies the exact range of simulation/plan time over which this external source applies.
     * Multiple External Sources of the same External Source Type may cover the same `period`, which is where `valid_at` comes into play - see [derivation](#derivation) for more information
     * Composed of a combination of `start_time` and either `end_time` *or* `duration`
@@ -132,7 +133,7 @@ The `source` field includes the following fields, where **all** are required:
       ...
     ```
 
-* `attributes`
+* `attributes` (required)
   * An object that includes additional data relevant to the External Source in question.
   * Must follow the schema as defined by the External Source Type
   * For a Weather Forecast file, this may include details about the location, which version this file is, and notes about what changed between this version and the last.
@@ -697,11 +698,11 @@ As a final note on the frontend, it is worth briefly detailing what parts of the
 - _External Event options_ - the options in the timeline editor filter.
 
 ## Scheduling Activities from Events
-External events associated with a plan are accessible from the [Procedural Scheduling](../../../scheduling-and-constraints/procedural/introduction/) API, just like resources and activities. This allows users to write scheduling goals which create activities based on the presence (or absence) of external events - for example, "create a downlink activity 5 minutes after the start of every 'DSN Contact' type event".
+External events associated with a plan are accessible from the [Procedural Scheduling](/scheduling-and-constraints/procedural/introduction/) API, just like resources and activities. This allows users to write scheduling goals which create activities based on the presence (or absence) of external events - for example, "create a downlink activity 5 minutes after the start of every 'DSN Contact' type event".
 
-To access events in a procedural goal, you must create an External Events timeline object - see [Timelines: External Events](../../../scheduling-and-constraints/procedural/timelines/basics/external-events/). A full example of a scheduling goal using events can be found on the [Procedural Scheduling Examples](../../../scheduling-and-constraints/procedural/scheduling/examples/#scheduling-based-off-of-external-events) page.
+To access events in a procedural goal, you must create an External Events timeline object - see [Timelines: External Events](/scheduling-and-constraints/procedural/timelines/basics/external-events/). A full example of a scheduling goal using events can be found on the [Procedural Scheduling Examples](/scheduling-and-constraints/procedural/scheduling/examples/#scheduling-based-off-of-external-events) page.
 
-Currently, external events are **not accessible from the [Declarative Scheduling EDSL](http://localhost:3000/aerie-docs/scheduling-and-constraints/declarative/scheduling/introduction/)** - but we may implement support for this in the future.
+Currently, external events are **not accessible from the [Declarative Scheduling EDSL](/scheduling-and-constraints/declarative/scheduling/introduction/)** - but we may implement support for this in the future.
 
 ## What Remains
 Here, we discuss briefly everything that is not currently implemented but that we do plan to in the future.
