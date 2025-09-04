@@ -13,11 +13,11 @@ import externalEventsTutorialTimelineEditor from './assets/external_events_tutor
 import externalEventsTutorialFilterShown from './assets/external_events_tutorial_filter_shown.png';
 
 # Associating the Derivation Group with a Plan
-Now that we have some External Sources uploaded, we can utilize them within a plan to see them on a timeline!
+Now that we have some External Sources uploaded, we can utilize them within a plan to see them on a timeline.
 
 :::caution Note
 
-Prior to creating a plan, a mission model must exist - currently, the mission model is not tied directly to any external event/source features, so any mission model can be used with any external sources/events.
+Prior to creating a plan, a mission model must exist. The mission model is not associated directly with any external source or events, so any mission model can be used with any external sources or events.
 
 :::
 
@@ -36,11 +36,11 @@ Once there, create a new plan with the following parameters:
 
 :::info Note
 
-  The `start` and `end` times are important here, as they are the bounds that contain all the external events in the source we uploaded!
+  The `start` and `end` times are important here, as they are the bounds that contain all the external events in the source we uploaded.
 
 :::
 
-After the plan has been created, select the plan on the table to the right, and then select `Open plan` in the pane on the left. You should be presented with a plan view that resembles the image below:
+After the plan has been created, select the plan in the table to the right, and then select `Open plan` in the pane on the left. You should be presented with a plan view that resembles the image below:
 
 <figure>
   <img alt="The plans page showing an empty timeline" src={externalEventsTutorialPlanSpecificIntroPage} />
@@ -55,9 +55,9 @@ Click the drop-down menu in the top-right (currently on `Activity, Resource, Ext
 This panel tells us that there are no derivation groups currently linked to our plan, meaning the external events we uploaded before are not yet associated with it.
 
 ## Associating the Derivation Group
-Previously we created and uploaded an External Source, however our plan is currently unaware of the source's events. To change this, we need to click `Manage Derivation Groups`, to open the Derivation Group management modal.
+Previously we created and uploaded an External Source, however our plan is not yet associated with the source's events. To change this, we need to click `Manage Derivation Groups`, to open the Derivation Group management modal.
 
-Once here we can now look at all of our available (currently only one) Derivation Groups and select which ones to associate with our plan. Association means that the plan is aware of the fact this Derivation Group exists and is able to use it's events.
+We can now look at all of our available Derivation Groups (currently only one) and select which ones to associate with our plan. Association means that the events from this derivation group can be displayed on the timeline and used in analyses of that plan.
 
 :::info Note
 
@@ -83,7 +83,7 @@ Leaving this modal, it should now be present in the `External Sources` tab on th
 
 On the left-pane, we can see the breakdown of External Event Counts - where the Derivation Group is shown to have **4 derived events** which come from the two sources, `External_Events_Demo_00.json` and `External_Events_Demo_01.json`, that both have **3 raw events** (or, un-derived. The External Event counts on External Sources represent the amount of present in the file itself, with no derivation or filtering applied).
 
-## Creating an External Event timeline row
+## Displaying External Events on the Timeline
 Now that we have a derivation group associated with our plan, we can put those external events on the timeline to visualize them.
 
 First, switch to the `Activity, Resource, & Event Types` tab.
@@ -131,10 +131,4 @@ Clicking the three dots on the bottom right of the layer and then clicking **Edi
 
 External events appear in the same layer type as activities, and as such share options with them inside of the timeline row editor.
 
-[//]: # (There is a single option that is specific to external events: `Group By`. This allows the user to display the external events either as being grouped underneath the their respective external sources, or grouped underneath their respective external event types.)
-
-[//]: # (Additionally, there is an option for external events on the timeline that doesn't appear underneath the timeline editor: enabling/disabling visibility. This allows the user to hide &#40;or un-hide&#41; derivation groups from being drawn on the timeline irrespective of what row or layer they appear on. More information can be found under the [Plan]&#40;../../../planning/external-events/introduction/#plan&#41; section of the main External Events documentation.)
-
-[//]: # (Examples of the two different `Group By` modes, as well as visibility enable/disable can be seen in the [Plan]&#40;../../../planning/external-events/introduction/#plan&#41; section of the main External Events documentation.)
-
-With a Derivation Group associated to our plan, we can now run scheduling goals that incorporate External Events!
+With a Derivation Group associated with our plan, we can now run scheduling goals that incorporate External Events!

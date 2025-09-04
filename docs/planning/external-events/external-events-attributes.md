@@ -160,4 +160,4 @@ A complete file looks like the following:
 }
 ```
 
-Note that this structure provides the full expressiveness of JSON Schema syntax, allowing users to define attributes as simple primitives or complex nested structures.
+Note that this structure provides the full expressiveness of JSON Schema syntax, allowing users to define attributes as simple primitives or complex nested structures. The full meta-schema used to validate schema files can be found [here](https://github.com/NASA-AMMOS/aerie-gateway/blob/develop/src/schemas/external-event-validation-schemata.ts).

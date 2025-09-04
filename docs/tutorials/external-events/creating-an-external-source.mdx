@@ -1,9 +1,11 @@
 import externalEventsOverlappingSources from './assets/external_events_overlapping_sources.png';
 
-# Creating External Source & Event Types
-Before creating an External Source, we must define the Source & Event types that our External Source will use. The files we create will define 1) the name of the type and 2) the schema for the type's `attributes`. These files make use of the [JSON Schema](https://json-schema.org/) format and are additionally constrained by a [meta-schema](https://github.com/NASA-AMMOS/aerie-gateway/blob/develop/src/schemas/external-event-validation-schemata.ts).
+# Creating an External Source
 
-Create the following `JSON` file in an editor:
+## Prerequisite: Creating External Source & Event Types
+Before creating an External Source, we must [define the Source & Event types](/planning/external-events/external-events-attributes) that our External Source will use. The files we create will define 1) the name of the type and 2) the schema for the type's `attributes`. These files make use of the [JSON Schema](https://json-schema.org/) format.
+
+Create the following `JSON` file:
 
 `External_Types_Schema.json`:
 ```json
@@ -42,15 +44,15 @@ Create the following `JSON` file in an editor:
 }
 ```
 
-# Creating an External Source
-We are going to manually create two External Sources and upload them to Aerie. They will be slightly staggered in the times they cover to help us later in illustrating how derivation works.
+## Creating an External Source
+We are going to manually create two External Source json files, and in the next section we will upload them to Aerie. The Sources will be slightly staggered in the times they cover to help us later in illustrating how derivation works.
 
 <figure>
   <img alt="Diagram of the two source's overlapping time ranges" src={externalEventsOverlappingSources} />
   <figcaption><i>Diagram of the two source's overlapping time ranges</i></figcaption>
 </figure>
 
-Create the following `JSON` files in an editor:
+Create the following `JSON` files:
 
 `External_Events_Demo_00.json`:
 ```json
@@ -100,33 +102,6 @@ Create the following `JSON` files in an editor:
 }
 ```
 
-:::info Note
-
-This particular format applies to external sources being uploaded via the user interface. _If_ uploading by other means
-(like the CLI, or manually uploading to the `/uploadExternalSource` endpoint), make sure to include in the source header
-an additional field that specifies the derivation group. For example:
-
-```json
-{
-  "source": {
-    "key": "External_Events_Demo_00.json",
-    "source_type_name": "DemoType",
-    "valid_at": "2026-001T00:00:00Z",
-    "derivation_group_name": "DerivationGroupName",
-    "period": {
-      "start_time": "2026-001T00:00:00Z",
-      "end_time": "2026-007T00:00:00Z"
-    },
-    "attributes": {
-      "SourceExampleAttribute": "this is an example attribute"
-    }
-  },
-  ...
-}
-```
-
-:::
-
 `External_Events_Demo_01.json`:
 ```json
 {
@@ -166,12 +141,12 @@ an additional field that specifies the derivation group. For example:
 }
 ```
 
-We are now ready to upload our test External Source files to Aerie!
-
 :::info Note
 
-In each of these files, the exact formatting of the `key` field is currently not important.
+The exact formatting of the `key` property is not important.
 
 :::
+
+We are now ready to upload our test External Source files to Aerie!
 
 More details can be found in the [External Events](../../../planning/external-events/introduction) section.

@@ -3,7 +3,7 @@ import schedulingGoalModal from './assets/scheduling_goal_modal.png';
 import schedulingGoalResult from './assets/scheduling_goal_result.png';
 
 # Creating a Scheduling Goal with External Events
-Now that we have a plan with a Derivation Group associated to it, we can create & run procedural scheduling goals that make use of External Events!
+Now that we have a plan with a Derivation Group associated to it, we can create & run procedural scheduling goals that make use of External Events.
 
 :::info Note
 
@@ -19,10 +19,10 @@ The following sections is a partial walk-through of creating a procedural goal w
 
 ## Creating a Scheduling Goal
 
-As a pre-requesite to creating a scheduling goal, follow the `Create a project from the template` steps found in the [procedural scheduling documentation](../../../scheduling-and-constraints/procedural/introduction/).
+As a pre-requisite to creating a scheduling goal, follow the `Create a project from the template` steps found in the [procedural scheduling documentation](../../../scheduling-and-constraints/procedural/introduction/).
 
 ### Example: Scheduling an activity for `SampleTypeA`
-One simple use case for External Events in scheduling goals is tie-ing an activity instance to whenever an External Event occurs. In this example we'll create a goal that creates a new activity for each occurrence of a `SampleTypeA`-typed External Event in the plan.
+One simple use case for External Events in scheduling goals is adding an activity instance whenever an External Event occurs. In this example we'll create a goal that creates a new activity for each occurrence of a `SampleTypeA` External Event in the plan.
 
 With the project initialized, create a new file within `scheduling/src/main/java/scheduling/procedures/` called `DemoSchedulingGoal.java`.
 
@@ -34,7 +34,7 @@ EventQuery sampleTypeAEvents = new EventQuery(null, List.of("Sample Type A"), nu
 
 :::info Note on nulls
 
-The previous `EventQuery` only includes a value for the middle argument, `eventTypes`. A query can also be constructed by passing `Derivation Group(s)` to the first argument of the `EventQuery`, or by passing a list of `Sources` gathered by a `SourceQuery` to the last argument of the `EventQuery`.
+The above `EventQuery` only includes a value for the middle argument, `eventTypes`. Queries can also filter by derivation group using the first argument of the `EventQuery`, or by source using the last argument.
 
 :::
 
@@ -44,14 +44,14 @@ To retrieve the External Events associated with this `EventQuery`, we can use th
 var exampleEvents = plan.events(sampleTypeAEvents).collect();
 ```
 
-Prior to planning our new activity instances, we can simulate the plan and take note of all the existing activity instances:
+Prior to creating our new activity instances, we can simulate the plan and take note of all the existing activity instances:
 
 ```java
 final var simResults = plan.simulate();
 final var existingSpans = simResults.instances();
 ```
 
-Next, we can iterate over all of our collected events and plan activities for them:
+Next, we can iterate over all of our collected events and create a new activity for each one if there isn't a `SampleTypeA` activity there already:
 
 ```java
 for (var currentEvent : exampleEvents) {
@@ -74,13 +74,13 @@ for (var currentEvent : exampleEvents) {
 }
 ```
 
-And finally, add a `plan.commit();` after the loop to finalize your goal!
+And finally, add a `plan.commit();` after the loop to apply the changes.
 
-If we compile & upload this goal, we can associate it with the plan we previously created and once scheduling is run a `BakeBananaBread` activity will be planned at the start of each `SampleTypeA` External Event!
+Compile and upload this goal and associate it with the plan we previously created. After running scheduling, a `BakeBananaBread` activity will be scheduled at the start of each `SampleTypeA` External Event. See [Uploading the Scheduling Goal](#uploading-the-scheduling-goal) for instructions.
 
 ### Example: Scheduling an activity for `SampleTypeA` using attributes
 
-Building on the above example, you may want to constrain your goal to only plan activity instances on the `SampleTypeA` External Events that have their `EventExampleAttribute` attribute set to `1`. The previous example gathers the `EventExampleAttribute` for use with the `tbSugar` arugment on the `BakeBananaBread` activity but instead we could use it in the `for` loop to filter the External Events we're using for planning:
+Building on the above example, you may want to constrain your goal to only plan activity instances on the `SampleTypeA` External Events that have their `EventExampleAttribute` attribute set to `1`. The previous example gathers the `EventExampleAttribute` for use with the `tbSugar` argument on the `BakeBananaBread` activity but instead we could use it in the `for` loop to filter the External Events we're using for planning:
 
 ```java
 for (var currentEvent : exampleEvents) {
@@ -176,9 +176,9 @@ After the goal has been created and saved, it must be compiled following the ste
 ./gradlew :scheduling:buildAllProceduralSchedulingJars
 ```
 
-Afterwards, a `DemoSchedulingGoal.jar` should be created in `$project/scheduling/build/libs/`!
+Afterwards, a `DemoSchedulingGoal.jar` should be created in `$project/scheduling/build/libs/`.
 
-In the Aerie UI, navigate back to the plan view for our previously created plan and swap the top-left drop-down menu to the `Scheduling Goals` tab. From there, click `Manage Goals` and then the `New` button to be directed to creating/uploading a new scheduling goal.
+In the Aerie UI, navigate back to the plan view for our previously created plan and select `Scheduling Goals` from the top-left drop-down menu. From there, click `Manage Goals` and then the `New` button to be directed to creating/uploading a new scheduling goal.
 
 <figure>
   <img alt="Opening the scheduling goal management modal" src={schedulingGoalModal} />
