@@ -7,45 +7,23 @@ External Events & their respective External Sources utilize routes located on [`
 
 
 ### Creating External Source & Event Types
-Users should use the `/uploadExternalSourceEventTypes` route in `aerie-gateway` to upload their "types" file.
+To upload schemas for External Sources and Events, users should POST to the `/uploadExternalSourceEventTypes` route in `aerie-gateway`.
 
-When uploading through Aerie's UI, External Source & Event types are packaged together in a single `JSON` file which adheres to the meta-schema defined [here](https://github.com/NASA-AMMOS/aerie-gateway/blob/develop/src/schemas/external-event-validation-schemata.ts). **However**, the Gateway route accepts the content of the two top-level fields (`event_types` and `source_types`) separately as the request body.
+The body of the request should be a JSON object with this structure:
 
-Uploading a simple definition of a single External Source Type (`ExampleSource`) and a single External Event Type (`ExampleEvent`) should yield the following response:
-
-**Example Input**
-
-`event_types`
-```json
+```
 {
-  "ExampleEvent": {
-    "type": "object",
-    "properties": {
-      "example": {
-        "type": "string"
-      }
-    },
-    "required": [ "example" ]
-  }
+  event_types: "{\"ExampleEvent\":{\"type\":\"object\" ... \}\}"
+  source_types: "{\"ExampleSource\":{\"type\":\"object\" ... \}\}"
 }
 ```
 
-`source_types`
-```json
-{
-  "ExampleSource": {
-    "type": "object",
-    "properties": {
-      "example": {
-        "type": "string"
-      }
-    },
-    "required": [ "example" ]
-  }
-}
-```
+The values of `event_types` and `source_types` **must be encoded JSON strings** (not objects) containing the schemas for your External Event
+and Source Types (either or both). The structure of these schemas is defined on the [External Event and Source Attributes](/planning/external-events/external-events-attributes/)
+page. **Note** that this differs from the file structure expected to be uploaded via the UI, which is a combined flat JSON structure.
 
-**Example Output**
+Uploading a definition of a single External Source Type (`ExampleSource`) and a single External Event Type (`ExampleEvent`) should yield the following response:
+
 ```json
 {
   "createExternalEventTypes": {
@@ -66,7 +44,12 @@ Uploading a simple definition of a single External Source Type (`ExampleSource`)
 ```
 
 ### Creating an External Source
-Users should use the `uploadExternalSource` route in `aerie-gateway` to upload their External Sources file.
+To upload External Sources, users should POST to the `/uploadExternalSource` route in `aerie-gateway`.
+
+This endpoint expects data provided in [`multipart/form-data` format](https://www.ietf.org/rfc/rfc2388.txt).
+
+
+
 
 When uploading through Aerie's UI, the External Source & it's contained External Events are packaged together in a single `JSON` file which adheres to the meta-schema defined [here](https://github.com/NASA-AMMOS/aerie-gateway/blob/develop/src/schemas/external-event-validation-schemata.ts). A `derivation_group_name` can be passed in as an argument with the request which will override any value for `derivation_group_name` in the External Source. This argument can be ignored if there is a value for `derivation_group_name` in the External Source.
 
