@@ -5,6 +5,7 @@
   <script>
     (function() {
       var path = window.location.pathname.replace(/^\/aerie-docs\/?/, '');
+      if(path.startsWith('/')) { path = path.substring(1); }
       var hash = window.location.hash;
       var search = window.location.search;
       window.location.replace('https://nasa-ammos.github.io/plandev-docs/' + path + search + hash);
